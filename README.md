@@ -1,43 +1,49 @@
-# Next.js on Netlify Platform Starter
+# projctxcel
 
-[Live Demo](https://nextjs-platform-starter.netlify.app/)
+Modern tutoring marketing site + lead capture app for Reception to Year 12, covering SACE, UCAT, and interview prep.
 
-A modern starter based on Next.js 16 (App Router), Tailwind, and [Netlify Core Primitives](https://docs.netlify.com/core/overview/#develop) (Edge Functions, Image CDN, Blob Store).
+## Stack
 
-In this site, Netlify Core Primitives are used both implictly for running Next.js features (e.g. Route Handlers, image optimization via `next/image`, and more) and also explicitly by the user code.
+- Next.js 14+ App Router (TypeScript)
+- Tailwind CSS
+- Framer Motion
+- Convex
+- Postmark email delivery
 
-Implicit usage means you're using any Next.js functionality and everything "just works" when deployed - all the plumbing is done for you. Explicit usage is framework-agnostic and typically provides more features than what Next.js exposes.
+## Getting started
 
-## Deploying to Netlify
+1. Install dependencies:
+   ```
+   npm install
+   ```
+2. Copy env variables:
+   ```
+   cp .env.example .env.local
+   ```
+3. Start Convex dev server:
+   ```
+   npx convex dev
+   ```
+4. Run the Next.js dev server:
+   ```
+   npm run dev
+   ```
 
-Click the button below to deploy this template to your Netlify account.
+## Seeding Convex data
 
-[![Deploy to Netlify](https://www.netlify.com/img/deploy/button.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/netlify-templates/next-platform-starter)
+After `npx convex dev` is running, run the seed mutation in the Convex dashboard:
 
-## Developing Locally
+- Function: `seed`
+- Path: `convex/seed.ts`
 
-1. Clone this repository, then run `npm install` in its root directory.
+This will add sample tutors and testimonials (only once).
 
-2. For the starter to have full functionality locally (e.g. edge functions, blob store), please ensure you have an up-to-date version of Netlify CLI. Run:
+## Environment variables
 
-```
-npm install netlify-cli@latest -g
-```
+See `.env.example` for required variables. If Postmark variables are missing, enquiries are still stored but emails are skipped.
 
-3. Link your local repository to the deployed Netlify site. This will ensure you're using the same runtime version for both local development and your deployed site.
+## Notes & assumptions
 
-```
-netlify link
-```
-
-4. Then, run the Next.js development server via Netlify CLI:
-
-```
-netlify dev
-```
-
-If your browser doesn't navigate to the site automatically, visit [localhost:8888](http://localhost:8888).
-
-## Resources
-
-- Check out the [Next.js on Netlify docs](https://docs.netlify.com/frameworks/next-js/overview/)
+- Tutors coordinate in-person session logistics with families.
+- Pricing is displayed as enquiry-based and varies by tutor and subject.
+- Icons are sourced from Iconmonstr.
