@@ -1,8 +1,6 @@
 "use client";
 
-import { useAction, useMutation } from "convex/react";
 import { FormEvent, useMemo, useState } from "react";
-import { api } from "../convex/_generated/api";
 
 type FormState = {
   name: string;
@@ -30,11 +28,6 @@ export default function EnquiryForm() {
     "idle"
   );
   const [error, setError] = useState<string | null>(null);
-
-  const createEnquiry = useMutation(api.enquiries.create);
-  const sendNotification = useAction(
-    api.enquiryNotifications.sendNotification
-  );
 
   const yearLevels = useMemo(
     () => [
@@ -71,23 +64,23 @@ export default function EnquiryForm() {
 
     setStatus("loading");
     try {
-      await createEnquiry({
-        name: form.name,
-        email: form.email,
-        phone: form.phone || undefined,
-        yearLevel: form.yearLevel,
-        subjects: form.subjects,
-        message: form.message,
+      const response = await fetch("/api/enquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          yearLevel: form.yearLevel,
+          subjects: form.subjects,
+          message: form.message,
+          company: form.company,
+        }),
       });
 
-      await sendNotification({
-        name: form.name,
-        email: form.email,
-        phone: form.phone || undefined,
-        yearLevel: form.yearLevel,
-        subjects: form.subjects,
-        message: form.message,
-      });
+      if (!response.ok) {
+        throw new Error("Failed to send enquiry.");
+      }
 
       setStatus("success");
       setForm(initialState);
