@@ -6,10 +6,10 @@
     "headline": "Head Tutor",
     "bioShort": "Focuses on confidence-first learning and exam stamina for senior students.",
     "bioLong": "Ava tutors specialist maths, methods, and UCAT prep with a calm, structured approach. She works with students on timing strategies, core skill mastery, and personalised revision plans.",
-    "subjects": ["Specialist Maths", "Maths Methods", "UCAT"],
+    "subjects": ["Specialist Maths", "Maths Methods", "Chemistry", "Physics", "English", "UCAT"],
     "yearLevels": ["Year 9", "Year 10", "Year 11", "Year 12"],
     "stats": [
-      { "label": "UCAT percentile", "value": "99th" },
+      { "label": "percentile UCAT", "value": "99th" },
       { "label": "ATAR", "value": "99.95" },
       { "label": "Years tutoring", "value": "7" }
     ],
@@ -20,14 +20,14 @@
     "name": "Nemindu Athukorala",
     "slug": "liam-patel",
     "photoFile": "liam-patel.jpg",
-    "headline": "Chemistry & Biology specialist",
+    "headline": "Head Tutor",
     "bioShort": "Makes complex science simple with clear visuals and structured notes.",
     "bioLong": "Liam supports SACE Chemistry and Biology students with concept maps, practical exam technique, and targeted feedback on past papers.",
     "subjects": ["Chemistry", "Biology"],
     "yearLevels": ["Year 10", "Year 11", "Year 12"],
     "stats": [
-      { "label": "ATAR improvement", "value": "+15" },
-      { "label": "SACE experience", "value": "8 yrs" },
+      { "label": "percentile UCAT", "value": "97th" },
+      { "label": "ATAR", "value": "99.95" },
       { "label": "Tutoring style", "value": "Structured" }
     ],
     "active": true,
@@ -37,7 +37,7 @@
     "name": "Lewis Gilbert",
     "slug": "mia-harper",
     "photoFile": "mia-harper.jpg",
-    "headline": "English & Humanities coach",
+    "headline": "Head Tutor",
     "bioShort": "Helps students craft sharp essays and strong analytical arguments.",
     "bioLong": "Mia focuses on writing fluency, evidence selection, and exam-ready structures for English, Modern History, and Legal Studies.",
     "subjects": ["English", "Modern History", "Legal Studies"],
@@ -51,7 +51,7 @@
     "sortOrder": 3
   },
   {
-    "name": "Noah Wright",
+    "name": "Evan Cox",
     "slug": "noah-wright",
     "photoFile": "noah-wright.jpg",
     "headline": "Physics & Methods tutor",
@@ -68,7 +68,7 @@
     "sortOrder": 4
   },
   {
-    "name": "Zoe Bennett",
+    "name": "Lachie Wang",
     "slug": "zoe-bennett",
     "photoFile": "zoe-bennett.jpg",
     "headline": "Junior literacy specialist",
@@ -85,7 +85,7 @@
     "sortOrder": 5
   },
   {
-    "name": "Ethan Rowe",
+    "name": "Andrew Xu",
     "slug": "ethan-rowe",
     "photoFile": "ethan-rowe.jpg",
     "headline": "UCAT + interview prep",
@@ -102,7 +102,7 @@
     "sortOrder": 6
   },
   {
-    "name": "Isla Nguyen",
+    "name": "Yousif Shibeeb",
     "slug": "isla-nguyen",
     "photoFile": "isla-nguyen.jpg",
     "headline": "Accounting & Business mentor",
@@ -119,7 +119,7 @@
     "sortOrder": 7
   },
   {
-    "name": "Oliver James",
+    "name": "Bal Gilhotra",
     "slug": "oliver-james",
     "photoFile": "oliver-james.jpg",
     "headline": "Legal Studies + Research Projects",
@@ -136,7 +136,7 @@
     "sortOrder": 8
   },
   {
-    "name": "Ruby Sinclair",
+    "name": "Ansen Li",
     "slug": "ruby-sinclair",
     "photoFile": "ruby-sinclair.jpg",
     "headline": "Maths + Science all-rounder",
