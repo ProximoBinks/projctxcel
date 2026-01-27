@@ -4,14 +4,13 @@
     "slug": "lochie-siow",
     "photoFile": "lochie-siow.jpg",
     "headline": "Head Tutor",
-    "bioShort": "2024 Dux of St Peter's College. The results speak for themselves.",
-    "bioLong": "Ava tutors specialist maths, methods, and UCAT prep with a calm, structured approach. She works with students on timing strategies, core skill mastery, and personalised revision plans.",
+    "bioShort": "2025 Dux of St Peter's College. The results speak for themselves.",
     "subjects": ["Specialist Maths", "Maths Methods", "Chemistry", "Physics", "English", "UCAT", "Interview Prep"],
     "yearLevels": ["Year 9", "Year 10", "Year 11", "Year 12"],
     "stats": [
       { "label": "percentile UCAT", "value": "99th" },
       { "label": "ATAR", "value": "99.95" },
-      { "label": "Years tutoring", "value": "7" }
+      { "label": "Med Student", "value": "1st Year" }
     ],
     "active": true,
     "sortOrder": 1
@@ -22,13 +21,12 @@
     "photoFile": "nemindu-athukorala.jpg",
     "headline": "Head Tutor",
     "bioShort": "Makes complex science simple with clear visuals and structured notes.",
-    "bioLong": "Liam supports SACE Chemistry and Biology students with concept maps, practical exam technique, and targeted feedback on past papers.",
     "subjects": ["Maths Methods", "Biology", "Chemistry", "Physics", "English", "UCAT", "Interview Prep"],
     "yearLevels": ["Year 10", "Year 11", "Year 12"],
     "stats": [
       { "label": "percentile UCAT", "value": "97th" },
       { "label": "ATAR", "value": "99.95" },
-      { "label": "Tutoring style", "value": "Structured" }
+      { "label": "Med Student", "value": "1st Year" }
     ],
     "active": true,
     "sortOrder": 2
@@ -38,14 +36,13 @@
     "slug": "lewis-gilbert",
     "photoFile": "lewis-gilbert.jpg",
     "headline": "Head Tutor",
-    "bioShort": "Helps students craft sharp essays and strong analytical arguments.",
-    "bioLong": "Mia focuses on writing fluency, evidence selection, and exam-ready structures for English, Modern History, and Legal Studies.",
-    "subjects": ["English", "Modern History", "Legal Studies"],
+    "bioShort": "2024 Dux of St Peter's College.",
+    "subjects": ["Specialist Maths", "Maths Methods", "Chemistry", "Physics", "Research Project"],
     "yearLevels": ["Year 8", "Year 9", "Year 10", "Year 11", "Year 12"],
     "stats": [
-      { "label": "Essays marked", "value": "500+" },
-      { "label": "Students taught", "value": "80+" },
-      { "label": "Focus", "value": "Clarity" }
+      { "label": "Subject Merits", "value": "5" },
+      { "label": "ATAR", "value": "99.95" },
+      { "label": "Engineering & Maths Student", "value": "2nd Year" }
     ],
     "active": true,
     "sortOrder": 3
@@ -54,13 +51,12 @@
     "name": "Evan Cox",
     "slug": "evan-cox",
     "photoFile": "evan-cox.jpg",
-    "headline": "Physics & Methods tutor",
+    "headline": "English Lit + Art + RP Specialist",
     "bioShort": "Breaks down tricky problems into simple, repeatable steps.",
-    "bioLong": "Noah specialises in physics and maths methods, with a teaching style that blends real-world examples and exam-style practice.",
     "subjects": ["Physics", "Maths Methods"],
     "yearLevels": ["Year 10", "Year 11", "Year 12"],
     "stats": [
-      { "label": "Physics mentor", "value": "6 yrs" },
+      { "label": "ATAR", "value": "99.80" },
       { "label": "Exam prep", "value": "Weekly" },
       { "label": "Avg improvement", "value": "+12" }
     ],
@@ -71,13 +67,12 @@
     "name": "Lachie Wang",
     "slug": "lachie-wang",
     "photoFile": "lachie-wang.jpg",
-    "headline": "Junior literacy specialist",
-    "bioShort": "Builds strong reading and writing foundations for early learners.",
-    "bioLong": "Zoe supports Reception to Year 6 students with phonics, comprehension, and confidence in class assessments.",
+    "headline": "Accounting Specialist",
+    "bioShort": "2025 Dux of Mercedes College.",
     "subjects": ["Literacy", "Creative Writing"],
     "yearLevels": ["Reception", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"],
     "stats": [
-      { "label": "Families supported", "value": "45+" },
+      { "label": "ATAR", "value": "99.75" },
       { "label": "Session style", "value": "Warm" },
       { "label": "Focus", "value": "Foundations" }
     ],
@@ -90,11 +85,10 @@
     "photoFile": "andrew-xu.jpg",
     "headline": "UCAT + interview prep",
     "bioShort": "Delivers high-intensity practice and personalised feedback.",
-    "bioLong": "Ethan runs UCAT preparation and medical interview coaching with a focus on timing, reasoning strategy, and confidence.",
     "subjects": ["UCAT", "Interview Prep"],
     "yearLevels": ["Year 11", "Year 12"],
     "stats": [
-      { "label": "UCAT strategy", "value": "Proven" },
+      { "label": "ATAR", "value": "99.65" },
       { "label": "Mocks", "value": "25+" },
       { "label": "Conversion", "value": "High" }
     ],
@@ -105,15 +99,14 @@
     "name": "Yousif Shibeeb",
     "slug": "yousif-shibeeb",
     "photoFile": "yousif-shibeeb.jpg",
-    "headline": "Accounting & Business mentor",
+    "headline": "Interview Specialist",
     "bioShort": "Brings clarity to SACE Accounting and Business Innovation.",
-    "bioLong": "Isla focuses on practical case studies, formula confidence, and application-based learning for senior students.",
     "subjects": ["Accounting", "Business Innovation"],
     "yearLevels": ["Year 10", "Year 11", "Year 12"],
     "stats": [
-      { "label": "Industry exp.", "value": "5 yrs" },
-      { "label": "SACE focus", "value": "Senior" },
-      { "label": "Approach", "value": "Applied" }
+      { "label": "ATAR", "value": "99.65" },
+      { "label": "Chem + Physics", "value": "A+" },
+      { "label": "Medical Student", "value": "1st Year" }
     ],
     "active": true,
     "sortOrder": 7
@@ -124,13 +117,12 @@
     "photoFile": "bal-gilhotra.jpg",
     "headline": "Legal Studies + Research Projects",
     "bioShort": "Supports analysis-heavy subjects with structure and critical thinking.",
-    "bioLong": "Oliver helps students develop high-scoring responses for Legal Studies, Research Project, and Modern History.",
     "subjects": ["Legal Studies", "Research Project", "Modern History"],
     "yearLevels": ["Year 11", "Year 12"],
     "stats": [
-      { "label": "SACE focus", "value": "Stage 2" },
-      { "label": "Essay coaching", "value": "Focused" },
-      { "label": "Feedback", "value": "Detailed" }
+      { "label": "ATAR", "value": "99.55" },
+      { "label": "Legal Studies", "value": "A+" },
+      { "label": "Research Project", "value": "A+" }
     ],
     "active": true,
     "sortOrder": 8
@@ -141,11 +133,10 @@
     "photoFile": "ansen-li.jpg",
     "headline": "Maths + Science all-rounder",
     "bioShort": "Flexible tutor covering general maths and science across mid years.",
-    "bioLong": "Ruby works with students to build consistency, positive habits, and exam readiness in maths and science.",
     "subjects": ["General Maths", "Science", "Physics"],
     "yearLevels": ["Year 7", "Year 8", "Year 9", "Year 10"],
     "stats": [
-      { "label": "Students taught", "value": "50+" },
+      { "label": "ATAR", "value": "99.40" },
       { "label": "Session format", "value": "In-person" },
       { "label": "Focus", "value": "Confidence" }
     ],
