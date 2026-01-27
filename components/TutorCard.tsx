@@ -23,22 +23,31 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
       className="h-full rounded-2xl border border-slate-200 bg-white shadow-sm"
     >
       <Link href={`/tutors/${tutor.slug}`} className="flex h-full flex-col">
-        <div className="relative h-48 w-full overflow-hidden rounded-t-2xl bg-slate-100">
-          <img
-            src={`/images/tutors/${tutor.photoFile}`}
-            alt={tutor.name}
-            className="h-full w-full object-cover"
-            loading="lazy"
-          />
-        </div>
         <div className="flex h-full flex-col gap-4 p-6">
-          <div>
-            <h3 className="text-xl font-semibold text-slate-950">
-              {tutor.name}
-            </h3>
-            {tutor.headline && (
-              <p className="mt-1 text-sm text-slate-500">{tutor.headline}</p>
-            )}
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+              <img
+                src={`/images/tutors/${tutor.photoFile}`}
+                alt={tutor.name}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="text-xl font-semibold text-slate-950">
+                  {tutor.name}
+                </h3>
+                <img
+                  src="/images/checkmark.png"
+                  alt="Verified"
+                  className="h-4 w-4"
+                />
+              </div>
+              {tutor.headline && (
+                <p className="mt-1 text-sm text-slate-500">{tutor.headline}</p>
+              )}
+            </div>
           </div>
           <p className="text-sm text-slate-600">{tutor.bioShort}</p>
           <div className="mt-auto space-y-3">
