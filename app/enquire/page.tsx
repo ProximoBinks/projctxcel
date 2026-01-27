@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import EnquiryForm from "../../components/EnquiryForm";
 
 export default function EnquirePage() {
@@ -27,7 +28,15 @@ export default function EnquirePage() {
             Complete the form below and we will be in touch shortly.
           </p>
         </div>
-        <EnquiryForm />
+        <Suspense
+          fallback={
+            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+              <p className="text-sm text-slate-600">Loading enquiry form...</p>
+            </div>
+          }
+        >
+          <EnquiryForm />
+        </Suspense>
       </main>
     </div>
   );
