@@ -49,3 +49,4 @@ See `.env.example` for required variables. If Postmark variables are missing, en
 - Icons are sourced from Iconmonstr.
 - Tutor and testimonial content are stored in `data/tutors.json` and `data/testimonials.json`.
 - Tutor headshots should be placed in `public/images/tutors` and referenced by `photoFile`.
+- The conditional enquiry form is available at `/enquire` for QR linking.
