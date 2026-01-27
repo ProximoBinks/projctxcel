@@ -34,8 +34,11 @@ export async function POST(request: Request) {
     );
   }
 
-  if (type !== "student" && type !== "tutor") {
-    return NextResponse.json({ message: "Invalid enquiry type." }, { status: 400 });
+  if (type !== "student" && type !== "tutor" && type !== "general") {
+    return NextResponse.json(
+      { message: "Invalid enquiry type." },
+      { status: 400 }
+    );
   }
 
   if (company) {
@@ -86,6 +89,17 @@ export async function POST(request: Request) {
     if (cvFile.size > fileSizeLimit) {
       return NextResponse.json(
         { message: "CV file is too large (max 5MB)." },
+        { status: 400 }
+      );
+    }
+    const fileNameLower = cvFile.name.toLowerCase();
+    const allowedExtensions = [".pdf", ".docx"];
+    const hasAllowedExtension = allowedExtensions.some((ext) =>
+      fileNameLower.endsWith(ext)
+    );
+    if (!hasAllowedExtension) {
+      return NextResponse.json(
+        { message: "CV must be a PDF or DOCX file." },
         { status: 400 }
       );
     }
@@ -140,34 +154,52 @@ export async function POST(request: Request) {
     },
   });
 
-  const adminLines = [
+  const baseLines = [
     `Type: ${type}`,
     `Name: ${name}`,
     `Email: ${email}`,
     `Phone: ${phone}`,
+    "",
+  ];
+
+  const studentLines = [
     `Year level: ${yearLevel || "Not provided"}`,
     `Target ATAR: ${targetAtar || "Not provided"}`,
     `Subjects: ${subjects || "Not provided"}`,
     `Planned course: ${plannedCourse || "Not provided"}`,
     `Interests: ${interests || "Not provided"}`,
+  ];
+
+  const tutorLines = [
     `Experience: ${experience || "Not provided"}`,
     `Expertise: ${expertise || "Not provided"}`,
     `CV: ${cvFileName || "Not provided"}`,
+  ];
+
+  const generalLines = ["General enquiry"];
+
+  const adminLines = [
+    ...baseLines,
+    ...(type === "student"
+      ? studentLines
+      : type === "tutor"
+      ? tutorLines
+      : generalLines),
     "",
     "Message:",
     message,
   ];
 
   await transporter.sendMail({
-    from: fromEmail,
+    from: `"projctXCEL" <${fromEmail}>`,
     to: toEmail,
     subject: `New projctxcel enquiry - ${name}`,
     text: adminLines.join("\n"),
-    attachments: cvAttachment ? [cvAttachment] : [],
+    attachments: type === "tutor" && cvAttachment ? [cvAttachment] : [],
   });
 
   await transporter.sendMail({
-    from: fromEmail,
+    from: `"projctXCEL" <${fromEmail}>`,
     to: email,
     subject: "Thanks for your enquiry",
     text:

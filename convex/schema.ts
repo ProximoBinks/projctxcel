@@ -30,7 +30,7 @@ export default defineSchema({
     sortOrder: v.number(),
   }).index("by_active_and_sortOrder", ["active", "sortOrder"]),
   enquiries: defineTable({
-    type: v.string(),
+    type: v.optional(v.string()),
     name: v.string(),
     email: v.string(),
     phone: v.optional(v.string()),
@@ -45,7 +45,7 @@ export default defineSchema({
     cvFileName: v.optional(v.string()),
     cvFileType: v.optional(v.string()),
     cvFileSize: v.optional(v.number()),
-    consent: v.boolean(),
+    consent: v.optional(v.boolean()),
     sourcePage: v.optional(v.string()),
     utm: v.optional(
       v.object({

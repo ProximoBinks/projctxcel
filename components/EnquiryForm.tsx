@@ -4,7 +4,7 @@ import { FormEvent, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 type FormState = {
-  type: "" | "student" | "tutor";
+  type: "student" | "tutor" | "general";
   targetAtar: string;
   plannedCourse: string;
   interests: string;
@@ -22,7 +22,7 @@ type FormState = {
 };
 
 const initialState: FormState = {
-  type: "",
+  type: "student",
   targetAtar: "",
   plannedCourse: "",
   interests: "",
@@ -69,11 +69,6 @@ export default function EnquiryForm() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
-
-    if (!form.type) {
-      setError("Please select how we can help.");
-      return;
-    }
 
     if (!form.name || !form.email || !form.phone || !form.consent) {
       setError("Please complete the required contact fields and consent.");
@@ -166,6 +161,7 @@ export default function EnquiryForm() {
           {[
             { value: "student", label: "I am looking for a tutor" },
             { value: "tutor", label: "I am looking to join the team" },
+            { value: "general", label: "General enquiry" },
           ].map((option) => (
             <button
               key={option.value}
@@ -307,10 +303,10 @@ export default function EnquiryForm() {
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            CV upload (PDF/DOC/DOCX)
+            CV upload (PDF/DOCX)
             <input
               type="file"
-              accept=".pdf,.doc,.docx"
+              accept=".pdf,.docx"
               className="input file:mr-4 file:rounded-full file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
               onChange={(event) =>
                 setForm((prev) => ({
@@ -386,7 +382,7 @@ export default function EnquiryForm() {
         <span>
           I agree to be contacted about tutoring services and occasional
           updates/promotions.{" "}
-          <a href="/privacy" className="font-semibold text-indigo-600">
+          <a href="/privacy" target="_blank" className="font-semibold text-indigo-600">
             Privacy Policy
           </a>
         </span>
