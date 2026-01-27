@@ -9,15 +9,15 @@
     "subjects": ["Specialist Maths", "Maths Methods", "UCAT"],
     "yearLevels": ["Year 9", "Year 10", "Year 11", "Year 12"],
     "stats": [
-      { "label": "UCAT percentile", "value": "99%" },
-      { "label": "Students taught", "value": "70+" },
+      { "label": "UCAT percentile", "value": "99th" },
+      { "label": "ATAR", "value": "99.95" },
       { "label": "Years tutoring", "value": "7" }
     ],
     "active": true,
     "sortOrder": 1
   },
   {
-    "name": "Liam Patel",
+    "name": "Nemindu Athukorala",
     "slug": "liam-patel",
     "photoFile": "liam-patel.jpg",
     "headline": "Chemistry & Biology specialist",
@@ -34,7 +34,7 @@
     "sortOrder": 2
   },
   {
-    "name": "Mia Harper",
+    "name": "Lewis Gilbert",
     "slug": "mia-harper",
     "photoFile": "mia-harper.jpg",
     "headline": "English & Humanities coach",
