@@ -47,3 +47,5 @@ See `.env.example` for required variables. If Postmark variables are missing, en
 - Tutors coordinate in-person session logistics with families.
 - Pricing is displayed as enquiry-based and varies by tutor and subject.
 - Icons are sourced from Iconmonstr.
+- Tutor and testimonial content are stored in `data/tutors.json` and `data/testimonials.json`.
+- Tutor headshots should be placed in `public/images/tutors` and referenced by `photoFile`.

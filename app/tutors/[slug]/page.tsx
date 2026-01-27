@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { api } from "../../../convex/_generated/api";
-import { convex } from "../../../lib/convexServer";
+import tutorsData from "../../../data/tutors.json";
 
 type TutorPageProps = {
   params: Promise<{ slug: string }>;
@@ -19,9 +18,7 @@ export async function generateMetadata({
     };
   }
 
-  const tutor = await convex.query(api.tutors.getBySlug, {
-    slug,
-  });
+  const tutor = tutorsData.find((item) => item.slug === slug);
 
   if (!tutor) {
     return {
@@ -42,9 +39,7 @@ export default async function TutorDetailPage({ params }: TutorPageProps) {
     notFound();
   }
 
-  const tutor = await convex.query(api.tutors.getBySlug, {
-    slug,
-  });
+  const tutor = tutorsData.find((item) => item.slug === slug);
 
   if (!tutor) {
     notFound();
@@ -66,9 +61,9 @@ export default async function TutorDetailPage({ params }: TutorPageProps) {
       <main className="mx-auto w-full max-w-5xl px-6 py-16 sm:px-10">
         <div className="grid gap-10 lg:grid-cols-[1fr,1.2fr] lg:items-start">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="aspect-[4/5] overflow-hidden rounded-2xl bg-slate-100">
+            <div className="aspect-4/5 overflow-hidden rounded-2xl bg-slate-100">
               <img
-                src={tutor.photoUrl}
+                src={`/images/tutors/${tutor.photoFile}`}
                 alt={tutor.name}
                 className="h-full w-full object-cover"
               />
