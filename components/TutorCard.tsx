@@ -8,7 +8,7 @@ type TutorStat = { label: string; value: string };
 export type TutorCardData = {
   name: string;
   slug: string;
-  photoUrl: string;
+  photoFile: string;
   headline?: string;
   bioShort: string;
   subjects: string[];
@@ -25,7 +25,7 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
       <Link href={`/tutors/${tutor.slug}`} className="flex h-full flex-col">
         <div className="relative h-48 w-full overflow-hidden rounded-t-2xl bg-slate-100">
           <img
-            src={tutor.photoUrl}
+            src={`/images/tutors/${tutor.photoFile}`}
             alt={tutor.name}
             className="h-full w-full object-cover"
             loading="lazy"

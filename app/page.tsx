@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { useQuery } from "convex/react";
-import { api } from "../convex/_generated/api";
 import MotionInView from "../components/MotionInView";
 import Section from "../components/Section";
 import TutorCard from "../components/TutorCard";
 import EnquiryForm from "../components/EnquiryForm";
 import Icon from "../components/Icon";
 import { useState } from "react";
+import tutorsData from "../data/tutors.json";
+import testimonialsData from "../data/testimonials.json";
 
 const proofPoints = [
   {
@@ -48,8 +48,12 @@ const howItWorks = [
 ];
 
 export default function HomePage() {
-  const tutors = useQuery(api.tutors.listActive) ?? [];
-  const testimonials = useQuery(api.testimonials.listActive) ?? [];
+  const tutors = tutorsData
+    .filter((tutor) => tutor.active)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+  const testimonials = testimonialsData
+    .filter((testimonial) => testimonial.active)
+    .sort((a, b) => a.sortOrder - b.sortOrder);
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
@@ -193,7 +197,7 @@ export default function HomePage() {
         >
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {tutors.map((tutor) => (
-              <TutorCard key={tutor._id} tutor={tutor} />
+              <TutorCard key={tutor.slug} tutor={tutor} />
             ))}
           </div>
         </Section>
@@ -206,7 +210,10 @@ export default function HomePage() {
         >
           <div className="grid gap-6 lg:grid-cols-3">
             {testimonials.map((testimonial, index) => (
-              <MotionInView key={testimonial._id} delay={index * 0.08}>
+              <MotionInView
+                key={`${testimonial.name}-${index}`}
+                delay={index * 0.08}
+              >
                 <div className="h-full rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
                   <Icon name="quote" />
                   <p className="mt-4 text-sm text-slate-600">
