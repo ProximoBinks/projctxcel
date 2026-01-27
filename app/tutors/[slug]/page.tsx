@@ -1,7 +1,23 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import tutorsData from "../../../data/tutors.json";
+import tutorsDataRaw from "../../../data/tutors.json";
+
+type TutorRecord = {
+  name: string;
+  slug: string;
+  photoFile: string;
+  headline?: string;
+  bioShort: string;
+  bioLong?: string;
+  subjects: string[];
+  yearLevels: string[];
+  stats: { label: string; value: string }[];
+  active: boolean;
+  sortOrder: number;
+};
+
+const tutorsData = tutorsDataRaw as TutorRecord[];
 
 type TutorPageProps = {
   params: Promise<{ slug: string }>;
