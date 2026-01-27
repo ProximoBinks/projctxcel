@@ -7,7 +7,7 @@ import Section from "../components/Section";
 import TutorCard from "../components/TutorCard";
 import EnquiryForm from "../components/EnquiryForm";
 import Icon from "../components/Icon";
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import tutorsData from "../data/tutors.json";
 import testimonialsData from "../data/testimonials.json";
 
@@ -281,7 +281,17 @@ export default function HomePage() {
               </div>
             </MotionInView>
             <MotionInView>
-              <EnquiryForm />
+              <Suspense
+                fallback={
+                  <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+                    <p className="text-sm text-slate-600">
+                      Loading enquiry form...
+                    </p>
+                  </div>
+                }
+              >
+                <EnquiryForm />
+              </Suspense>
             </MotionInView>
           </div>
         </Section>
