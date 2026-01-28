@@ -25,4 +25,16 @@
 - [ ] Deploy (Netlify)
 
 ## Nice-to-have
+- [ ] Framer Motion pass:
+  - [ ] Subtle section reveal (fade + 12-20px slide-in)
+  - [ ] Hero headline underline sweep / gradient accent
+  - [ ] CTA button hover + tap micro-interactions
+  - [ ] Tutor cards hover lift + shadow soften
+  - [ ] Testimonial cards staggered entrance
+  - [ ] Enquiry form success message fade-in
+  - [ ] Mobile nav menu slide-down
+- [ ] Animation polish:
+  - [ ] Respect reduced-motion setting
+  - [ ] Keep durations 0.35–0.6s, easeOut
+  - [ ] Avoid scroll-jank / heavy parallax
 - [ ] Simple admin later

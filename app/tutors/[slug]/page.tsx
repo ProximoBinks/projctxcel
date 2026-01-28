@@ -79,9 +79,23 @@ export default async function TutorDetailPage({ params }: TutorPageProps) {
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
             <div className="aspect-4/5 overflow-hidden rounded-2xl bg-slate-100">
               <img
-                src={`/images/tutors/${tutor.photoFile}`}
+                src={
+                  tutor.photoFile
+                    ? `/images/tutors/${tutor.photoFile}`
+                    : "/images/tutors/default.webp"
+                }
                 alt={tutor.name}
                 className="h-full w-full object-cover"
+                onError={(event) => {
+                  if (
+                    event.currentTarget.src.includes(
+                      "/images/tutors/default.webp"
+                    )
+                  ) {
+                    return;
+                  }
+                  event.currentTarget.src = "/images/tutors/default.webp";
+                }}
               />
             </div>
             <div className="mt-6 space-y-2">
