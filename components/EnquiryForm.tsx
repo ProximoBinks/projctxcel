@@ -154,7 +154,7 @@ export default function EnquiryForm() {
       className="grid gap-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
     >
       <div className="grid gap-3">
-        <p className="text-sm font-semibold text-slate-900">
+        <p className="text-sm font-[500] text-slate-900">
           How can we help you today? *
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -172,7 +172,7 @@ export default function EnquiryForm() {
                   type: option.value as FormState["type"],
                 }))
               }
-              className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
+              className={`rounded-2xl border px-4 py-3 text-left text-sm font-[500] transition ${
                 form.type === option.value
                   ? "border-indigo-500 bg-indigo-50 text-indigo-700"
                   : "border-slate-200 text-slate-700 hover:border-indigo-200"
@@ -307,7 +307,7 @@ export default function EnquiryForm() {
             <input
               type="file"
               accept=".pdf,.docx"
-              className="input file:mr-4 file:rounded-full file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
+              className="input file:mr-4 file:rounded-full file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-xs file:font-[500] file:text-indigo-700 hover:file:bg-indigo-100"
               onChange={(event) =>
                 setForm((prev) => ({
                   ...prev,
@@ -382,7 +382,7 @@ export default function EnquiryForm() {
         <span>
           I agree to be contacted about tutoring services and occasional
           updates/promotions.{" "}
-          <a href="/privacy" target="_blank" className="font-semibold text-indigo-600">
+          <a href="/privacy" target="_blank" className="font-[500] text-indigo-600">
             Privacy Policy
           </a>
         </span>

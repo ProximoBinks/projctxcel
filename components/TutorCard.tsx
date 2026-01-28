@@ -64,10 +64,10 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
             )}
           </div>
         </div>
-        <div className="mt-4 min-h-16">
+        <div className="mt-5 min-h-16">
           <p className="text-sm text-slate-600">{tutor.bioShort}</p>
         </div>
-        <div className="mt-4 flex flex-wrap gap-2">
+        <div className="mt-5 flex flex-wrap gap-2">
           {tutor.subjects.map((subject) => (
             <span
               key={subject}
@@ -78,7 +78,7 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
           ))}
         </div>
         <div className="flex-1 min-h-4" aria-hidden="true" />
-        <div className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-3">
+        <div className="mt-4 grid grid-cols-3 gap-3 border-t border-slate-100 pt-4">
           {tutor.stats.slice(0, 3).map((stat) => (
             <div key={stat.label}>
               <p className="text-base font-semibold text-slate-900">
