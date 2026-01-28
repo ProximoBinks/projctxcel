@@ -23,6 +23,12 @@
 - [x] Postmark integration
 - [x] Deploy (Netlify)
 
+## SEO
+- [ ] Add sitewide meta tags (title/description/Open Graph/Twitter)
+- [ ] Create sitemap.xml + robots.txt
+- [ ] Add canonical URLs
+- [ ] Add JSON-LD (LocalBusiness + FAQ/Reviews if applicable)
+
 Discarded
 - [ ] Tutor detail page `/tutors/[slug]`
 ## Nice-to-have
