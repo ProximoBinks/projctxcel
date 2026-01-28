@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   title: "Simple Tuition | Premium tutoring",
   description:
     "Modern, in-person tutoring from Reception to Year 12 across SACE, UCAT, and interview prep.",
-  icons: [{ rel: "icon", url: "/favicon.svg" }],
+  icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
 export default function RootLayout({
