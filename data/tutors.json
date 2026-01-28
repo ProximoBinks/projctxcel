@@ -65,7 +65,7 @@
     "photoFile": "lachie-wang.jpg",
     "headline": "Tutor",
     "bioShort": "2025 Dux of Mercedes College.",
-    "subjects": ["Maths Methods", "Biology", "Chemistry", "Accounting"],
+    "subjects": ["Maths Methods", "Biology", "Chemistry", "Accounting", "UCAT"],
     "stats": [
       { "label": "ATAR", "value": "99.75" },
       { "label": "percentile UCAT", "value": "94th" },
