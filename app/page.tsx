@@ -78,10 +78,15 @@ export default function HomePage() {
             navCompact ? "py-3" : "py-5"
           }`}
         >
-          <Link href="/" className="text-lg font-semibold text-slate-950">
-            Simple Tuition
+          <Link href="/" className="flex items-end gap-2 text-slate-950">
+            <span className="text-2xl font-bold tracking-[0.2em]">
+              SIMPLE
+            </span>
+            <span className="ml-[-5px] mb-[0.18rem] text-sm font-semibold lowercase tracking-wide">
+              tuition
+            </span>
           </Link>
-          <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
+          <nav className="hidden items-center gap-8 text-sm font-[400] text-slate-600 md:flex">
             <Link href="#tutors">Tutors</Link>
             <Link href="#testimonials">Testimonials</Link>
             <Link href="#how-it-works">How it works</Link>
@@ -139,7 +144,7 @@ export default function HomePage() {
               <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
                 Private tutoring for Year 4-12
               </p>
-              <h1 className="mt-6 text-[clamp(3rem,5vw,4.5rem)] font-semibold tracking-tight text-slate-950">
+              <h1 className="mt-6 text-[clamp(3rem,5vw,3.75rem)] font-semibold tracking-tight text-slate-950">
                 Exceptional tutoring{" "}
                 <span className="gradient-text">tailored to you</span>
               </h1>
@@ -204,10 +209,10 @@ export default function HomePage() {
                   className="h-full rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
                 >
                   <Icon name={point.icon} />
-                  <h3 className="text-lg font-semibold text-slate-950">
+                  <h3 className="text-lg font-[500] text-slate-950">
                     {point.title}
                   </h3>
-                  <p className="mt-3 text-sm text-slate-600">{point.copy}</p>
+                  <p className="mt-3 text-sm text-slate-600 font-[400]">{point.copy}</p>
                 </motion.div>
               </MotionInView>
             ))}
@@ -218,7 +223,17 @@ export default function HomePage() {
           id="tutors"
           eyebrow="Tutors"
           title="Learn from the best"
-          subtitle={<>A handpicked team who've been through the same systems. Our tutors are all <strong className="font-semibold text-slate-950">top 1% ATAR achievers</strong>, with many earning subject merits and ranking among the best in the state - helping them reach their dream degrees.</>}
+          subtitle={
+            <span className="font-[400]">
+              A handpicked team who've been through the same systems. Our tutors
+              are all{" "}
+              <strong className="font-[500] text-slate-950">
+                top 1% ATAR achievers
+              </strong>
+              , with many earning subject merits and ranking among the best in
+              the state - helping them reach their dream degrees.
+            </span>
+          }
         >
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {tutors.map((tutor) => (

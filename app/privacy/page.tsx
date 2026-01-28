@@ -5,8 +5,13 @@ export default function PrivacyPage() {
     <div className="min-h-screen bg-white">
       <header className="border-b border-slate-100">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5 sm:px-10">
-          <Link href="/" className="text-lg font-semibold text-slate-950">
-            Simple Tuition
+          <Link href="/" className="flex items-end gap-2 text-slate-950">
+            <span className="text-2xl font-bold tracking-[0.2em]">
+              SIMPLE
+            </span>
+            <span className="ml-[-5px] mb-[0.18rem] text-sm font-semibold lowercase tracking-wide">
+              tuition
+            </span>
           </Link>
           <Link href="/#enquire" className="text-sm font-semibold text-slate-600">
             Enquire
