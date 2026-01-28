@@ -346,8 +346,8 @@ const testimonialsSeed: Array<TestimonialSeed> = [
   {
     quote:
       "projctxcel matched us with a tutor who completely changed our son's confidence in maths.",
-    name: "Sophie R.",
-    context: "Parent, Year 10",
+    name: "Emmanuel L.",
+    context: "Class of 24",
     active: true,
     sortOrder: 1,
   },

@@ -117,20 +117,15 @@ export default function HomePage() {
           <div className="mx-auto grid w-full max-w-6xl gap-12 px-6 sm:px-10 lg:grid-cols-[1.1fr,0.9fr] lg:items-center">
             <MotionInView>
               <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
-                Premium tutoring
+                Private tutoring for Year 4-12
               </p>
               <h1 className="mt-6 text-slate-950">
                 Exceptional tutoring{" "}
                 <span className="gradient-text">tailored to you</span>
               </h1>
               <p className="mt-6 text-base text-slate-600 sm:text-lg">
-                projctxcel pairs families with exceptional tutors for all SACE
-                subjects, UCAT, and interview preparation. No IB. In-person
-                sessions with tutors who handle logistics.
-              </p>
-              <p className="mt-4 text-sm text-slate-500">
-                Pricing varies by tutor experience and subject. Enquire for a
-                quote.
+                Simple Tuition connects students with high-achievers for SACE
+                subjects, UCAT, and  medicine interview preparation.
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
@@ -192,8 +187,8 @@ export default function HomePage() {
         <Section
           id="tutors"
           eyebrow="Tutors"
-          title="Meet the tutors shaping results"
-          subtitle="A handpicked team spanning maths, sciences, humanities, UCAT, and interview preparation."
+          title="Learn from the best"
+          subtitle={<>A handpicked team who've been through the same systems. Our tutors are all <strong className="font-semibold text-slate-950">top 1% ATAR achievers</strong>, with many earning subject merits and ranking among the best in the state - helping them reach their dream degrees.</>}
         >
           <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
             {tutors.map((tutor) => (
@@ -206,7 +201,7 @@ export default function HomePage() {
           id="testimonials"
           eyebrow="Testimonials"
           title="Trusted by students and parents"
-          subtitle="Personalised tutoring with measurable progress."
+          subtitle="Personalised support with outcomes that last."
         >
           <div className="grid gap-6 lg:grid-cols-3">
             {testimonials.map((testimonial, index) => (

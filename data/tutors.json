@@ -6,10 +6,9 @@
     "headline": "Head Tutor",
     "bioShort": "2025 Dux of St Peter's College. The results speak for themselves.",
     "subjects": ["Specialist Maths", "Maths Methods", "Chemistry", "Physics", "English", "UCAT", "Interview Prep"],
-    "yearLevels": ["Year 9", "Year 10", "Year 11", "Year 12"],
     "stats": [
-      { "label": "percentile UCAT", "value": "99th" },
       { "label": "ATAR", "value": "99.95" },
+      { "label": "percentile UCAT", "value": "99th" },
       { "label": "Med Student", "value": "1st Year" }
     ],
     "active": true,
@@ -20,12 +19,11 @@
     "slug": "nemindu-athukorala",
     "photoFile": "nemindu-athukorala.jpg",
     "headline": "Head Tutor",
-    "bioShort": "Makes complex science simple with clear visuals and structured notes.",
+    "bioShort": "As a tutor, Nemindu excels at breaking down complex concepts and making them easy to understand.",
     "subjects": ["Maths Methods", "Biology", "Chemistry", "Physics", "English", "UCAT", "Interview Prep"],
-    "yearLevels": ["Year 10", "Year 11", "Year 12"],
     "stats": [
-      { "label": "percentile UCAT", "value": "97th" },
       { "label": "ATAR", "value": "99.95" },
+      { "label": "percentile UCAT", "value": "97th" },
       { "label": "Med Student", "value": "1st Year" }
     ],
     "active": true,
@@ -38,10 +36,9 @@
     "headline": "Head Tutor",
     "bioShort": "2024 Dux of St Peter's College.",
     "subjects": ["Specialist Maths", "Maths Methods", "Chemistry", "Physics", "Research Project"],
-    "yearLevels": ["Year 8", "Year 9", "Year 10", "Year 11", "Year 12"],
     "stats": [
-      { "label": "Subject Merits", "value": "5" },
       { "label": "ATAR", "value": "99.95" },
+      { "label": "SACE Merits", "value": "5" },
       { "label": "Engineering & Maths Student", "value": "2nd Year" }
     ],
     "active": true,
@@ -51,14 +48,13 @@
     "name": "Evan Cox",
     "slug": "evan-cox",
     "photoFile": "evan-cox.jpg",
-    "headline": "English Lit + Art + RP Specialist",
+    "headline": "Tutor",
     "bioShort": "Breaks down tricky problems into simple, repeatable steps.",
-    "subjects": ["Physics", "Maths Methods"],
-    "yearLevels": ["Year 10", "Year 11", "Year 12"],
+    "subjects": ["Maths Methods", "Physics", "English Literature", "Research Project", "Art"],
     "stats": [
       { "label": "ATAR", "value": "99.80" },
-      { "label": "Exam prep", "value": "Weekly" },
-      { "label": "Avg improvement", "value": "+12" }
+      { "label": "SACE Merits", "value": "2" },
+      { "label": "Engineering & Comp Sci", "value": "1st Year" }
     ],
     "active": true,
     "sortOrder": 4
@@ -67,13 +63,12 @@
     "name": "Lachie Wang",
     "slug": "lachie-wang",
     "photoFile": "lachie-wang.jpg",
-    "headline": "Accounting Specialist",
+    "headline": "Tutor",
     "bioShort": "2025 Dux of Mercedes College.",
-    "subjects": ["Literacy", "Creative Writing"],
-    "yearLevels": ["Reception", "Year 1", "Year 2", "Year 3", "Year 4", "Year 5", "Year 6"],
+    "subjects": ["Maths Methods", "Biology", "Chemistry", "Accounting"],
     "stats": [
       { "label": "ATAR", "value": "99.75" },
-      { "label": "Session style", "value": "Warm" },
+      { "label": "All Subjects", "value": "A+" },
       { "label": "Focus", "value": "Foundations" }
     ],
     "active": true,
@@ -83,14 +78,13 @@
     "name": "Andrew Xu",
     "slug": "andrew-xu",
     "photoFile": "andrew-xu.jpg",
-    "headline": "UCAT + interview prep",
+    "headline": "Tutor",
     "bioShort": "Delivers high-intensity practice and personalised feedback.",
-    "subjects": ["UCAT", "Interview Prep"],
-    "yearLevels": ["Year 11", "Year 12"],
+    "subjects": ["Maths Methods", "Chemistry", "Physics", "Accounting", "UCAT"],
     "stats": [
       { "label": "ATAR", "value": "99.65" },
-      { "label": "Mocks", "value": "25+" },
-      { "label": "Conversion", "value": "High" }
+      { "label": "percentile UCAT", "value": "90th" },
+      { "label": "", "value": "90th" }
     ],
     "active": true,
     "sortOrder": 6
@@ -99,14 +93,13 @@
     "name": "Yousif Shibeeb",
     "slug": "yousif-shibeeb",
     "photoFile": "yousif-shibeeb.jpg",
-    "headline": "Interview Specialist",
+    "headline": "Tutor",
     "bioShort": "Brings clarity to SACE Accounting and Business Innovation.",
-    "subjects": ["Accounting", "Business Innovation"],
-    "yearLevels": ["Year 10", "Year 11", "Year 12"],
+    "subjects": ["Maths Methods", "Biology", "Chemistry", "Physics"],
     "stats": [
       { "label": "ATAR", "value": "99.65" },
-      { "label": "Chem + Physics", "value": "A+" },
-      { "label": "Medical Student", "value": "1st Year" }
+      { "label": "All Subjects", "value": "A+" },
+      { "label": "Med Student", "value": "1st Year" }
     ],
     "active": true,
     "sortOrder": 7
@@ -115,14 +108,13 @@
     "name": "Bal Gilhotra",
     "slug": "bal-gilhotra",
     "photoFile": "bal-gilhotra.jpg",
-    "headline": "Legal Studies + Research Projects",
+    "headline": "Tutor",
     "bioShort": "Supports analysis-heavy subjects with structure and critical thinking.",
-    "subjects": ["Legal Studies", "Research Project", "Modern History"],
-    "yearLevels": ["Year 11", "Year 12"],
+    "subjects": ["General Maths", "English", "Accounting"],
     "stats": [
       { "label": "ATAR", "value": "99.55" },
-      { "label": "Legal Studies", "value": "A+" },
-      { "label": "Research Project", "value": "A+" }
+      { "label": "percentile UCAT", "value": "90th" },
+      { "label": "Med Student", "value": "1st Year" }
     ],
     "active": true,
     "sortOrder": 8
@@ -131,13 +123,12 @@
     "name": "Ansen Li",
     "slug": "ansen-li",
     "photoFile": "ansen-li.jpg",
-    "headline": "Maths + Science all-rounder",
+    "headline": "Tutor",
     "bioShort": "Flexible tutor covering general maths and science across mid years.",
-    "subjects": ["General Maths", "Science", "Physics"],
-    "yearLevels": ["Year 7", "Year 8", "Year 9", "Year 10"],
+    "subjects": ["Maths Methods", "Physics", "English"],
     "stats": [
       { "label": "ATAR", "value": "99.40" },
-      { "label": "Session format", "value": "In-person" },
+      { "label": "All Subjects", "value": "A+" },
       { "label": "Focus", "value": "Confidence" }
     ],
     "active": true,
