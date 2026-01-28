@@ -209,7 +209,7 @@ export default function HomePage() {
                   className="h-full rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
                 >
                   <Icon name={point.icon} />
-                  <h3 className="text-lg font-[500] text-slate-950">
+                  <h3 className="mt-2 text-lg font-[500] text-slate-950">
                     {point.title}
                   </h3>
                   <p className="mt-3 text-sm text-slate-600 font-[400]">{point.copy}</p>
