@@ -18,8 +18,8 @@ export default function Section({
   className,
 }: SectionProps) {
   return (
-    <section id={id} className={`py-16 sm:py-24 ${className ?? ""}`}>
-      <div className="mx-auto w-full max-w-6xl px-6 sm:px-10">
+    <section id={id} className={`py-16 sm:py-24 lg:py-28 ${className ?? ""}`}>
+      <div className="mx-auto w-full max-w-[1200px] px-6 sm:px-10">
         <MotionInView>
           {eyebrow && (
             <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
