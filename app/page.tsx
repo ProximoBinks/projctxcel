@@ -120,8 +120,8 @@ export default function HomePage() {
                 Premium tutoring
               </p>
               <h1 className="mt-6 text-slate-950">
-                Modern tutoring for{" "}
-                <span className="gradient-text">Reception to Year 12</span>
+                Exceptional tutoring{" "}
+                <span className="gradient-text">tailored to you</span>
               </h1>
               <p className="mt-6 text-base text-slate-600 sm:text-lg">
                 projctxcel pairs families with exceptional tutors for all SACE
