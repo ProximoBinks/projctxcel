@@ -34,7 +34,7 @@
     "slug": "lewis-gilbert",
     "photoFile": "lewis-gilbert.jpg",
     "headline": "Head Tutor",
-    "bioShort": "2024 Dux of St Peter's College.",
+    "bioShort": "2024 Dux of St Peter's College. Lewis brings a structured approach to helping students truly understand the material.",
     "subjects": ["Specialist Maths", "Maths Methods", "Chemistry", "Physics", "Research Project"],
     "stats": [
       { "label": "ATAR", "value": "99.95" },
@@ -49,8 +49,8 @@
     "slug": "evan-cox",
     "photoFile": "evan-cox.jpg",
     "headline": "Tutor",
-    "bioShort": "Breaks down tricky problems into simple, repeatable steps.",
-    "subjects": ["Maths Methods", "Physics", "English Literature", "Research Project", "Art"],
+    "bioShort": "Evan achieved merits in English Literature and Research Project, and is also a strong Maths Methods and Physics tutor.",
+    "subjects": ["Maths Methods", "Physics", "English Literature", "Research Project"],
     "stats": [
       { "label": "ATAR", "value": "99.80" },
       { "label": "SACE Merits", "value": "2" },
@@ -64,7 +64,7 @@
     "slug": "lachie-wang",
     "photoFile": "lachie-wang.jpg",
     "headline": "Tutor",
-    "bioShort": "2025 Dux of Mercedes College.",
+    "bioShort": "2025 Dux of Mercedes College. Lachie is a down-to-earth tutor who prepares his students effectively for all assessments.",
     "subjects": ["Maths Methods", "Biology", "Chemistry", "Accounting", "UCAT"],
     "stats": [
       { "label": "ATAR", "value": "99.75" },
@@ -79,7 +79,7 @@
     "slug": "andrew-xu",
     "photoFile": "andrew-xu.jpg",
     "headline": "Tutor",
-    "bioShort": "Delivers high-intensity practice and personalised feedback.",
+    "bioShort": "Andrew achieved a merit in Physics and achieved a very strong UCAT - all while competing in the state badminton team.",
     "subjects": ["Maths Methods", "Chemistry", "Physics", "Accounting", "UCAT"],
     "stats": [
       { "label": "ATAR", "value": "99.65" },
@@ -94,8 +94,8 @@
     "slug": "yousif-shibeeb",
     "photoFile": "yousif-shibeeb.jpg",
     "headline": "Tutor",
-    "bioShort": "Brings clarity to SACE Accounting and Business Innovation.",
-    "subjects": ["Maths Methods", "Biology", "Chemistry", "Physics"],
+    "bioShort": "Despite not getting his goal UCAT score, Yousif nailed his interview and earned a first-round offer for medicine.",
+    "subjects": ["Maths Methods", "Biology", "Chemistry", "Physics", "Interview Prep"],
     "stats": [
       { "label": "ATAR", "value": "99.65" },
       { "label": "All Subjects", "value": "A+" },
@@ -109,8 +109,8 @@
     "slug": "bal-gilhotra",
     "photoFile": "bal-gilhotra.jpg",
     "headline": "Tutor",
-    "bioShort": "Supports analysis-heavy subjects with structure and critical thinking.",
-    "subjects": ["General Maths", "English", "Accounting"],
+    "bioShort": "Bal locked in heavily in Year 12, enabling him to achieve incredible scores and a first-round offer for medicine.",
+    "subjects": ["General Maths", "English", "Accounting", "Interview Prep"],
     "stats": [
       { "label": "ATAR", "value": "99.55" },
       { "label": "percentile UCAT", "value": "90th" },
@@ -124,7 +124,7 @@
     "slug": "ansen-li",
     "photoFile": "ansen-li.jpg",
     "headline": "Tutor",
-    "bioShort": "Flexible tutor covering general maths and science across mid years.",
+    "bioShort": "Ansen is a friendly, approachable tutor who merited Physics and is great at building confidence in his students.",
     "subjects": ["Maths Methods", "Physics", "English"],
     "stats": [
       { "label": "ATAR", "value": "99.40" },
