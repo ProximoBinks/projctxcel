@@ -6,7 +6,7 @@ export default function PrivacyPage() {
       <header className="border-b border-slate-100">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5 sm:px-10">
           <Link href="/" className="text-lg font-semibold text-slate-950">
-            projctxcel
+            Simple Tuition
           </Link>
           <Link href="/#enquire" className="text-sm font-semibold text-slate-600">
             Enquire
@@ -22,7 +22,7 @@ export default function PrivacyPage() {
           Privacy Policy
         </h1>
         <p className="mt-4 text-sm text-slate-600">
-          This Privacy Policy explains how projctxcel collects, uses, and
+          This Privacy Policy explains how Simple Tuition collects, uses, and
           protects personal information provided through our website.
         </p>
 
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
                 href="mailto:support@hyperstake.bet"
                 className="font-semibold text-indigo-600"
               >
-                support@hyperstake.bet
+                simpletuitionau@gmail.com
               </a>
               .
             </p>

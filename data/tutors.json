@@ -68,8 +68,8 @@
     "subjects": ["Maths Methods", "Biology", "Chemistry", "Accounting"],
     "stats": [
       { "label": "ATAR", "value": "99.75" },
-      { "label": "All Subjects", "value": "A+" },
-      { "label": "Focus", "value": "Foundations" }
+      { "label": "percentile UCAT", "value": "94th" },
+      { "label": "All Subjects", "value": "A+" }
     ],
     "active": true,
     "sortOrder": 5
@@ -84,7 +84,7 @@
     "stats": [
       { "label": "ATAR", "value": "99.65" },
       { "label": "percentile UCAT", "value": "90th" },
-      { "label": "", "value": "90th" }
+      { "label": "All Subjects", "value": "A+" }
     ],
     "active": true,
     "sortOrder": 6
@@ -128,8 +128,8 @@
     "subjects": ["Maths Methods", "Physics", "English"],
     "stats": [
       { "label": "ATAR", "value": "99.40" },
-      { "label": "All Subjects", "value": "A+" },
-      { "label": "Focus", "value": "Confidence" }
+      { "label": "SACE Merit", "value": "Physics" },
+      { "label": "All Subjects", "value": "A+" }
     ],
     "active": true,
     "sortOrder": 9

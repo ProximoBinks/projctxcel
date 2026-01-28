@@ -23,7 +23,7 @@ export default function TermsPage() {
         </h1>
         <p className="mt-4 text-sm text-slate-600">
           These Terms of Service outline the conditions for using the
-          projctxcel website and services.
+          Simple Tuition website and services.
         </p>
 
         <section className="mt-10 space-y-6 text-sm text-slate-600">
@@ -32,7 +32,7 @@ export default function TermsPage() {
               Services
             </h2>
             <p className="mt-2">
-              projctxcel provides tutoring introductions and coordination.
+              Simple Tuition provides tutoring introductions and coordination.
               Tutors operate independently and manage their own session
               logistics.
             </p>
@@ -90,7 +90,7 @@ export default function TermsPage() {
                 href="mailto:support@hyperstake.bet"
                 className="font-semibold text-indigo-600"
               >
-                support@hyperstake.bet
+                simpletuitionau@gmail.com
               </a>
               .
             </p>
