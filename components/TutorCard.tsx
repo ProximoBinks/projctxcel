@@ -21,14 +21,26 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
       transition={{ type: "spring", stiffness: 220, damping: 20 }}
       className="h-full rounded-2xl border border-slate-200 bg-white shadow-sm"
     >
-      <div className="flex h-full flex-col gap-4 p-6">
+      <div className="flex h-full flex-col p-6">
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
               <img
-                src={`/images/tutors/${tutor.photoFile}`}
+                src={
+                  tutor.photoFile
+                    ? `/images/tutors/${tutor.photoFile}`
+                    : "/images/tutors/default.webp"
+                }
                 alt={tutor.name}
                 className="h-full w-full object-cover"
                 loading="lazy"
+                onError={(event) => {
+                  if (
+                    event.currentTarget.src.includes("/images/tutors/default.webp")
+                  ) {
+                    return;
+                  }
+                  event.currentTarget.src = "/images/tutors/default.webp";
+                }}
               />
             </div>
             <div>
@@ -47,28 +59,29 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
               )}
             </div>
           </div>
-          <p className="text-sm text-slate-600">{tutor.bioShort}</p>
-          <div className="mt-auto space-y-3">
-            <div className="flex flex-wrap gap-2">
-              {tutor.subjects.slice(0, 3).map((subject) => (
-                <span
-                  key={subject}
-                  className="rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600"
-                >
-                  {subject}
-                </span>
-              ))}
-            </div>
-            <div className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-3 text-xs text-slate-500">
-              {tutor.stats.slice(0, 3).map((stat) => (
-                <div key={stat.label}>
-                  <p className="text-sm font-semibold text-slate-900">
-                    {stat.value}
-                  </p>
-                  <p>{stat.label}</p>
-                </div>
-              ))}
-            </div>
+          <div className="mt-4 min-h-16">
+            <p className="text-sm text-slate-600">{tutor.bioShort}</p>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            {tutor.subjects.map((subject) => (
+              <span
+                key={subject}
+                className="rounded-full border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600"
+              >
+                {subject}
+              </span>
+            ))}
+          </div>
+          <div className="flex-1 min-h-4" aria-hidden="true" />
+          <div className="grid grid-cols-3 gap-3 border-t border-slate-100 pt-3 text-xs text-slate-500">
+            {tutor.stats.slice(0, 3).map((stat) => (
+              <div key={stat.label}>
+                <p className="text-sm font-semibold text-slate-900">
+                  {stat.value}
+                </p>
+                <p>{stat.label}</p>
+              </div>
+            ))}
           </div>
       </div>
     </motion.div>
