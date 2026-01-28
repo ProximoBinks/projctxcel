@@ -1,4 +1,4 @@
-# projctxcel
+# Simple Tuition
 
 Modern tutoring marketing site + lead capture app for Reception to Year 12, covering SACE, UCAT, and interview prep.
 

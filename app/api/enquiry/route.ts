@@ -191,19 +191,19 @@ export async function POST(request: Request) {
   ];
 
   await transporter.sendMail({
-    from: `"projctXCEL" <${fromEmail}>`,
+    from: `"Simple Tuition" <${fromEmail}>`,
     to: toEmail,
-    subject: `New projctxcel enquiry - ${name}`,
+    subject: `New Simple Tuition enquiry - ${name}`,
     text: adminLines.join("\n"),
     attachments: type === "tutor" && cvAttachment ? [cvAttachment] : [],
   });
 
   await transporter.sendMail({
-    from: `"projctXCEL" <${fromEmail}>`,
+    from: `"Simple Tuition" <${fromEmail}>`,
     to: email,
     subject: "Thanks for your enquiry",
     text:
-      "Thanks for reaching out to projctxcel. We have received your enquiry and will be in touch shortly.",
+      "Thanks for reaching out to Simple Tuition. We have received your enquiry and will be in touch shortly.",
   });
 
   return NextResponse.json({ message: "Enquiry sent successfully." });

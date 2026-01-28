@@ -8,7 +8,7 @@ export default function EnquirePage() {
       <header className="border-b border-slate-100 bg-white">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5 sm:px-10">
           <Link href="/" className="text-lg font-semibold text-slate-950">
-            projctxcel
+            Simple Tuition
           </Link>
           <Link href="/#tutors" className="text-sm font-semibold text-slate-600">
             Back to site

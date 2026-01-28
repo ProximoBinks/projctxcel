@@ -6,7 +6,7 @@ export default function TermsPage() {
       <header className="border-b border-slate-100">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5 sm:px-10">
           <Link href="/" className="text-lg font-semibold text-slate-950">
-            projctxcel
+            Simple Tuition
           </Link>
           <Link href="/#enquire" className="text-sm font-semibold text-slate-600">
             Enquire
@@ -87,7 +87,7 @@ export default function TermsPage() {
             <p className="mt-2">
               For questions about these terms, contact{" "}
               <a
-                href="mailto:support@hyperstake.bet"
+                href="mailto:simpletuitionau@gmail.com"
                 className="font-semibold text-indigo-600"
               >
                 simpletuitionau@gmail.com

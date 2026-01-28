@@ -88,7 +88,7 @@ export default function PrivacyPage() {
             <p className="mt-2">
               For privacy questions, email us at{" "}
               <a
-                href="mailto:support@hyperstake.bet"
+                href="mailto:simpletuitionau@gmail.com"
                 className="font-semibold text-indigo-600"
               >
                 simpletuitionau@gmail.com

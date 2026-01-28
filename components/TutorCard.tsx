@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { motion } from "framer-motion";
 
 type TutorStat = { label: string; value: string };
@@ -22,8 +21,7 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
       transition={{ type: "spring", stiffness: 220, damping: 20 }}
       className="h-full rounded-2xl border border-slate-200 bg-white shadow-sm"
     >
-      <Link href={`/tutors/${tutor.slug}`} className="flex h-full flex-col">
-        <div className="flex h-full flex-col gap-4 p-6">
+      <div className="flex h-full flex-col gap-4 p-6">
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
               <img
@@ -72,8 +70,7 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
               ))}
             </div>
           </div>
-        </div>
-      </Link>
+      </div>
     </motion.div>
   );
 }

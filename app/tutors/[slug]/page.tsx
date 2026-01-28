@@ -29,8 +29,8 @@ export async function generateMetadata({
   const { slug } = await params;
   if (!slug) {
     return {
-      title: "Tutor not found | projctxcel",
-      description: "projctxcel premium tutoring.",
+      title: "Tutor not found | Simple Tuition",
+      description: "Simple Tuition premium tutoring.",
     };
   }
 
@@ -38,13 +38,13 @@ export async function generateMetadata({
 
   if (!tutor) {
     return {
-      title: "Tutor not found | projctxcel",
-      description: "projctxcel premium tutoring.",
+      title: "Tutor not found | Simple Tuition",
+      description: "Simple Tuition premium tutoring.",
     };
   }
 
   return {
-    title: `${tutor.name} | projctxcel`,
+    title: `${tutor.name} | Simple Tuition`,
     description: tutor.headline ?? tutor.bioShort,
   };
 }
@@ -66,7 +66,7 @@ export default async function TutorDetailPage({ params }: TutorPageProps) {
       <header className="border-b border-slate-100 bg-white">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5 sm:px-10">
           <Link href="/" className="text-lg font-semibold text-slate-950">
-            projctxcel
+            Simple Tuition
           </Link>
           <Link href="/#enquire" className="btn">
             Enquire

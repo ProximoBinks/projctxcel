@@ -61,7 +61,7 @@ export default function HomePage() {
       <header className="sticky top-0 z-20 border-b border-slate-100 bg-white/80 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-4 sm:px-10">
           <Link href="/" className="text-lg font-semibold text-slate-950">
-            projctxcel
+            Simple Tuition
           </Link>
           <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
             <Link href="#tutors">Tutors</Link>
@@ -294,7 +294,7 @@ export default function HomePage() {
 
       <footer className="border-t border-slate-100 bg-white py-10">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-10">
-          <p>© {new Date().getFullYear()} projctxcel. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Simple Tuition. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="/privacy">Privacy</Link>
             <Link href="/terms">Terms</Link>

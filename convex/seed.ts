@@ -345,7 +345,7 @@ const tutorsSeed: Array<TutorSeed> = [
 const testimonialsSeed: Array<TestimonialSeed> = [
   {
     quote:
-      "projctxcel matched us with a tutor who completely changed our son's confidence in maths.",
+      "Simple Tuition matched us with a tutor who completely changed our son's confidence in maths.",
     name: "Emmanuel L.",
     context: "Class of 24",
     active: true,
