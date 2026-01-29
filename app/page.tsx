@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
+import localFont from "next/font/local";
 import MotionInView from "../components/MotionInView";
 import Section from "../components/Section";
 import TutorCard from "../components/TutorCard";
@@ -47,6 +48,12 @@ const howItWorks = [
     copy: "Sessions start with a plan, clear milestones, and feedback loops.",
   },
 ];
+
+const pepi = localFont({
+  src: "./fonts/Pepi-SemiBold.otf",
+  weight: "600",
+  style: "normal",
+});
 
 type FocusKey = "sace" | "ucat" | "in_person" | "tailored";
 
@@ -153,7 +160,10 @@ export default function HomePage() {
             navCompact ? "py-3" : "py-5"
           }`}
         >
-          <Link href="/" className="flex items-end gap-2 text-slate-950">
+          <Link
+            href="/"
+            className={`flex items-end gap-2 text-slate-950 ${pepi.className}`}
+          >
             <span className="text-2xl font-bold tracking-widest">
               SIMPLE
             </span>
