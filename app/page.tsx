@@ -7,7 +7,7 @@ import Section from "../components/Section";
 import TutorCard from "../components/TutorCard";
 import EnquiryForm from "../components/EnquiryForm";
 import Icon from "../components/Icon";
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import tutorsData from "../data/tutors.json";
 import testimonialsData from "../data/testimonials.json";
 
@@ -54,6 +54,26 @@ export default function HomePage() {
   const testimonials = testimonialsData
     .filter((testimonial) => testimonial.active)
     .sort((a, b) => a.sortOrder - b.sortOrder);
+  const shuffledTestimonials = useMemo(() => {
+    const result = [...testimonials];
+    for (let i = result.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [result[i], result[j]] = [result[j], result[i]];
+    }
+    return result;
+  }, [testimonials.length]);
+  const testimonialsLoop = [
+    ...shuffledTestimonials,
+    ...shuffledTestimonials,
+  ];
+  const testimonialsOffset = [
+    ...shuffledTestimonials.slice(Math.ceil(shuffledTestimonials.length / 2)),
+    ...shuffledTestimonials.slice(0, Math.ceil(shuffledTestimonials.length / 2)),
+  ];
+  const testimonialsOffsetLoop = [
+    ...testimonialsOffset,
+    ...testimonialsOffset,
+  ];
   const [menuOpen, setMenuOpen] = useState(false);
   const [navCompact, setNavCompact] = useState(false);
 
@@ -144,7 +164,7 @@ export default function HomePage() {
               <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
                 Private tutoring for Year 4-12
               </p>
-              <h1 className="mt-6 text-[clamp(3rem,5vw,3.75rem)] font-semibold tracking-tight text-slate-950">
+              <h1 className="mt-6 text-[clamp(3rem,5vw,4rem)] font-semibold tracking-tight text-slate-950">
                 Exceptional tutoring{" "}
                 <span className="gradient-text">tailored to you</span>
               </h1>
@@ -248,43 +268,63 @@ export default function HomePage() {
           title="Trusted by students and parents"
           subtitle="Personalised support with outcomes that last."
         >
-          <motion.div
-            drag="x"
-            dragConstraints={{ left: -40, right: 40 }}
-            dragElastic={0.2}
-            className="grid gap-6 lg:grid-cols-3"
-          >
-            {testimonials.map((testimonial, index) => (
-              <MotionInView
-                key={`${testimonial.name}-${index}`}
-                delay={index * 0.08}
-              >
-                <motion.div
-                  whileHover={{
-                    y: -4,
-                    boxShadow: "0 20px 40px rgba(15,23,42,0.08)",
-                  }}
-                  className="relative h-full overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
-                >
-                  <span className="pointer-events-none absolute -left-2 top-2 text-7xl font-bold text-slate-200/60">
-                    “
-                  </span>
-                  <Icon name="quote" />
-                  <p className="mt-4 text-sm text-slate-600">
-                    “{testimonial.quote}”
-                  </p>
-                  <div className="mt-6 text-sm font-semibold text-slate-950">
-                    {testimonial.name}
-                  </div>
-                  {testimonial.context ? (
-                    <p className="text-xs text-slate-500">
-                      {testimonial.context}
+          <div className="space-y-6">
+            <div className="carousel-row carousel-fade">
+              <div className="carousel-track">
+                {testimonialsLoop.map((testimonial, index) => (
+                  <div
+                    key={`${testimonial.name}-top-${index}`}
+                    className="relative w-[320px] shrink-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
+                  >
+                    <span className="pointer-events-none absolute -left-2 top-2 text-7xl font-bold text-slate-200/60">
+                      “
+                    </span>
+                    <Icon name="quote" />
+                    <p className="mt-4 text-sm text-slate-600">
+                      “{testimonial.quote}”
                     </p>
-                  ) : null}
-                </motion.div>
-              </MotionInView>
-            ))}
-          </motion.div>
+                    <div className="mt-6 text-sm font-semibold text-slate-950">
+                      {testimonial.name}
+                    </div>
+                    {testimonial.context ? (
+                      <p className="text-xs text-slate-500">
+                        {testimonial.context}
+                      </p>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="carousel-row carousel-fade">
+              <div
+                className="carousel-track carousel-track-reverse"
+                style={{ animationDelay: "-18s" }}
+              >
+                {testimonialsOffsetLoop.map((testimonial, index) => (
+                  <div
+                    key={`${testimonial.name}-bottom-${index}`}
+                    className="relative w-[320px] shrink-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
+                  >
+                    <span className="pointer-events-none absolute -left-2 top-2 text-7xl font-bold text-slate-200/60">
+                      “
+                    </span>
+                    <Icon name="quote" />
+                    <p className="mt-4 text-sm text-slate-600">
+                      “{testimonial.quote}”
+                    </p>
+                    <div className="mt-6 text-sm font-semibold text-slate-950">
+                      {testimonial.name}
+                    </div>
+                    {testimonial.context ? (
+                      <p className="text-xs text-slate-500">
+                        {testimonial.context}
+                      </p>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </Section>
 
         <Section
