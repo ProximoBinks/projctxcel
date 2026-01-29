@@ -1,0 +1,33 @@
+{
+  "rotationMs": 3200,
+  "focusAreas": [
+    {
+      "key": "sace",
+      "label": "Subjects + year level",
+      "desc": "We match the right specialist for each subject.",
+      "signals": ["Subjects", "Year level", "Assessment needs"],
+      "tutorSlugs": ["lochie-siow", "lewis-gilbert", "evan-cox"]
+    },
+    {
+      "key": "ucat",
+      "label": "ATAR + uni goals",
+      "desc": "Aligned to the outcome your student is aiming for.",
+      "signals": ["ATAR goals", "Uni pathway", "Exam timeline"],
+      "tutorSlugs": ["lochie-siow", "nemindu-athukorala", "lachie-wang"]
+    },
+    {
+      "key": "tailored",
+      "label": "Interests + hobbies",
+      "desc": "We consider personality fit for better engagement.",
+      "signals": ["Interests", "Hobbies", "Motivation style"],
+      "tutorSlugs": ["andrew-xu", "ansen-li", "yousif-shibeeb"]
+    },
+    {
+      "key": "in_person",
+      "label": "Learning style + rapport",
+      "desc": "Matching tutoring style to how they learn best.",
+      "signals": ["Learning style", "Tutor rapport", "Session format"],
+      "tutorSlugs": ["bal-gilhotra", "evan-cox", "lewis-gilbert"]
+    }
+  ]
+}

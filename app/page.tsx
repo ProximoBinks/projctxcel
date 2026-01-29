@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import MotionInView from "../components/MotionInView";
 import Section from "../components/Section";
 import TutorCard from "../components/TutorCard";
 import EnquiryForm from "../components/EnquiryForm";
 import Icon from "../components/Icon";
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import tutorsData from "../data/tutors.json";
 import testimonialsData from "../data/testimonials.json";
+import matchPreviewData from "../data/matchPreview.json";
 
 const proofPoints = [
   {
@@ -47,6 +48,8 @@ const howItWorks = [
   },
 ];
 
+type FocusKey = "sace" | "ucat" | "in_person" | "tailored";
+
 export default function HomePage() {
   const tutors = tutorsData
     .filter((tutor) => tutor.active)
@@ -74,6 +77,58 @@ export default function HomePage() {
     ...testimonialsOffset,
     ...testimonialsOffset,
   ];
+  const focusAreas = matchPreviewData.focusAreas as Array<{
+    key: FocusKey;
+    label: string;
+    desc: string;
+    signals: string[];
+    tutorSlugs: string[];
+  }>;
+  const [activeFocus, setActiveFocus] = useState<FocusKey>(
+    focusAreas[0]?.key ?? "sace",
+  );
+  const [tutorIndex, setTutorIndex] = useState(0);
+  const rotationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const focusConfig = useMemo(
+    () => focusAreas.find((area) => area.key === activeFocus) ?? focusAreas[0],
+    [activeFocus, focusAreas],
+  );
+
+  const filteredTutors = useMemo(() => {
+    const tutorBySlug = new Map(
+      tutors.map((tutor) => [tutor.slug, tutor]),
+    );
+    const configured = (focusConfig?.tutorSlugs ?? [])
+      .map((slug) => tutorBySlug.get(slug))
+      .filter(Boolean);
+    return configured.length ? (configured as typeof tutors) : tutors;
+  }, [focusConfig, tutors]);
+
+  const activeTutor = filteredTutors[tutorIndex % filteredTutors.length];
+
+  useEffect(() => {
+    setTutorIndex(0);
+  }, [activeFocus]);
+
+  const startRotationTimer = useCallback(() => {
+    if (!filteredTutors.length) return;
+    if (rotationTimerRef.current) {
+      clearInterval(rotationTimerRef.current);
+    }
+    rotationTimerRef.current = setInterval(() => {
+      setTutorIndex((index) => (index + 1) % filteredTutors.length);
+    }, matchPreviewData.rotationMs ?? 3800);
+  }, [filteredTutors.length]);
+
+  useEffect(() => {
+    startRotationTimer();
+    return () => {
+      if (rotationTimerRef.current) {
+        clearInterval(rotationTimerRef.current);
+      }
+    };
+  }, [startRotationTimer]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [navCompact, setNavCompact] = useState(false);
 
@@ -99,7 +154,7 @@ export default function HomePage() {
           }`}
         >
           <Link href="/" className="flex items-end gap-2 text-slate-950">
-            <span className="text-2xl font-bold tracking-[0.2em]">
+            <span className="text-2xl font-bold tracking-widest">
               SIMPLE
             </span>
             <span className="ml-[-5px] mb-[0.18rem] text-sm font-semibold lowercase tracking-wide">
@@ -187,29 +242,141 @@ export default function HomePage() {
               </div>
             </MotionInView>
             <MotionInView className="relative">
-              <div className="rounded-[32px] border border-slate-200/80 bg-white/90 p-8 shadow-lg backdrop-blur">
-                <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
-                  Focus areas
-                </p>
-                <div className="mt-6 grid gap-4">
-                  {[
-                    "SACE Stage 1 & 2 coverage",
-                    "UCAT + interview coaching",
-                    "In-person, Adelaide metro",
-                    "Tailored learning plans",
-                  ].map((item) => (
-                    <motion.div
-                      key={item}
-                      whileHover={{
-                        y: -2,
-                        boxShadow: "0 18px 30px rgba(15,23,42,0.08)",
-                      }}
-                      className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-700"
-                    >
-                      <span className="h-2 w-2 rounded-full bg-indigo-500" />
-                      {item}
-                    </motion.div>
-                  ))}
+              <div className="grid gap-6 lg:grid-cols-12">
+                <div className="lg:col-span-6">
+                  <div className="rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
+                    <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
+                      Focus areas
+                    </p>
+                    <div className="mt-4 space-y-3">
+                      {focusAreas.map((area) => {
+                        const isActive = area.key === activeFocus;
+                        return (
+                          <button
+                            key={area.key}
+                            type="button"
+                            className={`w-full rounded-2xl border px-4 py-3 text-left text-sm transition ${
+                              isActive
+                                ? "border-indigo-300 bg-white shadow-sm"
+                                : "border-slate-200 bg-white/60 hover:bg-white"
+                            }`}
+                            onClick={() => {
+                              setActiveFocus(area.key);
+                              startRotationTimer();
+                            }}
+                            onMouseEnter={() => {
+                              setActiveFocus(area.key);
+                              startRotationTimer();
+                            }}
+                          >
+                            <div className="flex items-center justify-between gap-3">
+                              <span className="font-semibold text-slate-900">
+                                {area.label}
+                              </span>
+                              <span
+                                className={`h-2 w-2 rounded-full transition ${
+                                  isActive ? "bg-indigo-500" : "bg-slate-300"
+                                }`}
+                              />
+                            </div>
+                            <p className="mt-1 text-xs text-slate-500">
+                              {area.desc}
+                            </p>
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <p className="mt-4 text-xs text-slate-500">
+                      Hover a focus area to preview a matching tutor.
+                    </p>
+                  </div>
+                </div>
+                <div className="relative lg:col-span-6">
+                  <div className="pointer-events-none absolute -left-3 top-10 hidden h-40 w-1 rounded-full bg-linear-to-b from-indigo-500/0 via-indigo-500/40 to-indigo-500/0 lg:block" />
+                  <div className="rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
+                    <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-indigo-500">
+                      <span>Match preview</span>
+                      <span className="normal-case tracking-normal text-slate-500">
+                        Taking students this week
+                      </span>
+                    </div>
+                    <div className="mt-4 min-h-[220px]">
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={`${activeFocus}-${activeTutor.slug}-${tutorIndex}`}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -10 }}
+                          transition={{ duration: 0.25 }}
+                        >
+                          <div className="flex items-center gap-4">
+                            <div className="h-14 w-14 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+                              <img
+                                src={
+                                  activeTutor.photoFile
+                                    ? `/images/tutors/${activeTutor.photoFile}`
+                                    : "/images/tutors/default.webp"
+                                }
+                                alt={activeTutor.name}
+                                className="h-full w-full object-cover"
+                                loading="lazy"
+                              />
+                            </div>
+                            <div>
+                              <p className="text-lg font-semibold text-slate-950">
+                                {activeTutor.name}
+                              </p>
+                              <p className="text-sm text-slate-500">
+                                {activeTutor.headline}
+                              </p>
+                            </div>
+                          </div>
+                          <p className="mt-3 text-sm text-slate-600">
+                            {activeTutor.bioShort}
+                          </p>
+                          <div className="mt-4 flex flex-wrap gap-2">
+                            {activeTutor.stats.map((stat) => (
+                              <span
+                                key={`${activeTutor.slug}-${stat.label}`}
+                                className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600"
+                              >
+                                {stat.value} {stat.label}
+                              </span>
+                            ))}
+                          </div>
+                          <div className="mt-4">
+                            <p className="text-xs font-semibold text-slate-700">
+                              Matching signals
+                            </p>
+                            <p className="mt-1 text-sm text-slate-600">
+                              {(focusConfig?.signals ?? []).join(" • ")}
+                            </p>
+                          </div>
+                          <div className="mt-4">
+                            <p className="text-xs font-semibold text-slate-700">
+                              Subjects
+                            </p>
+                            <p className="mt-1 text-sm text-slate-600">
+                              {activeTutor.subjects.slice(0, 5).join(" • ")}
+                            </p>
+                          </div>
+                          <div className="mt-5 flex flex-wrap items-center gap-3">
+                            <Link href="#enquire" className="btn">
+                              Enquire now
+                            </Link>
+                            <Link href="#tutors" className="btn-ghost">
+                              View tutors →
+                            </Link>
+                          </div>
+                          <div className="mt-4">
+                            <span className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
+                              In-person Adelaide metro
+                            </span>
+                          </div>
+                        </motion.div>
+                      </AnimatePresence>
+                    </div>
+                  </div>
                 </div>
               </div>
               <div className="pointer-events-none absolute -bottom-12 -right-12 hidden h-40 w-40 rounded-full bg-indigo-200/60 blur-3xl lg:block" />
