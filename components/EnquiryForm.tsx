@@ -155,7 +155,7 @@ export default function EnquiryForm() {
     >
       <div className="grid gap-3">
         <p className="text-sm font-semibold text-slate-900">
-          How can we help you today? *
+          How can we help you today?*
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {[
@@ -188,7 +188,7 @@ export default function EnquiryForm() {
         <>
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="grid gap-2 text-sm font-medium text-slate-700">
-              Year level *
+              Year level*
               <select
                 className="input bg-white"
                 value={form.yearLevel}
@@ -219,11 +219,10 @@ export default function EnquiryForm() {
               >
                 <option value="">Select target range</option>
                 {[
-                  "70-79",
-                  "80-89",
-                  "90-94",
-                  "95-97",
-                  "98-99.95",
+                  "70-89",
+                  "90-98",
+                  "99+",
+                  "As high as possible",
                 ].map((range) => (
                   <option key={range} value={range}>
                     {range}
@@ -234,7 +233,7 @@ export default function EnquiryForm() {
           </div>
 
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Subjects struggling with *
+            Which subjects do you need help with?*
             <input
               className="input"
               value={form.subjects}
@@ -247,7 +246,7 @@ export default function EnquiryForm() {
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Planned uni course / area
+            Goal University + Course
             <input
               className="input"
               value={form.plannedCourse}
@@ -262,7 +261,7 @@ export default function EnquiryForm() {
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Interests & hobbies *
+            Interests & hobbies
             <textarea
               className="input min-h-[120px] resize-y"
               value={form.interests}
@@ -278,7 +277,7 @@ export default function EnquiryForm() {
       {form.type === "tutor" ? (
         <>
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Experience *
+            Experience*
             <textarea
               className="input min-h-[140px] resize-y"
               value={form.experience}
@@ -290,7 +289,7 @@ export default function EnquiryForm() {
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Expertise (subjects + year levels) *
+            Expertise (subjects + year levels)*
             <input
               className="input"
               value={form.expertise}
@@ -321,7 +320,7 @@ export default function EnquiryForm() {
 
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="grid gap-2 text-sm font-medium text-slate-700">
-          Full name *
+          Full name*
           <input
             className="input"
             value={form.name}
@@ -332,7 +331,7 @@ export default function EnquiryForm() {
           />
         </label>
         <label className="grid gap-2 text-sm font-medium text-slate-700">
-          Email *
+          Email*
           <input
             type="email"
             className="input"
@@ -344,7 +343,7 @@ export default function EnquiryForm() {
           />
         </label>
         <label className="grid gap-2 text-sm font-medium text-slate-700">
-          Phone number *
+          Phone number*
           <input
             className="input"
             value={form.phone}
@@ -358,7 +357,7 @@ export default function EnquiryForm() {
       </div>
 
       <label className="grid gap-2 text-sm font-medium text-slate-700">
-        Message *
+        Message <span className="font-semibold text-indigo-600">(please share your availability)</span>
         <textarea
           className="input min-h-[140px] resize-y"
           value={form.message}

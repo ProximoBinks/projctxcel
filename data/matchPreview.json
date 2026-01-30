@@ -1,16 +1,16 @@
 {
-  "rotationMs": 3200,
+  "rotationMs": 5000,
   "focusAreas": [
     {
       "key": "sace",
-      "label": "Subjects + year level",
-      "desc": "We match the right specialist for each subject.",
+      "label": "School Subjects + ATAR",
+      "desc": "We match the right specialist for the subject you need.",
       "signals": ["Subjects", "Year level", "Assessment needs"],
       "tutorSlugs": ["lochie-siow", "lewis-gilbert", "evan-cox"]
     },
     {
       "key": "ucat",
-      "label": "ATAR + uni goals",
+      "label": "Medicine Entry + Uni Goals",
       "desc": "Aligned to the outcome your student is aiming for.",
       "signals": ["ATAR goals", "Uni pathway", "Exam timeline"],
       "tutorSlugs": ["lochie-siow", "nemindu-athukorala", "lachie-wang"]

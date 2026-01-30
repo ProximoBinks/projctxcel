@@ -13,21 +13,21 @@ import tutorsData from "../data/tutors.json";
 import testimonialsData from "../data/testimonials.json";
 import matchPreviewData from "../data/matchPreview.json";
 
-const proofPoints = [
+const services = [
   {
-    icon: "sparkle",
-    title: "Built for SACE outcomes",
-    copy: "Specialists across all SACE subjects plus UCAT and interview prep.",
+    icon: "school",
+    title: "Year 4–10 Acceleration Program",
+    copy: "Building strong foundations across core subjects with tailored mentoring to set students up for success.",
   },
   {
-    icon: "users",
-    title: "In-person, logistics handled",
-    copy: "Tutors coordinate sessions directly, keeping it seamless for families.",
+    icon: "book",
+    title: "SACE Program",
+    copy: "Targeted support for Year 11–12 students across all SACE subjects, focused on maximising ATAR results.",
   },
   {
-    icon: "check",
-    title: "Reception to Year 12",
-    copy: "Support across every stage of schooling, with tailored mentoring.",
+    icon: "stethoscope",
+    title: "Medicine Pathway",
+    copy: "Specialist preparation for UCAT and interview prep, guided by tutors who've earned medical offers themselves.",
   },
 ] as const;
 
@@ -35,17 +35,17 @@ const howItWorks = [
   {
     step: "01",
     title: "Tell us what you need",
-    copy: "Share year level, subjects, and goals. We'll tailor the match.",
+    copy: "Share your year level, subjects, goals, and availability - we'll take it from there.",
   },
   {
     step: "02",
     title: "Meet your tutor",
-    copy: "We connect you with the right expert for learning style and subject.",
+    copy: "We connect you with a tutor who fits their subject needs, learning style, and schedule.",
   },
   {
     step: "03",
-    title: "Start progressing fast",
-    copy: "Sessions start with a plan, clear milestones, and feedback loops.",
+    title: "See the results",
+    copy: "Same tutor, consistent sessions, and a plan that evolves through the year. Parents can enquire anytime about progress.",
   },
 ];
 
@@ -245,7 +245,7 @@ export default function HomePage() {
             <MotionInView className="relative">
               <div className="grid gap-6 lg:grid-cols-12">
                 <div className="lg:col-span-6">
-                  <div className="rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
+                  <div className="h-full rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
                     <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
                       Focus areas
                     </p>
@@ -288,13 +288,13 @@ export default function HomePage() {
                       })}
                     </div>
                     <p className="mt-4 text-xs text-slate-500">
-                      Hover a focus area to preview a matching tutor.
+                      Hover over a focus area to preview a matching tutor.
                     </p>
                   </div>
                 </div>
                 <div className="relative lg:col-span-6">
                   <div className="pointer-events-none absolute -left-3 top-10 hidden h-40 w-1 rounded-full bg-linear-to-b from-indigo-500/0 via-indigo-500/40 to-indigo-500/0 lg:block" />
-                  <div className="rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
+                  <div className="h-full rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
                     <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-indigo-500">
                       <span>Match preview</span>
                       <span className="normal-case tracking-normal text-slate-500">
@@ -369,11 +369,6 @@ export default function HomePage() {
                               View tutors →
                             </Link>
                           </div>
-                          <div className="mt-4">
-                            <span className="rounded-full border border-indigo-100 bg-indigo-50 px-3 py-1 text-xs font-medium text-indigo-700">
-                              In-person Adelaide metro
-                            </span>
-                          </div>
                         </motion.div>
                       </AnimatePresence>
                     </div>
@@ -385,27 +380,63 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="bg-white py-16 sm:py-20 lg:py-24">
-          <div className="mx-auto grid w-full max-w-[1200px] gap-6 px-6 sm:px-10 md:grid-cols-3">
-            {proofPoints.map((point, index) => (
-              <MotionInView key={point.title} delay={index * 0.08}>
+        <Section
+          id="services"
+          eyebrow="Our Services"
+          title="One-on-one programs for every stage"
+          subtitle="From primary school foundations to medical school admissions."
+        >
+          <div className="grid gap-6 md:grid-cols-3">
+            {services.map((service, index) => (
+              <MotionInView key={service.title} delay={index * 0.08}>
                 <motion.div
                   whileHover={{
                     y: -4,
                     boxShadow: "0 20px 40px rgba(15,23,42,0.08)",
                   }}
-                  className="h-full rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
+                  className="h-full min-h-[220px] rounded-2xl border border-slate-200/70 bg-white p-8 shadow-sm"
                 >
-                  <Icon name={point.icon} />
-                  <h3 className="mt-2 text-lg font-semibold text-slate-950">
-                    {point.title}
+                  <Icon name={service.icon} />
+                  <h3 className="mt-4 text-xl font-semibold text-slate-950">
+                    {service.title}
                   </h3>
-                  <p className="mt-3 text-sm text-slate-600">{point.copy}</p>
+                  <p className="mt-3 text-base text-slate-600">{service.copy}</p>
                 </motion.div>
               </MotionInView>
             ))}
           </div>
-        </section>
+          <h3 className="mt-10 text-lg font-semibold text-slate-950">Group programs</h3>
+          <div className="mt-4 grid gap-6 md:grid-cols-2">
+            {([
+              {
+                icon: "sparkle" as const,
+                title: "Subject Crash Courses",
+                copy: "Intensive group sessions targeting specific SACE subjects. Designed to rapidly build understanding and exam readiness in a short timeframe.",
+              },
+              {
+                icon: "stethoscope" as const,
+                title: "UCAT Program",
+                copy: "A structured group program covering all UCAT sections with timed practice, strategy workshops, and performance tracking to maximise your score.",
+              },
+            ]).map((item, index) => (
+              <MotionInView key={item.title} delay={index * 0.08}>
+                <motion.div
+                  whileHover={{
+                    y: -4,
+                    boxShadow: "0 20px 40px rgba(15,23,42,0.08)",
+                  }}
+                  className="h-full min-h-[240px] rounded-2xl border border-slate-200/70 bg-white p-8 shadow-sm"
+                >
+                  <Icon name={item.icon} />
+                  <h3 className="mt-4 text-xl font-semibold text-slate-950">
+                    {item.title}
+                  </h3>
+                  <p className="mt-3 text-base text-slate-600">{item.copy}</p>
+                </motion.div>
+              </MotionInView>
+            ))}
+          </div>
+        </Section>
 
         <Section
           id="tutors"
@@ -428,6 +459,17 @@ export default function HomePage() {
               <TutorCard key={tutor.slug} tutor={tutor} />
             ))}
           </div>
+          <p className="mt-10 text-sm text-slate-500">
+            Don&apos;t see your subject listed like Economics or Business
+            Innovation? Let us know in the{" "}
+            <a href="https://simpletuition.com.au/#enquire" className="text-indigo-600 underline">
+              signup form
+            </a>{" "}
+            and we can sort it out.
+          </p>
+          <p className="mt-2 text-xs text-slate-400">
+            All our tutors hold a valid Working with Children Check.
+          </p>
         </Section>
 
         <Section
@@ -498,8 +540,8 @@ export default function HomePage() {
         <Section
           id="how-it-works"
           eyebrow="How it works"
-          title="A clear, premium process"
-          subtitle="Designed to keep students focused and parents informed."
+          title="A simple, proven process"
+          subtitle="Designed to keep students on track and parents informed."
         >
           <div className="grid gap-6 lg:grid-cols-3">
             {howItWorks.map((step, index) => (
@@ -542,7 +584,6 @@ export default function HomePage() {
                 <ul className="mt-4 space-y-3 text-sm text-slate-600">
                   <li>We reply within 1 business day.</li>
                   <li>We match based on subject fit and learning style.</li>
-                  <li>Sessions are in-person across Adelaide metro.</li>
                 </ul>
                 <div className="mt-8 rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-700">
                   Pricing varies by tutor experience and subject. Enquire for a
