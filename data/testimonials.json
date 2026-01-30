@@ -1,72 +1,66 @@
-[
-  {
-    "quote": "Simple Tuition matched me with a tutor for my hardest subjects. I looked forward to seeing my tutors every week, and their support helped me get a 99.80 ATAR.",
-    "name": "Emmanuel L.",
-    "context": "2024 Graduate",
-    "active": true,
-    "sortOrder": 1
-  },
-  {
-    "quote": "The UCAT prep was structured and intense, and the interview coaching was next level.",
-    "name": "Daniel M.",
-    "context": "Year 12 student",
-    "active": true,
-    "sortOrder": 2
-  },
-  {
-    "quote": "We loved the calm, professional approach. Clear progress and regular check-ins.",
-    "name": "Priya K.",
-    "context": "Parent, Year 7",
-    "active": true,
-    "sortOrder": 3
-  },
-  {
-    "quote": "Our tutor was organised, encouraging, and always prepared. The confidence boost was huge.",
-    "name": "Olivia R.",
-    "context": "Year 11 student",
-    "active": true,
-    "sortOrder": 4
-  },
-  {
-    "quote": "The sessions were structured and goal-focused, which made studying feel much more manageable.",
-    "name": "Sam T.",
-    "context": "Year 10 student",
-    "active": true,
-    "sortOrder": 5
-  },
-  {
-    "quote": "We saw steady improvement each term and appreciated the clear communication throughout.",
-    "name": "Mia G.",
-    "context": "Parent, Year 9",
-    "active": true,
-    "sortOrder": 6
-  },
-  {
-    "quote": "Great mix of explanation and practice. I went from unsure to confident in a few weeks.",
-    "name": "Jordan P.",
-    "context": "Year 12 student",
-    "active": true,
-    "sortOrder": 7
-  },
-  {
-    "quote": "The tutor tailored lessons to my learning style and kept me accountable.",
-    "name": "Harper W.",
-    "context": "Year 8 student",
-    "active": true,
-    "sortOrder": 8
-  },
-  {
-    "quote": "Professional, friendly, and results-driven. Exactly what we were looking for.",
-    "name": "Leo B.",
-    "context": "Parent, Year 6",
-    "active": true,
-    "sortOrder": 9
-  },
-  {
-    "quote": "UCAT preparation felt clear and systematic. The strategies made a real difference.",
-    "name": "Ava N.",
-    "context": "Year 12 student",
-    "active": true,
-    "sortOrder": 10
-  }
-]
+{
+  "rowOne": [
+    {
+      "quote": "Simple Tuition matched me with a tutor for my hardest subjects. I looked forward to seeing my tutors every week, and their support helped me get a 99.80 ATAR.",
+      "name": "Emmanuel L.",
+      "context": "2024 Graduate",
+      "active": true
+    },
+    {
+      "quote": "The UCAT prep was structured and intense, and the interview coaching was next level.",
+      "name": "Daniel M.",
+      "context": "Year 12 student",
+      "active": true
+    },
+    {
+      "quote": "We loved the calm, professional approach. Clear progress and regular check-ins.",
+      "name": "Priya K.",
+      "context": "Parent, Year 7",
+      "active": true
+    },
+    {
+      "quote": "Our tutor was organised, encouraging, and always prepared. The confidence boost was huge.",
+      "name": "Olivia R.",
+      "context": "Year 11 student",
+      "active": true
+    },
+    {
+      "quote": "The sessions were structured and goal-focused, which made studying feel much more manageable.",
+      "name": "Sam T.",
+      "context": "Year 10 student",
+      "active": true
+    }
+  ],
+  "rowTwo": [
+    {
+      "quote": "We saw steady improvement each term and appreciated the clear communication throughout.",
+      "name": "Mia G.",
+      "context": "Parent, Year 9",
+      "active": true
+    },
+    {
+      "quote": "Great mix of explanation and practice. I went from unsure to confident in a few weeks.",
+      "name": "Jordan P.",
+      "context": "Year 12 student",
+      "active": true
+    },
+    {
+      "quote": "The tutor tailored lessons to my learning style and kept me accountable.",
+      "name": "Harper W.",
+      "context": "Year 8 student",
+      "active": true
+    },
+    {
+      "quote": "Professional, friendly, and results-driven. Exactly what we were looking for.",
+      "name": "Leo B.",
+      "context": "Parent, Year 6",
+      "active": true
+    },
+    {
+      "quote": "UCAT preparation felt clear and systematic. The strategies made a real difference.",
+      "name": "Ava N.",
+      "context": "Year 12 student",
+      "active": true
+    }
+  ]
+}

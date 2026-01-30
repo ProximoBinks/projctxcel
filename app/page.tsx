@@ -61,28 +61,19 @@ export default function HomePage() {
   const tutors = tutorsData
     .filter((tutor) => tutor.active)
     .sort((a, b) => a.sortOrder - b.sortOrder);
-  const testimonials = testimonialsData
-    .filter((testimonial) => testimonial.active)
-    .sort((a, b) => a.sortOrder - b.sortOrder);
-  const shuffledTestimonials = useMemo(() => {
-    const result = [...testimonials];
-    for (let i = result.length - 1; i > 0; i -= 1) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [result[i], result[j]] = [result[j], result[i]];
-    }
-    return result;
-  }, [testimonials.length]);
-  const testimonialsLoop = [
-    ...shuffledTestimonials,
-    ...shuffledTestimonials,
+  const testimonialsRowOne = (testimonialsData.rowOne ?? []).filter(
+    (testimonial) => testimonial.active,
+  );
+  const testimonialsRowTwo = (testimonialsData.rowTwo ?? []).filter(
+    (testimonial) => testimonial.active,
+  );
+  const testimonialsRowOneLoop = [
+    ...testimonialsRowOne,
+    ...testimonialsRowOne,
   ];
-  const testimonialsOffset = [
-    ...shuffledTestimonials.slice(Math.ceil(shuffledTestimonials.length / 2)),
-    ...shuffledTestimonials.slice(0, Math.ceil(shuffledTestimonials.length / 2)),
-  ];
-  const testimonialsOffsetLoop = [
-    ...testimonialsOffset,
-    ...testimonialsOffset,
+  const testimonialsRowTwoLoop = [
+    ...testimonialsRowTwo,
+    ...testimonialsRowTwo,
   ];
   const focusAreas = matchPreviewData.focusAreas as Array<{
     key: FocusKey;
@@ -448,7 +439,7 @@ export default function HomePage() {
           <div className="space-y-6">
             <div className="carousel-row carousel-fade">
               <div className="carousel-track">
-                {testimonialsLoop.map((testimonial, index) => (
+                {testimonialsRowOneLoop.map((testimonial, index) => (
                   <div
                     key={`${testimonial.name}-top-${index}`}
                     className="relative w-[320px] shrink-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
@@ -477,7 +468,7 @@ export default function HomePage() {
                 className="carousel-track carousel-track-reverse"
                 style={{ animationDelay: "-18s" }}
               >
-                {testimonialsOffsetLoop.map((testimonial, index) => (
+                {testimonialsRowTwoLoop.map((testimonial, index) => (
                   <div
                     key={`${testimonial.name}-bottom-${index}`}
                     className="relative w-[320px] shrink-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
