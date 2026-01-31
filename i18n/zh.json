@@ -1,0 +1,266 @@
+{
+  "nav": {
+    "tutors": "导师",
+    "testimonials": "学生反馈",
+    "howItWorks": "服务流程",
+    "enquire": "立即咨询",
+    "backToSite": "返回主页"
+  },
+  "hero": {
+    "eyebrow": "Year 4-12 私人辅导",
+    "title": "卓越辅导",
+    "titleAccent": "为你量身定制",
+    "subtitle": "Simple Tuition 为学生匹配高分学长学姐，提供 SACE 科目、UCAT 及医学面试辅导。",
+    "cta": "立即咨询",
+    "ctaSecondary": "查看导师",
+    "focusAreasLabel": "服务方向",
+    "focusAreasHint": "将鼠标悬停在服务方向上，预览匹配的导师。",
+    "matchPreview": "导师预览",
+    "takingStudents": "本周可接收新学生",
+    "matchingSignals": "匹配依据",
+    "subjects": "授课科目",
+    "enquireNow": "立即咨询",
+    "viewTutors": "查看导师 →"
+  },
+  "focusAreas": {
+    "sace": {
+      "label": "学校科目 + ATAR",
+      "desc": "我们为您需要的科目匹配合适的专业导师。",
+      "signals": ["科目", "年级", "考试需求"]
+    },
+    "ucat": {
+      "label": "医学入学 + 大学目标",
+      "desc": "根据学生的目标进行精准匹配。",
+      "signals": ["ATAR 目标", "大学方向", "考试时间线"]
+    },
+    "tailored": {
+      "label": "兴趣 + 爱好",
+      "desc": "我们考虑性格契合度，提升学习参与感。",
+      "signals": ["兴趣", "爱好", "学习动力"]
+    },
+    "in_person": {
+      "label": "学习风格 + 师生默契",
+      "desc": "匹配最适合学生学习方式的辅导风格。",
+      "signals": ["学习风格", "师生默契", "课程形式"]
+    }
+  },
+  "services": {
+    "eyebrow": "我们的服务",
+    "title": "覆盖各阶段的一对一辅导",
+    "subtitle": "从小学基础到医学院申请，全程陪伴。",
+    "items": [
+      {
+        "title": "Year 4–10 提速计划",
+        "copy": "在核心科目上建立扎实基础，通过针对性辅导帮助学生为未来做好准备。"
+      },
+      {
+        "title": "SACE 辅导计划",
+        "copy": "为 Year 11–12 学生提供所有 SACE 科目的针对性支持，专注于最大化 ATAR 成绩。"
+      },
+      {
+        "title": "医学通道",
+        "copy": "由获得医学录取的导师提供 UCAT 和面试准备的专业辅导。"
+      }
+    ],
+    "groupTitle": "小组课程",
+    "groupSubtitle": "协作式课程，旨在共同提升技能和考试信心。",
+    "groupItems": [
+      {
+        "title": "科目集训班",
+        "copy": "针对特定 SACE 科目的密集小组课程，旨在短时间内快速提升理解力和考试准备。"
+      },
+      {
+        "title": "UCAT 课程",
+        "copy": "涵盖所有 UCAT 部分的结构化小组课程，包括限时练习、策略研讨和成绩跟踪，帮助你最大化分数。"
+      }
+    ]
+  },
+  "tutorsSection": {
+    "eyebrow": "导师团队",
+    "title": "向最优秀的人学习",
+    "subtitle": "一支经历过相同体系的精选团队。我们的导师均为",
+    "subtitleBold": "ATAR 前 1% 的高分学生",
+    "subtitleEnd": "，许多人获得了科目优异成绩，跻身全州最佳行列——并因此进入了理想的大学专业。",
+    "missingSubject": "没看到你需要的科目，如 Economics 或 Business Innovation？请在",
+    "signupForm": "咨询表格",
+    "missingSubjectEnd": "中告诉我们，我们会帮你安排。",
+    "wwcc": "所有导师均持有有效的儿童工作审查证明。"
+  },
+  "testimonials": {
+    "eyebrow": "学生反馈",
+    "title": "受到学生和家长的信任",
+    "subtitle": "个性化支持，成效持久。",
+    "row1": [
+      { "quote": "Simple Tuition 为我最难的科目匹配了合适的导师。我每周都期待见到我的导师，他们的支持帮助我取得了 99.80 的 ATAR。", "context": "2024 毕业生" },
+      { "quote": "UCAT 准备课程结构清晰、强度适中，面试辅导更是出色。", "context": "Year 12 学生" },
+      { "quote": "我们喜欢这种沉稳、专业的方式。进步明显，沟通及时。", "context": "家长，Year 7" },
+      { "quote": "我们的导师有条理、有鼓励性，而且总是做好了充分准备。自信心的提升非常明显。", "context": "Year 11 学生" },
+      { "quote": "课程结构清晰、目标明确，让学习变得更加容易管理。", "context": "Year 10 学生" }
+    ],
+    "row2": [
+      { "quote": "每学期我们都看到了稳步提升，也非常感谢全程清晰的沟通。", "context": "家长，Year 9" },
+      { "quote": "讲解和练习的结合很好。几周内我就从不确定变得自信了。", "context": "Year 12 学生" },
+      { "quote": "导师根据我的学习风格定制课程，并让我保持学习节奏。", "context": "Year 8 学生" },
+      { "quote": "专业、友好、注重成果。正是我们想要的。", "context": "家长，Year 6" },
+      { "quote": "UCAT 准备课程清晰有条理。这些策略真的有效。", "context": "Year 12 学生" }
+    ]
+  },
+  "howItWorks": {
+    "eyebrow": "服务流程",
+    "title": "简单且有效的流程",
+    "subtitle": "帮助学生保持进度，让家长随时了解情况。",
+    "steps": [
+      { "step": "01", "title": "告诉我们您的需求", "copy": "分享您的年级、科目、目标和时间安排——我们会处理好一切。" },
+      { "step": "02", "title": "认识您的导师", "copy": "我们根据科目需求、学习风格和时间安排为您匹配最合适的导师。" },
+      { "step": "03", "title": "看到成果", "copy": "固定的导师、持续的课程、全年不断优化的学习计划。家长可随时了解学习进展。" }
+    ]
+  },
+  "enquireSection": {
+    "eyebrow": "立即咨询",
+    "title": "告诉我们您孩子的需求",
+    "subtitle": "我们将回复推荐的导师及可用时间。",
+    "whatToExpect": "您可以期待什么",
+    "expectItems": [
+      "我们在 1 个工作日内回复。",
+      "我们根据科目契合度和学习风格进行匹配。"
+    ],
+    "pricingNote": "价格因导师经验和科目而异。请咨询获取报价。",
+    "loading": "正在加载咨询表格..."
+  },
+  "footer": {
+    "rights": "版权所有。",
+    "privacy": "隐私政策",
+    "terms": "服务条款"
+  },
+  "form": {
+    "howCanWeHelp": "我们能为您做什么？*",
+    "typeStudent": "我在寻找导师",
+    "typeTutor": "我想加入团队",
+    "typeGeneral": "一般咨询",
+    "yearLevel": "年级*",
+    "selectYearLevel": "请选择年级",
+    "targetAtar": "目标 ATAR",
+    "selectTargetRange": "请选择目标范围",
+    "asHighAsPossible": "尽可能高",
+    "subjectsLabel": "您需要哪些科目的辅导？*",
+    "subjectsPlaceholder": "如 Specialist Maths, Chemistry",
+    "goalCourse": "目标大学 + 专业",
+    "goalCoursePlaceholder": "如 Medicine, Engineering",
+    "interests": "兴趣与爱好",
+    "experience": "经验*",
+    "expertise": "专长（科目 + 年级）*",
+    "expertisePlaceholder": "如 Maths Methods, Year 10-12",
+    "cvUpload": "上传简历（PDF/DOCX）",
+    "fullName": "姓名*",
+    "email": "邮箱*",
+    "phone": "电话*",
+    "message": "留言",
+    "messageHighlight": "（请告知您的可用时间）",
+    "consent": "我同意接收关于辅导服务及不定期更新/推广的联系。",
+    "privacyPolicy": "隐私政策",
+    "errorRequired": "请填写所有必填联系信息并勾选同意。",
+    "errorStudent": "请填写所有必填的学生信息。",
+    "errorTutor": "请填写所有必填的导师信息。",
+    "errorGeneric": "出了点问题，请稍后重试。",
+    "success": "感谢您的咨询。我们将尽快与您联系。",
+    "sending": "发送中...",
+    "submit": "提交咨询"
+  },
+  "tutorDetail": {
+    "about": "关于",
+    "subjects": "授课科目",
+    "yearLevels": "授课年级",
+    "readyToEnquire": "准备好咨询了吗？",
+    "readyToEnquireDesc": "分享您的目标，我们将为您安排合适的辅导。",
+    "enquire": "立即咨询"
+  },
+  "tutorBios": {
+    "lochie-siow": "2025 年 St Peter's College 全校第一。成绩说明一切。",
+    "nemindu-athukorala": "作为导师，Nemindu 擅长将复杂概念拆解为简单易懂的内容。",
+    "lewis-gilbert": "2024 年 St Peter's College 全校第一。Lewis 以结构化的方式帮助学生真正理解知识。",
+    "evan-cox": "Evan 在 English Literature 和 Research Project 中获得优异成绩，同时也是出色的 Maths Methods 和 Physics 导师。",
+    "lachie-wang": "2025 年 Mercedes College 全校第一。Lachie 是一位务实的导师，能有效地为学生备考。",
+    "andrew-xu": "Andrew 在 Physics 中获得优异成绩并取得了很高的 UCAT 分数——同时还是州级羽毛球运动员。",
+    "yousif-shibeeb": "尽管 UCAT 成绩未达目标，Yousif 在面试中表现出色，获得了医学第一轮录取。",
+    "bal-gilhotra": "Bal 在 Year 12 全力以赴，取得了出色的成绩并获得了医学第一轮录取。",
+    "ansen-li": "Ansen 是一位友善、平易近人的导师，在 Physics 中获得优异成绩，擅长帮助学生建立自信。"
+  },
+  "statLabels": {
+    "ATAR": "ATAR",
+    "percentile UCAT": "UCAT 百分位",
+    "Med Student": "医学生",
+    "SACE Merits": "SACE 优异成绩",
+    "Engineering & Maths Student": "工程与数学学生",
+    "Engineering & Comp Sci": "工程与计算机",
+    "All Subjects": "所有科目",
+    "SACE Merit": "SACE 优异成绩"
+  },
+  "privacy": {
+    "eyebrow": "隐私",
+    "title": "隐私政策",
+    "intro": "本隐私政策说明 Simple Tuition 如何收集、使用和保护通过我们网站提供的个人信息。",
+    "sections": [
+      {
+        "heading": "我们收集的信息",
+        "body": "当您提交咨询时，我们会收集联系方式以及您提供的有关辅导需求或导师申请的信息。我们还可能收集基本分析数据，如 UTM 参数。"
+      },
+      {
+        "heading": "我们如何使用信息",
+        "body": "我们使用这些信息来回复咨询、为学生匹配导师、评估导师申请以及就我们的服务进行沟通。我们仅在需要时征得同意后与您联系。"
+      },
+      {
+        "heading": "简历和附件",
+        "body": "导师申请可能包含简历附件。这些文件会发送至我们的邮箱，仅用于评估目的。"
+      },
+      {
+        "heading": "数据存储和共享",
+        "body": "我们安全地存储咨询记录，不会向第三方出售或分享您的个人信息，除非是帮助我们运营网站和发送邮件的服务提供商。"
+      },
+      {
+        "heading": "您的权利",
+        "body": "您可以请求访问、更正或删除您的个人信息。请联系我们提出请求。"
+      },
+      {
+        "heading": "联系方式",
+        "body": "如有隐私相关问题，请发送邮件至"
+      }
+    ]
+  },
+  "terms": {
+    "eyebrow": "条款",
+    "title": "服务条款",
+    "intro": "本服务条款概述了使用 Simple Tuition 网站和服务的条件。",
+    "sections": [
+      {
+        "heading": "服务内容",
+        "body": "Simple Tuition 提供辅导介绍和协调服务。导师独立运营，自行管理课程安排。"
+      },
+      {
+        "heading": "咨询与匹配",
+        "body": "我们根据您提供的信息推荐合适的导师。我们不保证可用性或结果，但我们会尽力做到最佳匹配。"
+      },
+      {
+        "heading": "付款与定价",
+        "body": "价格因导师经验和科目而异。费用、时间安排和取消事宜由您与导师直接商定。"
+      },
+      {
+        "heading": "导师申请者",
+        "body": "申请根据能力和契合度进行评估。我们可能会在审核过程中要求提供额外信息。"
+      },
+      {
+        "heading": "责任限制",
+        "body": "我们会尽合理努力为家庭匹配导师，但不对结果、可用性或独立导师的行为承担责任。"
+      },
+      {
+        "heading": "联系方式",
+        "body": "如对本条款有疑问，请联系"
+      }
+    ]
+  },
+  "enquirePage": {
+    "eyebrow": "立即咨询",
+    "title": "告诉我们您需要什么帮助",
+    "subtitle": "请填写下方表格，我们将尽快与您联系。",
+    "loading": "正在加载咨询表格..."
+  }
+}

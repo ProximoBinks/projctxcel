@@ -3,9 +3,9 @@ import "../styles/globals.css";
 import Providers from "./providers";
 
 export const metadata: Metadata = {
-  title: "Simple Tuition | Premium tutoring",
+  title: "Simple Tuition | Adelaide Tutoring",
   description:
-    "Modern, in-person tutoring from Reception to Year 12 across SACE, UCAT, and interview prep.",
+    "In-person individual and group tutoring from Year 4 to Year 12 across SACE, UCAT, and interview prep.",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 

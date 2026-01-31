@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useTranslation } from "../i18n/LanguageContext";
 
 type TutorStat = { label: string; value: string };
 
@@ -15,6 +16,18 @@ export type TutorCardData = {
 };
 
 export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
+  const { t } = useTranslation();
+
+  const displayBio = (() => {
+    const translated = t(`tutorBios.${tutor.slug}`);
+    return translated !== `tutorBios.${tutor.slug}` ? translated : tutor.bioShort;
+  })();
+
+  const getStatLabel = (label: string) => {
+    const translated = t(`statLabels.${label}`);
+    return translated !== `statLabels.${label}` ? translated : label;
+  };
+
   return (
     <motion.div
       whileHover={{
@@ -65,7 +78,7 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
           </div>
         </div>
         <div className="mt-5 min-h-16">
-          <p className="text-sm text-slate-600">{tutor.bioShort}</p>
+          <p className="text-sm text-slate-600">{displayBio}</p>
         </div>
         <div className="mt-5 flex flex-wrap gap-2">
           {tutor.subjects.map((subject) => (
@@ -84,7 +97,7 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
               <p className="text-base font-semibold text-slate-900">
                 {stat.value}
               </p>
-              <p className="text-xs text-slate-400">{stat.label}</p>
+              <p className="text-xs text-slate-400">{getStatLabel(stat.label)}</p>
             </div>
           ))}
         </div>

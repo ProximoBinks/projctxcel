@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { useTranslation } from "../i18n/LanguageContext";
 
 type FormState = {
   type: "student" | "tutor" | "general";
@@ -40,6 +41,7 @@ const initialState: FormState = {
 };
 
 export default function EnquiryForm() {
+  const { t } = useTranslation();
   const [form, setForm] = useState<FormState>(initialState);
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">(
     "idle"
@@ -71,20 +73,20 @@ export default function EnquiryForm() {
     setError(null);
 
     if (!form.name || !form.email || !form.phone || !form.consent) {
-      setError("Please complete the required contact fields and consent.");
+      setError(t("form.errorRequired"));
       return;
     }
 
     if (form.type === "student") {
       if (!form.yearLevel || !form.subjects || !form.interests) {
-        setError("Please complete the required student fields.");
+        setError(t("form.errorStudent"));
         return;
       }
     }
 
     if (form.type === "tutor") {
       if (!form.experience || !form.expertise) {
-        setError("Please complete the required tutor fields.");
+        setError(t("form.errorTutor"));
         return;
       }
     }
@@ -144,7 +146,7 @@ export default function EnquiryForm() {
     } catch (err) {
       console.error(err);
       setStatus("error");
-      setError("Something went wrong. Please try again shortly.");
+      setError(t("form.errorGeneric"));
     }
   };
 
@@ -155,13 +157,13 @@ export default function EnquiryForm() {
     >
       <div className="grid gap-3">
         <p className="text-sm font-semibold text-slate-900">
-          How can we help you today?*
+          {t("form.howCanWeHelp")}
         </p>
         <div className="grid gap-3 sm:grid-cols-2">
           {[
-            { value: "student", label: "I am looking for a tutor" },
-            { value: "tutor", label: "I am looking to join the team" },
-            { value: "general", label: "General enquiry" },
+            { value: "student", label: t("form.typeStudent") },
+            { value: "tutor", label: t("form.typeTutor") },
+            { value: "general", label: t("form.typeGeneral") },
           ].map((option) => (
             <button
               key={option.value}
@@ -188,7 +190,7 @@ export default function EnquiryForm() {
         <>
           <div className="grid gap-5 sm:grid-cols-2">
             <label className="grid gap-2 text-sm font-medium text-slate-700">
-              Year level*
+              {t("form.yearLevel")}
               <select
                 className="input bg-white"
                 value={form.yearLevel}
@@ -197,7 +199,7 @@ export default function EnquiryForm() {
                 }
                 required
               >
-                <option value="">Select year level</option>
+                <option value="">{t("form.selectYearLevel")}</option>
                 {yearLevels.map((level) => (
                   <option key={level} value={level}>
                     {level}
@@ -206,7 +208,7 @@ export default function EnquiryForm() {
               </select>
             </label>
             <label className="grid gap-2 text-sm font-medium text-slate-700">
-              Target ATAR
+              {t("form.targetAtar")}
               <select
                 className="input bg-white"
                 value={form.targetAtar}
@@ -217,36 +219,36 @@ export default function EnquiryForm() {
                   }))
                 }
               >
-                <option value="">Select target range</option>
+                <option value="">{t("form.selectTargetRange")}</option>
                 {[
                   "70-89",
                   "90-98",
                   "99+",
-                  "As high as possible",
                 ].map((range) => (
                   <option key={range} value={range}>
                     {range}
                   </option>
                 ))}
+                <option value="As high as possible">{t("form.asHighAsPossible")}</option>
               </select>
             </label>
           </div>
 
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Which subjects do you need help with?*
+            {t("form.subjectsLabel")}
             <input
               className="input"
               value={form.subjects}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, subjects: event.target.value }))
               }
-              placeholder="e.g. Specialist Maths, Chemistry"
+              placeholder={t("form.subjectsPlaceholder")}
               required
             />
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Goal University + Course
+            {t("form.goalCourse")}
             <input
               className="input"
               value={form.plannedCourse}
@@ -256,12 +258,12 @@ export default function EnquiryForm() {
                   plannedCourse: event.target.value,
                 }))
               }
-              placeholder="e.g. Medicine, Engineering"
+              placeholder={t("form.goalCoursePlaceholder")}
             />
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Interests & hobbies
+            {t("form.interests")}
             <textarea
               className="input min-h-[120px] resize-y"
               value={form.interests}
@@ -277,7 +279,7 @@ export default function EnquiryForm() {
       {form.type === "tutor" ? (
         <>
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Experience*
+            {t("form.experience")}
             <textarea
               className="input min-h-[140px] resize-y"
               value={form.experience}
@@ -289,20 +291,20 @@ export default function EnquiryForm() {
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            Expertise (subjects + year levels)*
+            {t("form.expertise")}
             <input
               className="input"
               value={form.expertise}
               onChange={(event) =>
                 setForm((prev) => ({ ...prev, expertise: event.target.value }))
               }
-              placeholder="e.g. Maths Methods, Year 10-12"
+              placeholder={t("form.expertisePlaceholder")}
               required
             />
           </label>
 
           <label className="grid gap-2 text-sm font-medium text-slate-700">
-            CV upload (PDF/DOCX)
+            {t("form.cvUpload")}
             <input
               type="file"
               accept=".pdf,.docx"
@@ -320,7 +322,7 @@ export default function EnquiryForm() {
 
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="grid gap-2 text-sm font-medium text-slate-700">
-          Full name*
+          {t("form.fullName")}
           <input
             className="input"
             value={form.name}
@@ -331,7 +333,7 @@ export default function EnquiryForm() {
           />
         </label>
         <label className="grid gap-2 text-sm font-medium text-slate-700">
-          Email*
+          {t("form.email")}
           <input
             type="email"
             className="input"
@@ -343,7 +345,7 @@ export default function EnquiryForm() {
           />
         </label>
         <label className="grid gap-2 text-sm font-medium text-slate-700">
-          Phone number*
+          {t("form.phone")}
           <input
             className="input"
             value={form.phone}
@@ -357,7 +359,7 @@ export default function EnquiryForm() {
       </div>
 
       <label className="grid gap-2 text-sm font-medium text-slate-700">
-        Message <span className="font-semibold text-indigo-600">(please share your availability)</span>
+        {t("form.message")} <span className="font-semibold text-indigo-600">{t("form.messageHighlight")}</span>
         <textarea
           className="input min-h-[140px] resize-y"
           value={form.message}
@@ -379,10 +381,9 @@ export default function EnquiryForm() {
           required
         />
         <span>
-          I agree to be contacted about tutoring services and occasional
-          updates/promotions.{" "}
+          {t("form.consent")}{" "}
           <a href="/privacy" target="_blank" className="font-semibold text-indigo-600">
-            Privacy Policy
+            {t("form.privacyPolicy")}
           </a>
         </span>
       </label>
@@ -402,7 +403,7 @@ export default function EnquiryForm() {
       {error ? <p className="text-sm text-red-500">{error}</p> : null}
       {status === "success" ? (
         <p className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-700">
-          Thanks for your enquiry. We will be in touch shortly.
+          {t("form.success")}
         </p>
       ) : null}
 
@@ -411,7 +412,7 @@ export default function EnquiryForm() {
         disabled={status === "loading"}
         className="btn btn-lg w-full justify-center rounded-full"
       >
-        {status === "loading" ? "Sending..." : "Submit enquiry"}
+        {status === "loading" ? t("form.sending") : t("form.submit")}
       </button>
     </form>
   );

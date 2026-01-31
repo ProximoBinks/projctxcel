@@ -1,0 +1,223 @@
+{
+  "nav": {
+    "tutors": "Tutors",
+    "testimonials": "Testimonials",
+    "howItWorks": "How it works",
+    "enquire": "Enquire",
+    "backToSite": "Back to site"
+  },
+  "hero": {
+    "eyebrow": "Private tutoring for Year 4-12",
+    "title": "Exceptional tutoring",
+    "titleAccent": "tailored to you",
+    "subtitle": "Simple Tuition connects students with high-achievers for SACE subjects, UCAT, and medicine interview preparation.",
+    "cta": "Enquire now",
+    "ctaSecondary": "View tutors",
+    "focusAreasLabel": "Focus areas",
+    "focusAreasHint": "Hover over a focus area to preview a matching tutor.",
+    "matchPreview": "Match preview",
+    "takingStudents": "Taking students this week",
+    "matchingSignals": "Matching signals",
+    "subjects": "Subjects",
+    "enquireNow": "Enquire now",
+    "viewTutors": "View tutors →"
+  },
+  "focusAreas": {},
+  "services": {
+    "eyebrow": "Our Services",
+    "title": "One-on-one programs for every stage",
+    "subtitle": "From primary school foundations to medical school admissions.",
+    "items": [
+      {
+        "title": "Year 4–10 Acceleration Program",
+        "copy": "Building strong foundations across core subjects with tailored mentoring to set students up for success."
+      },
+      {
+        "title": "SACE Program",
+        "copy": "Targeted support for Year 11–12 students across all SACE subjects, focused on maximising ATAR results."
+      },
+      {
+        "title": "Medicine Pathway",
+        "copy": "Specialist preparation for UCAT and interview prep, guided by tutors who've earned medical offers themselves."
+      }
+    ],
+    "groupTitle": "Group programs",
+    "groupSubtitle": "Collaborative sessions designed to sharpen skills and build exam confidence together.",
+    "groupItems": [
+      {
+        "title": "Subject Classes + Crash Courses",
+        "copy": "Intensive group sessions targeting specific SACE subjects. Designed to rapidly build understanding and exam readiness in a short timeframe."
+      },
+      {
+        "title": "UCAT Program",
+        "copy": "A structured group program covering all UCAT sections with timed practice, strategy workshops, and performance tracking to maximise your score."
+      }
+    ]
+  },
+  "tutorsSection": {
+    "eyebrow": "Tutors",
+    "title": "Learn from the best",
+    "subtitle": "A handpicked team who've been through the same systems. Our tutors are all",
+    "subtitleBold": "top 1% ATAR achievers",
+    "subtitleEnd": ", with many earning subject merits and ranking among the best in the state - helping them reach their dream degrees.",
+    "missingSubject": "Don't see your subject listed like Economics or Business Innovation? Let us know in the",
+    "signupForm": "signup form",
+    "missingSubjectEnd": "and we can sort it out.",
+    "wwcc": "All our tutors hold a valid Working with Children Check."
+  },
+  "testimonials": {
+    "eyebrow": "Testimonials",
+    "title": "Trusted by students and parents",
+    "subtitle": "Personalised support with outcomes that last.",
+    "row1": [],
+    "row2": []
+  },
+  "howItWorks": {
+    "eyebrow": "How it works",
+    "title": "A simple, proven process",
+    "subtitle": "Designed to keep students on track and parents informed.",
+    "steps": [
+      { "step": "01", "title": "Tell us what you need", "copy": "Share your year level, subjects, goals, and availability - we'll take it from there." },
+      { "step": "02", "title": "Meet your tutor", "copy": "We connect you with a tutor who fits their subject needs, learning style, and schedule." },
+      { "step": "03", "title": "See the results", "copy": "Same tutor, consistent sessions, and a plan that evolves through the year. Parents can enquire anytime about progress." }
+    ]
+  },
+  "enquireSection": {
+    "eyebrow": "Enquire",
+    "title": "Tell us what your student needs",
+    "subtitle": "We will respond with a recommended tutor and availability.",
+    "whatToExpect": "What to expect",
+    "expectItems": [
+      "We reply within 1 business day.",
+      "We match based on subject fit and learning style."
+    ],
+    "pricingNote": "Pricing varies by tutor experience and subject. Enquire for a quote.",
+    "loading": "Loading enquiry form..."
+  },
+  "footer": {
+    "rights": "All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms"
+  },
+  "form": {
+    "howCanWeHelp": "How can we help you today?*",
+    "typeStudent": "I am looking for a tutor",
+    "typeTutor": "I am looking to join the team",
+    "typeGeneral": "General enquiry",
+    "yearLevel": "Year level*",
+    "selectYearLevel": "Select year level",
+    "targetAtar": "Target ATAR",
+    "selectTargetRange": "Select target range",
+    "asHighAsPossible": "As high as possible",
+    "subjectsLabel": "Which subjects do you need help with?*",
+    "subjectsPlaceholder": "e.g. Specialist Maths, Chemistry",
+    "goalCourse": "Goal University + Course",
+    "goalCoursePlaceholder": "e.g. Medicine, Engineering",
+    "interests": "Interests & hobbies",
+    "experience": "Experience*",
+    "expertise": "Expertise (subjects + year levels)*",
+    "expertisePlaceholder": "e.g. Maths Methods, Year 10-12",
+    "cvUpload": "CV upload (PDF/DOCX)",
+    "fullName": "Full name*",
+    "email": "Email*",
+    "phone": "Phone number*",
+    "message": "Message",
+    "messageHighlight": "(please share your availability)",
+    "consent": "I agree to be contacted about tutoring services and occasional updates/promotions.",
+    "privacyPolicy": "Privacy Policy",
+    "errorRequired": "Please complete the required contact fields and consent.",
+    "errorStudent": "Please complete the required student fields.",
+    "errorTutor": "Please complete the required tutor fields.",
+    "errorGeneric": "Something went wrong. Please try again shortly.",
+    "success": "Thanks for your enquiry. We will be in touch shortly.",
+    "sending": "Sending...",
+    "submit": "Submit enquiry"
+  },
+  "tutorDetail": {
+    "about": "About",
+    "subjects": "Subjects",
+    "yearLevels": "Year levels",
+    "readyToEnquire": "Ready to enquire?",
+    "readyToEnquireDesc": "Share your goals and we will set up the right support.",
+    "enquire": "Enquire"
+  },
+  "tutorBios": {},
+  "statLabels": {
+    "ATAR": "ATAR",
+    "percentile UCAT": "percentile UCAT",
+    "Med Student": "Med Student",
+    "SACE Merits": "SACE Merits",
+    "Engineering & Maths Student": "Engineering & Maths Student",
+    "Engineering & Comp Sci": "Engineering & Comp Sci",
+    "All Subjects": "All Subjects",
+    "SACE Merit": "SACE Merit"
+  },
+  "privacy": {
+    "eyebrow": "Privacy",
+    "title": "Privacy Policy",
+    "intro": "This Privacy Policy explains how Simple Tuition collects, uses, and protects personal information provided through our website.",
+    "sections": [
+      {
+        "heading": "Information we collect",
+        "body": "When you submit an enquiry, we collect contact details and any information you provide about tutoring needs or tutor applications. We may also collect basic analytics data such as UTM parameters."
+      },
+      {
+        "heading": "How we use information",
+        "body": "We use this information to respond to enquiries, match students with tutors, assess tutor applications, and communicate about our services. We only contact you with consent where required."
+      },
+      {
+        "heading": "CVs and attachments",
+        "body": "Tutor applications may include CV attachments. These are sent to our inbox and used solely for assessment purposes."
+      },
+      {
+        "heading": "Data storage and sharing",
+        "body": "We store enquiry records securely and do not sell or share your personal information with third parties, except for service providers that help us run the website and deliver emails."
+      },
+      {
+        "heading": "Your rights",
+        "body": "You may request access to, correction of, or deletion of your personal information. Contact us to make a request."
+      },
+      {
+        "heading": "Contact",
+        "body": "For privacy questions, email us at"
+      }
+    ]
+  },
+  "terms": {
+    "eyebrow": "Terms",
+    "title": "Terms of Service",
+    "intro": "These Terms of Service outline the conditions for using the Simple Tuition website and services.",
+    "sections": [
+      {
+        "heading": "Services",
+        "body": "Simple Tuition provides tutoring introductions and coordination. Tutors operate independently and manage their own session logistics."
+      },
+      {
+        "heading": "Enquiries and matching",
+        "body": "We use the details you provide to recommend suitable tutors. We do not guarantee availability or outcomes, but we aim to make the best match possible."
+      },
+      {
+        "heading": "Payments and pricing",
+        "body": "Pricing varies by tutor experience and subject. Fees, scheduling, and cancellations are agreed directly between you and the tutor."
+      },
+      {
+        "heading": "Tutor applicants",
+        "body": "Applications are assessed on merit and fit. We may request additional information during the review process."
+      },
+      {
+        "heading": "Liability",
+        "body": "We make reasonable efforts to match families with tutors but are not liable for outcomes, availability, or actions taken by independent tutors."
+      },
+      {
+        "heading": "Contact",
+        "body": "For questions about these terms, contact"
+      }
+    ]
+  },
+  "enquirePage": {
+    "eyebrow": "Enquire",
+    "title": "Tell us how we can help",
+    "subtitle": "Complete the form below and we will be in touch shortly.",
+    "loading": "Loading enquiry form..."
+  }
+}

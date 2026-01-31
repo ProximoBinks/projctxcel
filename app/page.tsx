@@ -12,42 +12,10 @@ import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "rea
 import tutorsData from "../data/tutors.json";
 import testimonialsData from "../data/testimonials.json";
 import matchPreviewData from "../data/matchPreview.json";
+import { useTranslation } from "../i18n/LanguageContext";
 
-const services = [
-  {
-    icon: "school",
-    title: "Year 4–10 Acceleration Program",
-    copy: "Building strong foundations across core subjects with tailored mentoring to set students up for success.",
-  },
-  {
-    icon: "book",
-    title: "SACE Program",
-    copy: "Targeted support for Year 11–12 students across all SACE subjects, focused on maximising ATAR results.",
-  },
-  {
-    icon: "stethoscope",
-    title: "Medicine Pathway",
-    copy: "Specialist preparation for UCAT and interview prep, guided by tutors who've earned medical offers themselves.",
-  },
-] as const;
-
-const howItWorks = [
-  {
-    step: "01",
-    title: "Tell us what you need",
-    copy: "Share your year level, subjects, goals, and availability - we'll take it from there.",
-  },
-  {
-    step: "02",
-    title: "Meet your tutor",
-    copy: "We connect you with a tutor who fits their subject needs, learning style, and schedule.",
-  },
-  {
-    step: "03",
-    title: "See the results",
-    copy: "Same tutor, consistent sessions, and a plan that evolves through the year. Parents can enquire anytime about progress.",
-  },
-];
+const serviceIcons = ["school", "book", "stethoscope"] as const;
+const groupIcons = ["sparkle", "stethoscope"] as const;
 
 const pepi = localFont({
   src: "./fonts/Pepi-SemiBold.otf",
@@ -58,6 +26,12 @@ const pepi = localFont({
 type FocusKey = "sace" | "ucat" | "in_person" | "tailored";
 
 export default function HomePage() {
+  const { lang, toggleLang, t, tArray } = useTranslation();
+
+  const services = tArray<{ title: string; copy: string }>("services.items");
+  const groupPrograms = tArray<{ title: string; copy: string }>("services.groupItems");
+  const howItWorksSteps = tArray<{ step: string; title: string; copy: string }>("howItWorks.steps");
+
   const tutors = tutorsData
     .filter((tutor) => tutor.active)
     .sort((a, b) => a.sortOrder - b.sortOrder);
@@ -75,6 +49,10 @@ export default function HomePage() {
     ...testimonialsRowTwo,
     ...testimonialsRowTwo,
   ];
+
+  const translatedTestimonialsRow1 = tArray<{ quote: string; context: string }>("testimonials.row1");
+  const translatedTestimonialsRow2 = tArray<{ quote: string; context: string }>("testimonials.row2");
+
   const focusAreas = matchPreviewData.focusAreas as Array<{
     key: FocusKey;
     label: string;
@@ -139,6 +117,34 @@ export default function HomePage() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const getFocusLabel = (key: string) => {
+    const translated = t(`focusAreas.${key}.label`);
+    if (translated !== `focusAreas.${key}.label`) return translated;
+    return focusAreas.find((a) => a.key === key)?.label ?? key;
+  };
+  const getFocusDesc = (key: string) => {
+    const translated = t(`focusAreas.${key}.desc`);
+    if (translated !== `focusAreas.${key}.desc`) return translated;
+    return focusAreas.find((a) => a.key === key)?.desc ?? key;
+  };
+  const getFocusSignals = (key: string) => {
+    const translated = tArray<string>(`focusAreas.${key}.signals`);
+    if (translated.length > 0) return translated;
+    return focusAreas.find((a) => a.key === key)?.signals ?? [];
+  };
+
+  const getDisplayBio = (slug: string, fallback: string) => {
+    const translated = t(`tutorBios.${slug}`);
+    return translated !== `tutorBios.${slug}` ? translated : fallback;
+  };
+
+  const getDisplayStatLabel = (label: string) => {
+    const translated = t(`statLabels.${label}`);
+    return translated !== `statLabels.${label}` ? translated : label;
+  };
+
+  const expectItems = tArray<string>("enquireSection.expectItems");
+
   return (
     <div className="min-h-screen">
       <header
@@ -163,11 +169,18 @@ export default function HomePage() {
             </span>
           </Link>
           <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
-            <Link href="#tutors">Tutors</Link>
-            <Link href="#testimonials">Testimonials</Link>
-            <Link href="#how-it-works">How it works</Link>
+            <Link href="#tutors">{t("nav.tutors")}</Link>
+            <Link href="#testimonials">{t("nav.testimonials")}</Link>
+            <Link href="#how-it-works">{t("nav.howItWorks")}</Link>
+            <button
+              type="button"
+              onClick={toggleLang}
+              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-indigo-300 hover:text-indigo-600"
+            >
+              {lang === "en" ? "中文" : "EN"}
+            </button>
             <Link href="#enquire" className="btn">
-              Enquire
+              {t("nav.enquire")}
             </Link>
           </nav>
           <button
@@ -191,20 +204,27 @@ export default function HomePage() {
           <div className="border-t border-slate-100 bg-white md:hidden">
           <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 px-6 py-5 text-sm text-slate-700 sm:px-10">
               <Link href="#tutors" onClick={() => setMenuOpen(false)}>
-                Tutors
+                {t("nav.tutors")}
               </Link>
               <Link href="#testimonials" onClick={() => setMenuOpen(false)}>
-                Testimonials
+                {t("nav.testimonials")}
               </Link>
               <Link href="#how-it-works" onClick={() => setMenuOpen(false)}>
-                How it works
+                {t("nav.howItWorks")}
               </Link>
+              <button
+                type="button"
+                onClick={toggleLang}
+                className="w-fit rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-indigo-300 hover:text-indigo-600"
+              >
+                {lang === "en" ? "中" : "EN"}
+              </button>
               <Link
                 href="#enquire"
                 className="btn w-full justify-center"
                 onClick={() => setMenuOpen(false)}
               >
-                Enquire
+                {t("nav.enquire")}
               </Link>
             </div>
           </div>
@@ -218,27 +238,26 @@ export default function HomePage() {
           <div className="relative z-10 mx-auto grid w-full max-w-[1200px] gap-12 px-6 sm:px-10 lg:grid-cols-[1.1fr,0.9fr] lg:items-center">
             <MotionInView>
               <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
-                Private tutoring for Year 4-12
+                {t("hero.eyebrow")}
               </p>
               <h1 className="mt-6 text-[clamp(3rem,5vw,4rem)] font-semibold tracking-tight text-slate-950">
-                Exceptional tutoring{" "}
-                <span className="gradient-text">tailored to you</span>
+                {t("hero.title")}{" "}
+                <span className="gradient-text">{t("hero.titleAccent")}</span>
               </h1>
               <p className="mt-6 text-base text-slate-600 sm:text-lg">
-                Simple Tuition connects students with high-achievers for SACE
-                subjects, UCAT, and  medicine interview preparation.
+                {t("hero.subtitle")}
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
                   <Link href="#enquire" className="btn btn-lg">
-                    Enquire now
+                    {t("hero.cta")}
                   </Link>
                 </motion.div>
                 <Link
                   href="#tutors"
                   className="btn-ghost"
                 >
-                  View tutors
+                  {t("hero.ctaSecondary")}
                 </Link>
               </div>
             </MotionInView>
@@ -247,7 +266,7 @@ export default function HomePage() {
                 <div className="lg:col-span-6">
                   <div className="h-full rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
                     <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
-                      Focus areas
+                      {t("hero.focusAreasLabel")}
                     </p>
                     <div className="mt-4 space-y-3">
                       {focusAreas.map((area) => {
@@ -272,7 +291,7 @@ export default function HomePage() {
                           >
                             <div className="flex items-center justify-between gap-3">
                               <span className="font-semibold text-slate-900">
-                                {area.label}
+                                {getFocusLabel(area.key)}
                               </span>
                               <span
                                 className={`h-2 w-2 rounded-full transition ${
@@ -281,14 +300,14 @@ export default function HomePage() {
                               />
                             </div>
                             <p className="mt-1 text-xs text-slate-500">
-                              {area.desc}
+                              {getFocusDesc(area.key)}
                             </p>
                           </button>
                         );
                       })}
                     </div>
                     <p className="mt-4 text-xs text-slate-500">
-                      Hover over a focus area to preview a matching tutor.
+                      {t("hero.focusAreasHint")}
                     </p>
                   </div>
                 </div>
@@ -296,9 +315,9 @@ export default function HomePage() {
                   <div className="pointer-events-none absolute -left-3 top-10 hidden h-40 w-1 rounded-full bg-linear-to-b from-indigo-500/0 via-indigo-500/40 to-indigo-500/0 lg:block" />
                   <div className="h-full rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
                     <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-indigo-500">
-                      <span>Match preview</span>
+                      <span>{t("hero.matchPreview")}</span>
                       <span className="normal-case tracking-normal text-slate-500">
-                        Taking students this week
+                        {t("hero.takingStudents")}
                       </span>
                     </div>
                     <div className="mt-4 min-h-[220px]">
@@ -333,7 +352,7 @@ export default function HomePage() {
                             </div>
                           </div>
                           <p className="mt-3 text-sm text-slate-600">
-                            {activeTutor.bioShort}
+                            {getDisplayBio(activeTutor.slug, activeTutor.bioShort)}
                           </p>
                           <div className="mt-4 flex flex-wrap gap-2">
                             {activeTutor.stats.map((stat) => (
@@ -341,21 +360,21 @@ export default function HomePage() {
                                 key={`${activeTutor.slug}-${stat.label}`}
                                 className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-600"
                               >
-                                {stat.value} {stat.label}
+                                {stat.value} {getDisplayStatLabel(stat.label)}
                               </span>
                             ))}
                           </div>
                           <div className="mt-4">
                             <p className="text-xs font-semibold text-slate-700">
-                              Matching signals
+                              {t("hero.matchingSignals")}
                             </p>
                             <p className="mt-1 text-sm text-slate-600">
-                              {(focusConfig?.signals ?? []).join(" • ")}
+                              {getFocusSignals(activeFocus).join(" • ")}
                             </p>
                           </div>
                           <div className="mt-4">
                             <p className="text-xs font-semibold text-slate-700">
-                              Subjects
+                              {t("hero.subjects")}
                             </p>
                             <p className="mt-1 text-sm text-slate-600">
                               {activeTutor.subjects.slice(0, 5).join(" • ")}
@@ -363,10 +382,10 @@ export default function HomePage() {
                           </div>
                           <div className="mt-5 flex flex-wrap items-center gap-3">
                             <Link href="#enquire" className="btn">
-                              Enquire now
+                              {t("hero.enquireNow")}
                             </Link>
                             <Link href="#tutors" className="btn-ghost">
-                              View tutors →
+                              {t("hero.viewTutors")}
                             </Link>
                           </div>
                         </motion.div>
@@ -382,9 +401,9 @@ export default function HomePage() {
 
         <Section
           id="services"
-          eyebrow="Our Services"
-          title="One-on-one programs for every stage"
-          subtitle="From primary school foundations to medical school admissions."
+          eyebrow={t("services.eyebrow")}
+          title={t("services.title")}
+          subtitle={t("services.subtitle")}
         >
           <div className="grid gap-6 md:grid-cols-3">
             {services.map((service, index) => (
@@ -396,7 +415,7 @@ export default function HomePage() {
                   }}
                   className="h-full min-h-[220px] rounded-2xl border border-slate-200/70 bg-white p-8 shadow-sm"
                 >
-                  <Icon name={service.icon} />
+                  <Icon name={serviceIcons[index] ?? "school"} />
                   <h3 className="mt-4 text-xl font-semibold text-slate-950">
                     {service.title}
                   </h3>
@@ -405,20 +424,12 @@ export default function HomePage() {
               </MotionInView>
             ))}
           </div>
-          <h3 className="mt-10 text-lg font-semibold text-slate-950">Group programs</h3>
-          <div className="mt-4 grid gap-6 md:grid-cols-2">
-            {([
-              {
-                icon: "sparkle" as const,
-                title: "Subject Crash Courses",
-                copy: "Intensive group sessions targeting specific SACE subjects. Designed to rapidly build understanding and exam readiness in a short timeframe.",
-              },
-              {
-                icon: "stethoscope" as const,
-                title: "UCAT Program",
-                copy: "A structured group program covering all UCAT sections with timed practice, strategy workshops, and performance tracking to maximise your score.",
-              },
-            ]).map((item, index) => (
+          <div className="mt-16">
+            <h3 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">{t("services.groupTitle")}</h3>
+            <p className="mt-4 text-base text-slate-600 sm:text-lg">{t("services.groupSubtitle")}</p>
+          </div>
+          <div className="mt-10 grid gap-6 md:grid-cols-2">
+            {groupPrograms.map((item, index) => (
               <MotionInView key={item.title} delay={index * 0.08}>
                 <motion.div
                   whileHover={{
@@ -427,7 +438,7 @@ export default function HomePage() {
                   }}
                   className="h-full min-h-[240px] rounded-2xl border border-slate-200/70 bg-white p-8 shadow-sm"
                 >
-                  <Icon name={item.icon} />
+                  <Icon name={groupIcons[index] ?? "sparkle"} />
                   <h3 className="mt-4 text-xl font-semibold text-slate-950">
                     {item.title}
                   </h3>
@@ -440,17 +451,15 @@ export default function HomePage() {
 
         <Section
           id="tutors"
-          eyebrow="Tutors"
-          title="Learn from the best"
+          eyebrow={t("tutorsSection.eyebrow")}
+          title={t("tutorsSection.title")}
           subtitle={
             <>
-              A handpicked team who've been through the same systems. Our tutors
-              are all{" "}
+              {t("tutorsSection.subtitle")}{" "}
               <strong className="font-semibold text-slate-950">
-                top 1% ATAR achievers
+                {t("tutorsSection.subtitleBold")}
               </strong>
-              , with many earning subject merits and ranking among the best in
-              the state - helping them reach their dream degrees.
+              {t("tutorsSection.subtitleEnd")}
             </>
           }
         >
@@ -460,49 +469,52 @@ export default function HomePage() {
             ))}
           </div>
           <p className="mt-10 text-sm text-slate-500">
-            Don&apos;t see your subject listed like Economics or Business
-            Innovation? Let us know in the{" "}
+            {t("tutorsSection.missingSubject")}{" "}
             <a href="https://simpletuition.com.au/#enquire" className="text-indigo-600 underline">
-              signup form
+              {t("tutorsSection.signupForm")}
             </a>{" "}
-            and we can sort it out.
+            {t("tutorsSection.missingSubjectEnd")}
           </p>
           <p className="mt-2 text-xs text-slate-400">
-            All our tutors hold a valid Working with Children Check.
+            {t("tutorsSection.wwcc")}
           </p>
         </Section>
 
         <Section
           id="testimonials"
-          eyebrow="Testimonials"
-          title="Trusted by students and parents"
-          subtitle="Personalised support with outcomes that last."
+          eyebrow={t("testimonials.eyebrow")}
+          title={t("testimonials.title")}
+          subtitle={t("testimonials.subtitle")}
         >
           <div className="space-y-6">
             <div className="carousel-row carousel-fade">
               <div className="carousel-track">
-                {testimonialsRowOneLoop.map((testimonial, index) => (
-                  <div
-                    key={`${testimonial.name}-top-${index}`}
-                    className="relative w-[320px] shrink-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
-                  >
-                    <span className="pointer-events-none absolute -left-2 top-2 text-7xl font-bold text-slate-200/60">
-                      “
-                    </span>
-                    <Icon name="quote" />
-                    <p className="mt-4 text-sm text-slate-600">
-                      “{testimonial.quote}”
-                    </p>
-                    <div className="mt-6 text-sm font-semibold text-slate-950">
-                      {testimonial.name}
-                    </div>
-                    {testimonial.context ? (
-                      <p className="text-xs text-slate-500">
-                        {testimonial.context}
+                {testimonialsRowOneLoop.map((testimonial, index) => {
+                  const realIndex = index % testimonialsRowOne.length;
+                  const translated = translatedTestimonialsRow1[realIndex];
+                  return (
+                    <div
+                      key={`${testimonial.name}-top-${index}`}
+                      className="relative w-[320px] shrink-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
+                    >
+                      <span className="pointer-events-none absolute -left-2 top-2 text-7xl font-bold text-slate-200/60">
+                        &ldquo;
+                      </span>
+                      <Icon name="quote" />
+                      <p className="mt-4 text-sm text-slate-600">
+                        &ldquo;{translated?.quote ?? testimonial.quote}&rdquo;
                       </p>
-                    ) : null}
-                  </div>
-                ))}
+                      <div className="mt-6 text-sm font-semibold text-slate-950">
+                        {testimonial.name}
+                      </div>
+                      {(translated?.context ?? testimonial.context) ? (
+                        <p className="text-xs text-slate-500">
+                          {translated?.context ?? testimonial.context}
+                        </p>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             </div>
             <div className="carousel-row carousel-fade">
@@ -510,28 +522,32 @@ export default function HomePage() {
                 className="carousel-track carousel-track-reverse"
                 style={{ animationDelay: "-18s" }}
               >
-                {testimonialsRowTwoLoop.map((testimonial, index) => (
-                  <div
-                    key={`${testimonial.name}-bottom-${index}`}
-                    className="relative w-[320px] shrink-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
-                  >
-                    <span className="pointer-events-none absolute -left-2 top-2 text-7xl font-bold text-slate-200/60">
-                      “
-                    </span>
-                    <Icon name="quote" />
-                    <p className="mt-4 text-sm text-slate-600">
-                      “{testimonial.quote}”
-                    </p>
-                    <div className="mt-6 text-sm font-semibold text-slate-950">
-                      {testimonial.name}
-                    </div>
-                    {testimonial.context ? (
-                      <p className="text-xs text-slate-500">
-                        {testimonial.context}
+                {testimonialsRowTwoLoop.map((testimonial, index) => {
+                  const realIndex = index % testimonialsRowTwo.length;
+                  const translated = translatedTestimonialsRow2[realIndex];
+                  return (
+                    <div
+                      key={`${testimonial.name}-bottom-${index}`}
+                      className="relative w-[320px] shrink-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
+                    >
+                      <span className="pointer-events-none absolute -left-2 top-2 text-7xl font-bold text-slate-200/60">
+                        &ldquo;
+                      </span>
+                      <Icon name="quote" />
+                      <p className="mt-4 text-sm text-slate-600">
+                        &ldquo;{translated?.quote ?? testimonial.quote}&rdquo;
                       </p>
-                    ) : null}
-                  </div>
-                ))}
+                      <div className="mt-6 text-sm font-semibold text-slate-950">
+                        {testimonial.name}
+                      </div>
+                      {(translated?.context ?? testimonial.context) ? (
+                        <p className="text-xs text-slate-500">
+                          {translated?.context ?? testimonial.context}
+                        </p>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -539,12 +555,12 @@ export default function HomePage() {
 
         <Section
           id="how-it-works"
-          eyebrow="How it works"
-          title="A simple, proven process"
-          subtitle="Designed to keep students on track and parents informed."
+          eyebrow={t("howItWorks.eyebrow")}
+          title={t("howItWorks.title")}
+          subtitle={t("howItWorks.subtitle")}
         >
           <div className="grid gap-6 lg:grid-cols-3">
-            {howItWorks.map((step, index) => (
+            {howItWorksSteps.map((step, index) => (
               <MotionInView key={step.title} delay={index * 0.08}>
                 <motion.div
                   whileHover={{
@@ -568,9 +584,9 @@ export default function HomePage() {
 
         <Section
           id="enquire"
-          eyebrow="Enquire"
-          title="Tell us what your student needs"
-          subtitle="We will respond with a recommended tutor and availability."
+          eyebrow={t("enquireSection.eyebrow")}
+          title={t("enquireSection.title")}
+          subtitle={t("enquireSection.subtitle")}
           className="bg-slate-50"
         >
           <div className="grid gap-10 lg:grid-cols-[1fr,1.1fr] lg:items-start">
@@ -579,15 +595,15 @@ export default function HomePage() {
                 <div className="pointer-events-none absolute -right-12 -top-10 h-32 w-32 rounded-full bg-indigo-200/40 blur-2xl" />
                 <div className="pointer-events-none absolute -bottom-8 left-6 h-24 w-24 rounded-full bg-sky-200/40 blur-2xl" />
                 <h3 className="text-xl font-semibold text-slate-950">
-                  What to expect
+                  {t("enquireSection.whatToExpect")}
                 </h3>
                 <ul className="mt-4 space-y-3 text-sm text-slate-600">
-                  <li>We reply within 1 business day.</li>
-                  <li>We match based on subject fit and learning style.</li>
+                  {expectItems.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
                 </ul>
                 <div className="mt-8 rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-700">
-                  Pricing varies by tutor experience and subject. Enquire for a
-                  quote.
+                  {t("enquireSection.pricingNote")}
                 </div>
               </div>
             </MotionInView>
@@ -596,7 +612,7 @@ export default function HomePage() {
                 fallback={
                   <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
                     <p className="text-sm text-slate-600">
-                      Loading enquiry form...
+                      {t("enquireSection.loading")}
                     </p>
                   </div>
                 }
@@ -611,10 +627,10 @@ export default function HomePage() {
       <footer className="relative border-t border-slate-100 bg-white py-12">
         <div className="noise-overlay" aria-hidden="true" />
         <div className="relative z-10 mx-auto flex w-full max-w-[1200px] flex-col gap-4 px-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-10">
-          <p>© {new Date().getFullYear()} Simple Tuition. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Simple Tuition. {t("footer.rights")}</p>
           <div className="flex gap-6">
-            <Link href="/privacy">Privacy</Link>
-            <Link href="/terms">Terms</Link>
+            <Link href="/privacy">{t("footer.privacy")}</Link>
+            <Link href="/terms">{t("footer.terms")}</Link>
           </div>
         </div>
       </footer>

@@ -54,7 +54,7 @@
     "stats": [
       { "label": "ATAR", "value": "99.80" },
       { "label": "SACE Merits", "value": "2" },
-      { "label": "Engineering & Comp Sci", "value": "1st Year" }
+      { "label": "Engineering Student", "value": "1st Year" }
     ],
     "active": true,
     "sortOrder": 4
@@ -94,7 +94,7 @@
     "slug": "yousif-shibeeb",
     "photoFile": "yousif-shibeeb.jpg",
     "headline": "Tutor",
-    "bioShort": "Despite not getting his goal UCAT score, Yousif nailed his interview and earned a first-round offer for medicine.",
+    "bioShort": "A high-achieving student, Yousif nailed his interview and earned a first-round offer for medicine at the University of Adelaide.",
     "subjects": ["Maths Methods", "Biology", "Chemistry", "Physics", "Interview Prep"],
     "stats": [
       { "label": "ATAR", "value": "99.60" },
@@ -109,7 +109,7 @@
     "slug": "bal-gilhotra",
     "photoFile": "bal-gilhotra.jpg",
     "headline": "Tutor",
-    "bioShort": "Bal locked in heavily in Year 12, enabling him to achieve incredible scores and a first-round offer for medicine.",
+    "bioShort": "Bal juggled seven subjects all in Year 12 and earnt a first-round offer for medicine at the University of Adelaide.",
     "subjects": ["General Maths", "English", "Accounting", "Interview Prep"],
     "stats": [
       { "label": "ATAR", "value": "99.55" },
