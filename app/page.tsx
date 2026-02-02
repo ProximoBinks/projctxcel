@@ -8,7 +8,15 @@ import Section from "../components/Section";
 import TutorCard from "../components/TutorCard";
 import EnquiryForm from "../components/EnquiryForm";
 import Icon from "../components/Icon";
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type MouseEvent,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import tutorsData from "../data/tutors.json";
 import testimonialsData from "../data/testimonials.json";
 import matchPreviewData from "../data/matchPreview.json";
@@ -65,6 +73,19 @@ export default function HomePage() {
   );
   const [tutorIndex, setTutorIndex] = useState(0);
   const rotationTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const scrollToId = useCallback((id: string) => {
+    const target = document.getElementById(id);
+    if (!target) return;
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    history.replaceState(null, "", `#${id}`);
+  }, []);
+  const createScrollHandler = useCallback(
+    (id: string) => (event: MouseEvent<HTMLAnchorElement>) => {
+      event.preventDefault();
+      scrollToId(id);
+    },
+    [scrollToId]
+  );
 
   const focusConfig = useMemo(
     () => focusAreas.find((area) => area.key === activeFocus) ?? focusAreas[0],
@@ -169,9 +190,21 @@ export default function HomePage() {
             </span>
           </Link>
           <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
-            <Link href="#tutors">{t("nav.tutors")}</Link>
-            <Link href="#testimonials">{t("nav.testimonials")}</Link>
-            <Link href="#how-it-works">{t("nav.howItWorks")}</Link>
+            <Link href="#tutors" onClick={createScrollHandler("tutors")}>
+              {t("nav.tutors")}
+            </Link>
+            <Link
+              href="#testimonials"
+              onClick={createScrollHandler("testimonials")}
+            >
+              {t("nav.testimonials")}
+            </Link>
+            <Link
+              href="#how-it-works"
+              onClick={createScrollHandler("how-it-works")}
+            >
+              {t("nav.howItWorks")}
+            </Link>
             <button
               type="button"
               onClick={toggleLang}
@@ -179,7 +212,11 @@ export default function HomePage() {
             >
               {lang === "en" ? "中文" : "EN"}
             </button>
-            <Link href="#enquire" className="btn">
+            <Link
+              href="#enquire"
+              className="btn"
+              onClick={createScrollHandler("enquire")}
+            >
               {t("nav.enquire")}
             </Link>
           </nav>
@@ -203,13 +240,31 @@ export default function HomePage() {
         {menuOpen ? (
           <div className="border-t border-slate-100 bg-white md:hidden">
           <div className="mx-auto flex w-full max-w-[1200px] flex-col gap-4 px-6 py-5 text-sm text-slate-700 sm:px-10">
-              <Link href="#tutors" onClick={() => setMenuOpen(false)}>
+              <Link
+                href="#tutors"
+                onClick={(event) => {
+                  createScrollHandler("tutors")(event);
+                  setMenuOpen(false);
+                }}
+              >
                 {t("nav.tutors")}
               </Link>
-              <Link href="#testimonials" onClick={() => setMenuOpen(false)}>
+              <Link
+                href="#testimonials"
+                onClick={(event) => {
+                  createScrollHandler("testimonials")(event);
+                  setMenuOpen(false);
+                }}
+              >
                 {t("nav.testimonials")}
               </Link>
-              <Link href="#how-it-works" onClick={() => setMenuOpen(false)}>
+              <Link
+                href="#how-it-works"
+                onClick={(event) => {
+                  createScrollHandler("how-it-works")(event);
+                  setMenuOpen(false);
+                }}
+              >
                 {t("nav.howItWorks")}
               </Link>
               <button
@@ -222,7 +277,10 @@ export default function HomePage() {
               <Link
                 href="#enquire"
                 className="btn w-full justify-center"
-                onClick={() => setMenuOpen(false)}
+                onClick={(event) => {
+                  createScrollHandler("enquire")(event);
+                  setMenuOpen(false);
+                }}
               >
                 {t("nav.enquire")}
               </Link>
@@ -249,13 +307,18 @@ export default function HomePage() {
               </p>
               <div className="mt-8 flex flex-wrap items-center gap-4">
                 <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
-                  <Link href="#enquire" className="btn btn-lg">
+                  <Link
+                    href="#enquire"
+                    className="btn btn-lg"
+                    onClick={createScrollHandler("enquire")}
+                  >
                     {t("hero.cta")}
                   </Link>
                 </motion.div>
                 <Link
                   href="#tutors"
                   className="btn-ghost"
+                  onClick={createScrollHandler("tutors")}
                 >
                   {t("hero.ctaSecondary")}
                 </Link>
@@ -381,10 +444,18 @@ export default function HomePage() {
                             </p>
                           </div>
                           <div className="mt-5 flex flex-wrap items-center gap-3">
-                            <Link href="#enquire" className="btn">
+                            <Link
+                              href="#enquire"
+                              className="btn"
+                              onClick={createScrollHandler("enquire")}
+                            >
                               {t("hero.enquireNow")}
                             </Link>
-                            <Link href="#tutors" className="btn-ghost">
+                            <Link
+                              href="#tutors"
+                              className="btn-ghost"
+                              onClick={createScrollHandler("tutors")}
+                            >
                               {t("hero.viewTutors")}
                             </Link>
                           </div>
@@ -583,7 +654,7 @@ export default function HomePage() {
         </Section>
 
         <Section
-          id="enquire"
+          anchorId="enquire"
           eyebrow={t("enquireSection.eyebrow")}
           title={t("enquireSection.title")}
           subtitle={t("enquireSection.subtitle")}

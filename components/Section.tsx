@@ -2,6 +2,7 @@ import MotionInView from "./MotionInView";
 
 type SectionProps = {
   id?: string;
+  anchorId?: string;
   eyebrow?: string;
   title: string;
   subtitle?: React.ReactNode;
@@ -11,6 +12,7 @@ type SectionProps = {
 
 export default function Section({
   id,
+  anchorId,
   eyebrow,
   title,
   subtitle,
@@ -18,8 +20,18 @@ export default function Section({
   className,
 }: SectionProps) {
   return (
-    <section id={id} className={`py-16 sm:py-24 lg:py-28 ${className ?? ""}`}>
+    <section
+      id={id}
+      className={`scroll-mt-24 py-16 sm:py-24 lg:py-28 ${className ?? ""}`}
+    >
       <div className="mx-auto w-full max-w-[1200px] px-6 sm:px-10">
+        {anchorId ? (
+          <span
+            id={anchorId}
+            className="relative -top-6 block scroll-mt-24"
+            aria-hidden="true"
+          />
+        ) : null}
         <MotionInView>
           {eyebrow && (
             <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
