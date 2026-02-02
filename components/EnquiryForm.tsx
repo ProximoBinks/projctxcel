@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTranslation } from "../i18n/LanguageContext";
+import Confetti from "./Confetti";
 
 type FormState = {
   type: "student" | "tutor" | "general";
@@ -65,6 +66,14 @@ export default function EnquiryForm() {
       "Year 11",
       "Year 12",
     ],
+    []
+  );
+  const confettiOptions = useMemo(
+    () => ({
+      particleCount: 160,
+      spread: 70,
+      origin: { x: 0.5, y: 0.5 },
+    }),
     []
   );
 
@@ -155,6 +164,7 @@ export default function EnquiryForm() {
       onSubmit={handleSubmit}
       className="grid gap-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8"
     >
+      {status === "success" ? <Confetti options={confettiOptions} /> : null}
       <div className="grid gap-3">
         <p className="text-sm font-semibold text-slate-900">
           {t("form.howCanWeHelp")}
@@ -359,7 +369,14 @@ export default function EnquiryForm() {
       </div>
 
       <label className="grid gap-2 text-sm font-medium text-slate-700">
-        {t("form.message")} <span className="font-semibold text-indigo-600">{t("form.messageHighlight")}</span>
+        <span className="flex flex-wrap items-center gap-2">
+          <span>{t("form.message")}</span>
+          {form.type !== "general" ? (
+            <span className="font-semibold text-indigo-600">
+              {t("form.messageHighlight")}
+            </span>
+          ) : null}
+        </span>
         <textarea
           className="input min-h-[140px] resize-y"
           value={form.message}
