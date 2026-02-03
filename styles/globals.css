@@ -89,6 +89,7 @@
 
     .carousel-row {
         overflow: hidden;
+        padding-bottom: 0.5rem;
     }
 
     .carousel-fade {
