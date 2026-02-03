@@ -198,12 +198,82 @@ export async function POST(request: Request) {
     attachments: type === "tutor" && cvAttachment ? [cvAttachment] : [],
   });
 
+  const replySubject =
+    type === "tutor"
+      ? "Thanks for your application"
+      : type === "general"
+      ? "Thanks for your enquiry"
+      : "Thanks for your enquiry";
+
+  const replyHeadline =
+    type === "tutor"
+      ? "Thanks for your interest in joining Simple Tuition."
+      : "Thanks for reaching out to Simple Tuition.";
+
+  const replyNextStepsTitle =
+    type === "tutor"
+      ? "What happens next"
+      : type === "general"
+      ? "Next steps"
+      : "What happens next";
+
+  const replyNextSteps =
+    type === "tutor"
+      ? [
+          "Our team will review your application.",
+          "If your experience aligns with our needs, we will contact you to arrange next steps.",
+        ]
+      : type === "general"
+      ? [
+          "We will review your message and respond within 1 business day.",
+          "If any extra details are needed, we will follow up by email.",
+        ]
+      : [
+          "We review your details and match you with a suitable tutor.",
+          "We contact you to confirm availability and next steps.",
+        ];
+
+  const replyIntroLine =
+    type === "tutor"
+      ? "We have received your application and will be in touch within 1 business day."
+      : "We have received your enquiry and will be in touch within 1 business day.";
+
   await transporter.sendMail({
     from: `"Simple Tuition" <${fromEmail}>`,
     to: email,
-    subject: "Thanks for your enquiry",
-    text:
-      "Thanks for reaching out to Simple Tuition. We have received your enquiry and will be in touch shortly.",
+    subject: replySubject,
+    text: [
+      replyHeadline,
+      "",
+      replyIntroLine,
+      "",
+      `${replyNextStepsTitle}:`,
+      ...replyNextSteps.map((step) => `- ${step}`),
+      "",
+      "If you need to add or update any details, reply to this email.",
+      "",
+      "Simple Tuition",
+    ].join("\n"),
+    html: [
+      '<div style="font-family: Arial, Helvetica, sans-serif; color: #0f172a; line-height: 1.6;">',
+      `<p style="font-size: 16px; margin: 0 0 16px;">${replyHeadline.replace(
+        "Simple Tuition",
+        "<strong>Simple Tuition</strong>"
+      )}</p>`,
+      `<p style="font-size: 15px; margin: 0 0 16px;">${replyIntroLine.replace(
+        "1 business day",
+        "<strong>1 business day</strong>"
+      )}</p>`,
+      '<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin: 0 0 16px;">',
+      `<p style="margin: 0 0 8px; font-weight: 600; color: #1e293b;">${replyNextStepsTitle}</p>`,
+      '<ul style="padding-left: 20px; margin: 0;">',
+      ...replyNextSteps.map((step) => `<li>${step}</li>`),
+      "</ul>",
+      "</div>",
+      '<p style="font-size: 14px; margin: 0 0 4px;">If you need to add or update any details, simply reply to this email.</p>',
+      '<p style="font-size: 14px; margin: 0;">Simple Tuition</p>',
+      "</div>",
+    ].join(""),
   });
 
   return NextResponse.json({ message: "Enquiry sent successfully." });
