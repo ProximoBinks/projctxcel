@@ -52,10 +52,6 @@ export default function EnquiryForm() {
 
   const yearLevels = useMemo(
     () => [
-      "Reception",
-      "Year 1",
-      "Year 2",
-      "Year 3",
       "Year 4",
       "Year 5",
       "Year 6",
