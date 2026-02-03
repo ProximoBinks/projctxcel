@@ -541,9 +541,13 @@ export default function HomePage() {
           </div>
           <p className="mt-10 text-sm text-slate-500">
             {t("tutorsSection.missingSubject")}{" "}
-            <a href="https://simpletuition.com.au/#enquire" className="text-indigo-600 underline">
+            <Link
+              href="#enquire"
+              className="text-indigo-600 underline"
+              onClick={createScrollHandler("enquire")}
+            >
               {t("tutorsSection.signupForm")}
-            </a>{" "}
+            </Link>{" "}
             {t("tutorsSection.missingSubjectEnd")}
           </p>
           <p className="mt-2 text-xs text-slate-400">
