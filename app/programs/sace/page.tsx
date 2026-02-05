@@ -176,13 +176,12 @@ export default function SACEProgramPage() {
         {/* Header */}
         <header className="border-b border-slate-100">
           <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-6 py-5 sm:px-10">
-            <Link href="/" className="flex items-end gap-2 text-slate-950">
-              <span className="text-2xl font-bold tracking-widest">
-                SIMPLE
-              </span>
-              <span className="ml-[-5px] mb-[0.18rem] text-sm font-semibold lowercase tracking-wide">
-                tuition
-              </span>
+            <Link href="/">
+              <img
+                src="/images/simple-text-black.svg"
+                alt="Simple Tuition"
+                className="h-[60px]"
+              />
             </Link>
             <div className="flex items-center gap-6 text-sm">
               <Link href="/#tutors" className="text-slate-600 hover:text-slate-900">

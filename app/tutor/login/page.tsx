@@ -44,8 +44,12 @@ export default function TutorLoginPage() {
       <div className="w-full max-w-md">
         <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
           <div className="mb-8 text-center">
-            <Link href="/" className="text-xl font-bold text-slate-900">
-              SIMPLE <span className="text-sm font-semibold lowercase">tuition</span>
+            <Link href="/">
+              <img
+                src="/images/simple-text-black.svg"
+                alt="Simple Tuition"
+                className="h-[60px] mx-auto"
+              />
             </Link>
             <h1 className="mt-4 text-2xl font-semibold text-slate-900">
               Tutor Dashboard
