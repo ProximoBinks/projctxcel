@@ -34,7 +34,7 @@ export default function Section({
         ) : null}
         <MotionInView>
           {eyebrow && (
-            <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
+            <p className="text-xs uppercase tracking-[0.3em] text-blue-500">
               {eyebrow}
             </p>
           )}

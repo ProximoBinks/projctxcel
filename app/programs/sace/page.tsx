@@ -189,7 +189,7 @@ export default function SACEProgramPage() {
               </Link>
               <Link
                 href="/enquire"
-                className="rounded-full bg-indigo-600 px-5 py-2 font-semibold text-white transition hover:bg-indigo-700"
+                className="rounded-full bg-blue-600 px-5 py-2 font-semibold text-white transition hover:bg-blue-700"
               >
                 Enquire now
               </Link>
@@ -204,7 +204,7 @@ export default function SACEProgramPage() {
         >
           <ol className="flex items-center gap-2 text-xs text-slate-500">
             <li>
-              <Link href="/" className="hover:text-indigo-600">
+              <Link href="/" className="hover:text-blue-600">
                 Home
               </Link>
             </li>
@@ -220,7 +220,7 @@ export default function SACEProgramPage() {
         <main className="mx-auto w-full max-w-[1200px] px-6 sm:px-10">
           {/* Hero */}
           <section className="py-16 sm:py-20">
-            <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
+            <p className="text-xs uppercase tracking-[0.3em] text-blue-500">
               SACE Program
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
@@ -234,7 +234,7 @@ export default function SACEProgramPage() {
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
                 href="/enquire"
-                className="rounded-full bg-indigo-600 px-6 py-3 font-semibold text-white transition hover:bg-indigo-700"
+                className="rounded-full bg-blue-600 px-6 py-3 font-semibold text-white transition hover:bg-blue-700"
               >
                 Enquire about SACE tutoring
               </Link>
@@ -287,7 +287,7 @@ export default function SACEProgramPage() {
             </h2>
             <p className="mt-4 text-base text-slate-600">
               We cover all major SACE subjects. If your subject isn&apos;t listed,{" "}
-              <Link href="/enquire" className="text-indigo-600 underline">
+              <Link href="/enquire" className="text-blue-600 underline">
                 enquire anyway
               </Link>{" "}
               — we&apos;re continuously expanding our team.
@@ -297,7 +297,7 @@ export default function SACEProgramPage() {
                 <Link
                   key={subject.slug}
                   href={`/subjects/${subject.slug}`}
-                  className="rounded-xl border border-slate-200 px-5 py-4 text-sm font-semibold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"
+                  className="rounded-xl border border-slate-200 px-5 py-4 text-sm font-semibold text-slate-700 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
                 >
                   {subject.name}
                 </Link>
@@ -359,7 +359,7 @@ export default function SACEProgramPage() {
             <div className="mt-8">
               <Link
                 href="/tutors"
-                className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+                className="text-sm font-semibold text-blue-600 hover:text-blue-700"
               >
                 View all tutors →
               </Link>
@@ -393,7 +393,7 @@ export default function SACEProgramPage() {
                   key={item.step}
                   className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
                 >
-                  <p className="text-5xl font-semibold text-indigo-500/20">
+                  <p className="text-5xl font-semibold text-blue-500/20">
                     {item.step}
                   </p>
                   <h3 className="mt-3 text-lg font-semibold text-slate-950">
@@ -406,7 +406,7 @@ export default function SACEProgramPage() {
             <div className="mt-8">
               <Link
                 href="/how-it-works"
-                className="text-sm font-semibold text-indigo-600 hover:text-indigo-700"
+                className="text-sm font-semibold text-blue-600 hover:text-blue-700"
               >
                 Learn more about how matching works →
               </Link>
@@ -453,7 +453,7 @@ export default function SACEProgramPage() {
             <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
               <Link
                 href="/enquire"
-                className="rounded-full bg-indigo-600 px-8 py-3 font-semibold text-white transition hover:bg-indigo-700"
+                className="rounded-full bg-blue-600 px-8 py-3 font-semibold text-white transition hover:bg-blue-700"
               >
                 Enquire about SACE tutoring
               </Link>

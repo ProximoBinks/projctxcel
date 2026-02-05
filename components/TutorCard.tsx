@@ -33,7 +33,7 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
     // Maths
     if (s === "general maths") return "bg-sky-100 text-sky-700 border-sky-200";
     if (s === "maths methods") return "bg-blue-100 text-blue-700 border-blue-200";
-    if (s === "specialist maths") return "bg-indigo-100 text-indigo-800 border-indigo-200";
+    if (s === "specialist maths") return "bg-blue-100 text-blue-800 border-blue-200";
     // Sciences
     if (s === "biology") return "bg-emerald-100 text-emerald-700 border-emerald-200";
     if (s === "chemistry") return "bg-orange-100 text-orange-700 border-orange-200";
@@ -82,7 +82,7 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
                 event.currentTarget.src = "/images/tutors/default.webp";
               }}
             />
-            <div className="absolute inset-0 bg-linear-to-tr from-indigo-500/20 via-sky-400/10 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-tr from-blue-500/20 via-sky-400/10 to-transparent" />
           </div>
           <div>
             <div className="flex items-center gap-2">

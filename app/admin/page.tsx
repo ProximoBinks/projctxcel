@@ -188,7 +188,7 @@ function TutorsTab({
                           />
                           <button
                             onClick={() => saveRate(tutor._id)}
-                            className="text-indigo-600 hover:underline"
+                            className="text-blue-600 hover:underline"
                           >
                             Save
                           </button>
@@ -205,7 +205,7 @@ function TutorsTab({
                             setEditingRate(tutor._id);
                             setRateValue((tutor.hourlyRate / 100).toFixed(2));
                           }}
-                          className="text-slate-900 hover:text-indigo-600"
+                          className="text-slate-900 hover:text-blue-600"
                         >
                           {formatCurrency(tutor.hourlyRate)}/hr
                         </button>
@@ -523,7 +523,7 @@ function AddTutorModal({ onClose }: { onClose: () => void }) {
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
             />
           </div>
@@ -534,7 +534,7 @@ function AddTutorModal({ onClose }: { onClose: () => void }) {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
             />
           </div>
@@ -545,7 +545,7 @@ function AddTutorModal({ onClose }: { onClose: () => void }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
               minLength={6}
             />
@@ -559,7 +559,7 @@ function AddTutorModal({ onClose }: { onClose: () => void }) {
               type="number"
               value={hourlyRate}
               onChange={(e) => setHourlyRate(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
               min="0"
               step="0.01"
@@ -658,7 +658,7 @@ function AddStudentModal({
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
             />
           </div>
@@ -670,7 +670,7 @@ function AddStudentModal({
             <select
               value={yearLevel}
               onChange={(e) => setYearLevel(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
             >
               <option value="">Select year level</option>
@@ -689,7 +689,7 @@ function AddStudentModal({
               value={subjects}
               onChange={(e) => setSubjects(e.target.value)}
               placeholder="Maths Methods, Chemistry, Physics"
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
             />
           </div>
@@ -701,7 +701,7 @@ function AddStudentModal({
             <select
               value={assignedTutorId}
               onChange={(e) => setAssignedTutorId(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
             >
               <option value="">Select tutor</option>
@@ -723,7 +723,7 @@ function AddStudentModal({
               type="text"
               value={parentName}
               onChange={(e) => setParentName(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
             />
           </div>
 
@@ -735,7 +735,7 @@ function AddStudentModal({
               type="email"
               value={parentEmail}
               onChange={(e) => setParentEmail(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
             />
           </div>
 
@@ -747,7 +747,7 @@ function AddStudentModal({
               type="tel"
               value={parentPhone}
               onChange={(e) => setParentPhone(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
             />
           </div>
 

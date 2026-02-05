@@ -45,7 +45,7 @@ export default function TutorDetailClient({ tutor }: { tutor: TutorRecord }) {
             <button
               type="button"
               onClick={toggleLang}
-              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-indigo-300 hover:text-indigo-600"
+              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
             >
               {lang === "en" ? "中" : "EN"}
             </button>
@@ -145,7 +145,7 @@ export default function TutorDetailClient({ tutor }: { tutor: TutorRecord }) {
               </div>
             </div>
 
-            <div className="rounded-3xl border border-indigo-100 bg-indigo-50 p-6">
+            <div className="rounded-3xl border border-blue-100 bg-blue-50 p-6">
               <h3 className="text-lg font-semibold text-slate-950">
                 {t("tutorDetail.readyToEnquire")}
               </h3>

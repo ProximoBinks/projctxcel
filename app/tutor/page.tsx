@@ -96,7 +96,7 @@ function TutorDashboard({
               onClick={() => setActiveTab(tab)}
               className={`border-b-2 px-1 py-3 text-sm font-medium transition ${
                 activeTab === tab
-                  ? "border-indigo-600 text-indigo-600"
+                  ? "border-blue-600 text-blue-600"
                   : "border-transparent text-slate-600 hover:text-slate-900"
               }`}
             >
@@ -176,7 +176,7 @@ function OverviewTab({
       <div className="flex gap-4">
         <button
           onClick={onLogSession}
-          className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700"
+          className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
         >
           + Log Session
         </button>
@@ -288,7 +288,7 @@ function SessionsTab({
         <h2 className="text-xl font-semibold text-slate-900">All Sessions</h2>
         <button
           onClick={onLogSession}
-          className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-700"
+          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
         >
           + Log Session
         </button>
@@ -431,7 +431,7 @@ function StudentsTab({
                   {editingNotes !== student._id && (
                     <button
                       onClick={() => startEditNotes(student._id, student.notes ?? "")}
-                      className="text-xs text-indigo-600 hover:underline"
+                      className="text-xs text-blue-600 hover:underline"
                     >
                       Edit
                     </button>
@@ -442,14 +442,14 @@ function StudentsTab({
                     <textarea
                       value={notesValue}
                       onChange={(e) => setNotesValue(e.target.value)}
-                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+                      className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
                       rows={3}
                       placeholder="Add notes about this student..."
                     />
                     <div className="mt-2 flex gap-2">
                       <button
                         onClick={() => saveNotes(student._id)}
-                        className="rounded-lg bg-indigo-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-indigo-700"
+                        className="rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
                       >
                         Save
                       </button>
@@ -552,7 +552,7 @@ function LogSessionModal({
                 setStudentId(e.target.value);
                 setSubject("");
               }}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
             >
               <option value="">Select student</option>
@@ -571,7 +571,7 @@ function LogSessionModal({
             <select
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
               disabled={!selectedStudent}
             >
@@ -592,7 +592,7 @@ function LogSessionModal({
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
             />
           </div>
@@ -607,7 +607,7 @@ function LogSessionModal({
               onChange={(e) => setDurationMinutes(parseInt(e.target.value) || 0)}
               min={15}
               step={15}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               required
             />
           </div>
@@ -619,7 +619,7 @@ function LogSessionModal({
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-indigo-500 focus:outline-none"
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               rows={3}
               placeholder="What did you cover? Any homework assigned?"
             />
@@ -638,7 +638,7 @@ function LogSessionModal({
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 rounded-xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-700 disabled:opacity-50"
+              className="flex-1 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
             >
               {loading ? "Logging..." : "Log Session"}
             </button>

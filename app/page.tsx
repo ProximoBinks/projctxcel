@@ -29,7 +29,7 @@ const getSubjectStyle = (subject: string) => {
   // Maths
   if (s === "general maths") return "bg-sky-100 text-sky-700 border-sky-200";
   if (s === "maths methods") return "bg-blue-100 text-blue-700 border-blue-200";
-  if (s === "specialist maths") return "bg-indigo-100 text-indigo-800 border-indigo-200";
+  if (s === "specialist maths") return "bg-blue-100 text-blue-800 border-blue-200";
   // Sciences
   if (s === "biology") return "bg-emerald-100 text-emerald-700 border-emerald-200";
   if (s === "chemistry") return "bg-orange-100 text-orange-700 border-orange-200";
@@ -221,7 +221,7 @@ export default function HomePage() {
             <button
               type="button"
               onClick={toggleLang}
-              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-indigo-300 hover:text-indigo-600"
+              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
             >
               {lang === "en" ? "中文" : "EN"}
             </button>
@@ -283,7 +283,7 @@ export default function HomePage() {
               <button
                 type="button"
                 onClick={toggleLang}
-                className="w-fit rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-indigo-300 hover:text-indigo-600"
+                className="w-fit rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
               >
                 {lang === "en" ? "中" : "EN"}
               </button>
@@ -308,7 +308,7 @@ export default function HomePage() {
           <div className="hero-blob" aria-hidden="true" />
           <div className="relative z-10 mx-auto grid w-full max-w-[1200px] gap-12 px-6 sm:px-10 lg:grid-cols-[1.1fr,0.9fr] lg:items-center">
             <MotionInView>
-              <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
+              <p className="text-xs uppercase tracking-[0.3em] text-blue-500">
                 {t("hero.eyebrow")}
               </p>
               <h1 className="mt-6 text-[clamp(3rem,5vw,4rem)] font-semibold tracking-tight text-slate-950">
@@ -341,7 +341,7 @@ export default function HomePage() {
               <div className="grid gap-6 lg:grid-cols-12">
                 <div className="lg:col-span-6">
                   <div className="h-full rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
-                    <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
+                    <p className="text-xs uppercase tracking-[0.3em] text-blue-500">
                       {t("hero.focusAreasLabel")}
                     </p>
                     <div className="mt-4 space-y-3">
@@ -353,7 +353,7 @@ export default function HomePage() {
                             type="button"
                             className={`w-full rounded-2xl border px-4 py-3 text-left text-sm transition ${
                               isActive
-                                ? "border-indigo-300 bg-white shadow-sm"
+                                ? "border-blue-300 bg-white shadow-sm"
                                 : "border-slate-200 bg-white/60 hover:bg-white"
                             }`}
                             onClick={() => {
@@ -371,7 +371,7 @@ export default function HomePage() {
                               </span>
                               <span
                                 className={`h-2 w-2 rounded-full transition ${
-                                  isActive ? "bg-indigo-500" : "bg-slate-300"
+                                  isActive ? "bg-blue-500" : "bg-slate-300"
                                 }`}
                               />
                             </div>
@@ -388,9 +388,9 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="relative lg:col-span-6">
-                  <div className="pointer-events-none absolute -left-3 top-10 hidden h-40 w-1 rounded-full bg-linear-to-b from-indigo-500/0 via-indigo-500/40 to-indigo-500/0 lg:block" />
+                  <div className="pointer-events-none absolute -left-3 top-10 hidden h-40 w-1 rounded-full bg-linear-to-b from-blue-500/0 via-blue-500/40 to-blue-500/0 lg:block" />
                   <div className="h-full rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
-                    <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-indigo-500">
+                    <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-blue-500">
                       <span>{t("hero.matchPreview")}</span>
                       <span className="normal-case tracking-normal text-slate-500">
                         {t("hero.takingStudents")}
@@ -493,7 +493,7 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-              <div className="pointer-events-none absolute -bottom-12 -right-12 hidden h-40 w-40 rounded-full bg-indigo-200/60 blur-3xl lg:block" />
+              <div className="pointer-events-none absolute -bottom-12 -right-12 hidden h-40 w-40 rounded-full bg-blue-200/60 blur-3xl lg:block" />
             </MotionInView>
           </div>
         </section>
@@ -571,7 +571,7 @@ export default function HomePage() {
             {t("tutorsSection.missingSubject")}{" "}
             <Link
               href="#enquire"
-              className="text-indigo-600 underline"
+              className="text-blue-600 underline"
               onClick={createScrollHandler("enquire")}
             >
               {t("tutorsSection.signupForm")}
@@ -672,7 +672,7 @@ export default function HomePage() {
                   }}
                   className="h-full rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
                 >
-                  <p className="text-7xl font-semibold text-indigo-500/20">
+                  <p className="text-7xl font-semibold text-blue-500/20">
                     {step.step}
                   </p>
                   <h3 className="mt-4 text-lg font-semibold text-slate-950">
@@ -695,7 +695,7 @@ export default function HomePage() {
           <div className="grid gap-10 lg:grid-cols-[1fr,1.1fr] lg:items-start">
             <MotionInView>
               <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
-                <div className="pointer-events-none absolute -right-12 -top-10 h-32 w-32 rounded-full bg-indigo-200/40 blur-2xl" />
+                <div className="pointer-events-none absolute -right-12 -top-10 h-32 w-32 rounded-full bg-blue-200/40 blur-2xl" />
                 <div className="pointer-events-none absolute -bottom-8 left-6 h-24 w-24 rounded-full bg-sky-200/40 blur-2xl" />
                 <h3 className="text-xl font-semibold text-slate-950">
                   {t("enquireSection.whatToExpect")}
@@ -705,7 +705,7 @@ export default function HomePage() {
                     <li key={i}>{item}</li>
                   ))}
                 </ul>
-                <div className="mt-8 rounded-2xl border border-indigo-100 bg-indigo-50 p-4 text-sm text-indigo-700">
+                <div className="mt-8 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-700">
                   {t("enquireSection.pricingNote")}
                 </div>
               </div>

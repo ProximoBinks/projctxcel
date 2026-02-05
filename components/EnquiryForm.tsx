@@ -182,8 +182,8 @@ export default function EnquiryForm() {
               }
               className={`rounded-2xl border px-4 py-3 text-left text-sm font-semibold transition ${
                 form.type === option.value
-                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
-                  : "border-slate-200 text-slate-700 hover:border-indigo-200"
+                  ? "border-blue-500 bg-blue-50 text-blue-700"
+                  : "border-slate-200 text-slate-700 hover:border-blue-200"
               }`}
             >
               {option.label}
@@ -314,7 +314,7 @@ export default function EnquiryForm() {
             <input
               type="file"
               accept=".pdf,.docx"
-              className="input file:mr-4 file:rounded-full file:border-0 file:bg-indigo-50 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-indigo-700 hover:file:bg-indigo-100"
+              className="input file:mr-4 file:rounded-full file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-xs file:font-semibold file:text-blue-700 hover:file:bg-blue-100"
               onChange={(event) =>
                 setForm((prev) => ({
                   ...prev,
@@ -368,7 +368,7 @@ export default function EnquiryForm() {
         <span className="flex flex-wrap items-center gap-2">
           <span>{t("form.message")}</span>
           {form.type !== "general" ? (
-            <span className="font-semibold text-indigo-600">
+            <span className="font-semibold text-blue-600">
               {t("form.messageHighlight")}
             </span>
           ) : null}
@@ -390,12 +390,12 @@ export default function EnquiryForm() {
           onChange={(event) =>
             setForm((prev) => ({ ...prev, consent: event.target.checked }))
           }
-          className="mt-1 h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-200"
+          className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-200"
           required
         />
         <span>
           {t("form.consent")}{" "}
-          <a href="/privacy" target="_blank" className="font-semibold text-indigo-600">
+          <a href="/privacy" target="_blank" className="font-semibold text-blue-600">
             {t("form.privacyPolicy")}
           </a>
         </span>

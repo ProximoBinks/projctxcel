@@ -23,7 +23,7 @@ export default function TermsClient() {
             <button
               type="button"
               onClick={toggleLang}
-              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-indigo-300 hover:text-indigo-600"
+              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
             >
               {lang === "en" ? "中" : "EN"}
             </button>
@@ -35,7 +35,7 @@ export default function TermsClient() {
       </header>
 
       <main className="mx-auto w-full max-w-3xl px-6 py-16 sm:px-10">
-        <p className="text-xs uppercase tracking-[0.3em] text-indigo-500">
+        <p className="text-xs uppercase tracking-[0.3em] text-blue-500">
           {t("terms.eyebrow")}
         </p>
         <h1 className="mt-4 text-3xl font-semibold text-slate-950 sm:text-4xl">
@@ -58,7 +58,7 @@ export default function TermsClient() {
                     {" "}
                     <a
                       href="mailto:simpletuitionau@gmail.com"
-                      className="font-semibold text-indigo-600"
+                      className="font-semibold text-blue-600"
                     >
                       simpletuitionau@gmail.com
                     </a>

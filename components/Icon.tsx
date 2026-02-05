@@ -62,7 +62,7 @@ const icons: Record<IconName, React.ReactElement> = {
 
 export default function Icon({ name, className }: { name: IconName; className?: string }) {
   return (
-    <span className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 ${className ?? ""}`}>
+    <span className={`inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 ${className ?? ""}`}>
       {icons[name]}
     </span>
   );
