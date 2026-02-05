@@ -3,6 +3,9 @@ import type { Metadata } from "next";
 import tutorsDataRaw from "../../../data/tutors.json";
 import TutorDetailClient from "./TutorDetailClient";
 
+const BASE_URL =
+  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+
 type TutorRecord = {
   name: string;
   slug: string;
@@ -29,7 +32,7 @@ export async function generateMetadata({
   const { slug } = await params;
   if (!slug) {
     return {
-      title: "Tutor not found | Simple Tuition",
+      title: "Tutor not found",
       description: "Simple Tuition premium tutoring.",
     };
   }
@@ -38,14 +41,47 @@ export async function generateMetadata({
 
   if (!tutor) {
     return {
-      title: "Tutor not found | Simple Tuition",
+      title: "Tutor not found",
       description: "Simple Tuition premium tutoring.",
     };
   }
 
+  const atarStat = tutor.stats.find((s) => s.label === "ATAR");
+  const subjectList = tutor.subjects.slice(0, 4).join(", ");
+  const description = atarStat
+    ? `${tutor.name} — ${atarStat.value} ATAR. ${tutor.headline ?? ""} Subjects: ${subjectList}. Enquire at Simple Tuition.`
+    : `${tutor.name} — ${tutor.headline ?? tutor.bioShort}. Subjects: ${subjectList}. Enquire at Simple Tuition.`;
+
+  const ogImage = tutor.photoFile
+    ? `/images/tutors/${tutor.photoFile}`
+    : "/images/banner.webp";
+
   return {
-    title: `${tutor.name} | Simple Tuition`,
-    description: tutor.headline ?? tutor.bioShort,
+    title: `${tutor.name} — ${atarStat ? `${atarStat.value} ATAR` : "Tutor"}`,
+    description,
+    alternates: {
+      canonical: `/tutors/${slug}`,
+    },
+    openGraph: {
+      title: `${tutor.name} | Simple Tuition`,
+      description,
+      url: `${BASE_URL}/tutors/${slug}`,
+      type: "profile",
+      images: [
+        {
+          url: ogImage,
+          width: 600,
+          height: 600,
+          alt: `${tutor.name} — Tutor at Simple Tuition`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${tutor.name} | Simple Tuition`,
+      description,
+      images: [ogImage],
+    },
   };
 }
 
