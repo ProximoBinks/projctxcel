@@ -2,6 +2,7 @@
 
 import { ConvexProvider, ConvexReactClient } from "convex/react";
 import { LanguageProvider } from "../i18n/LanguageContext";
+import { AuthProvider } from "../contexts/AuthContext";
 
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 if (!convexUrl) {
@@ -15,7 +16,9 @@ export default function Providers({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ConvexProvider client={convex}>
-      <LanguageProvider>{children}</LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>{children}</LanguageProvider>
+      </AuthProvider>
     </ConvexProvider>
   );
 }

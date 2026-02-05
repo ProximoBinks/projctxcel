@@ -110,7 +110,7 @@
     "photoFile": "bal-gilhotra.jpg",
     "headline": "Tutor",
     "bioShort": "Bal juggled seven subjects all in Year 12 and earnt a first-round offer for medicine at the University of Adelaide.",
-    "subjects": ["General Maths", "English", "Accounting", "Interview Prep"],
+    "subjects": ["General Maths", "English", "Accounting", "UCAT", "Interview Prep"],
     "stats": [
       { "label": "ATAR", "value": "99.55" },
       { "label": "percentile UCAT", "value": "90th" },
