@@ -8,9 +8,13 @@
  * @module
  */
 
+import type * as admin from "../admin.js";
+import type * as auth from "../auth.js";
+import type * as dashboard from "../dashboard.js";
 import type * as enquiries from "../enquiries.js";
 import type * as enquiryNotifications from "../enquiryNotifications.js";
 import type * as seed from "../seed.js";
+import type * as seedAdmin from "../seedAdmin.js";
 import type * as testimonials from "../testimonials.js";
 import type * as tutors from "../tutors.js";
 
@@ -21,9 +25,13 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  admin: typeof admin;
+  auth: typeof auth;
+  dashboard: typeof dashboard;
   enquiries: typeof enquiries;
   enquiryNotifications: typeof enquiryNotifications;
   seed: typeof seed;
+  seedAdmin: typeof seedAdmin;
   testimonials: typeof testimonials;
   tutors: typeof tutors;
 }>;

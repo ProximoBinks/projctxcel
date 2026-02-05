@@ -22,6 +22,7 @@ export default defineSchema({
   })
     .index("by_slug", ["slug"])
     .index("by_active_and_sortOrder", ["active", "sortOrder"]),
+
   testimonials: defineTable({
     quote: v.string(),
     name: v.string(),
@@ -29,6 +30,7 @@ export default defineSchema({
     active: v.boolean(),
     sortOrder: v.number(),
   }).index("by_active_and_sortOrder", ["active", "sortOrder"]),
+
   enquiries: defineTable({
     type: v.optional(v.string()),
     name: v.string(),
@@ -59,4 +61,66 @@ export default defineSchema({
     createdAt: v.number(),
     status: v.optional(v.string()),
   }).index("by_createdAt", ["createdAt"]),
+
+  // Tutor accounts for dashboard login
+  tutorAccounts: defineTable({
+    email: v.string(),
+    passwordHash: v.string(),
+    name: v.string(),
+    tutorSlug: v.optional(v.string()), // links to tutors.slug
+    hourlyRate: v.number(), // base hourly rate in cents
+    active: v.boolean(),
+  })
+    .index("by_email", ["email"])
+    .index("by_tutorSlug", ["tutorSlug"]),
+
+  // Admin accounts
+  adminAccounts: defineTable({
+    email: v.string(),
+    passwordHash: v.string(),
+    name: v.string(),
+  }).index("by_email", ["email"]),
+
+  // Students managed by tutors
+  students: defineTable({
+    name: v.string(),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    parentName: v.optional(v.string()),
+    parentEmail: v.optional(v.string()),
+    parentPhone: v.optional(v.string()),
+    yearLevel: v.string(),
+    subjects: v.array(v.string()),
+    assignedTutorId: v.id("tutorAccounts"),
+    notes: v.optional(v.string()),
+    active: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_assignedTutor", ["assignedTutorId"])
+    .index("by_active", ["active"]),
+
+  // Session logs
+  sessions: defineTable({
+    tutorId: v.id("tutorAccounts"),
+    studentId: v.id("students"),
+    date: v.string(), // ISO date string YYYY-MM-DD
+    durationMinutes: v.number(),
+    subject: v.string(),
+    notes: v.optional(v.string()),
+    ratePerHour: v.number(), // rate in cents at time of session
+    createdAt: v.number(),
+  })
+    .index("by_tutor", ["tutorId"])
+    .index("by_student", ["studentId"])
+    .index("by_tutor_and_date", ["tutorId", "date"])
+    .index("by_date", ["date"]),
+
+  // Subject rate overrides (tutor-subject specific rates)
+  subjectRates: defineTable({
+    tutorId: v.id("tutorAccounts"),
+    subject: v.string(),
+    ratePerHour: v.number(), // in cents
+  })
+    .index("by_tutor", ["tutorId"])
+    .index("by_tutor_and_subject", ["tutorId", "subject"]),
 });
