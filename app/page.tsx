@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { AnimatePresence, motion } from "framer-motion";
-import localFont from "next/font/local";
 import MotionInView from "../components/MotionInView";
 import Section from "../components/Section";
 import TutorCard from "../components/TutorCard";
@@ -48,11 +47,6 @@ const getSubjectStyle = (subject: string) => {
   return "border-slate-200 text-slate-600 bg-white";
 };
 
-const pepi = localFont({
-  src: "./fonts/Pepi-SemiBold.otf",
-  weight: "600",
-  style: "normal",
-});
 
 type FocusKey = "sace" | "ucat" | "in_person" | "tailored";
 
@@ -201,16 +195,12 @@ export default function HomePage() {
             navCompact ? "py-3" : "py-5"
           }`}
         >
-          <Link
-            href="/"
-            className={`flex items-end gap-2 text-slate-950 ${pepi.className}`}
-          >
-            <span className="text-2xl font-bold tracking-widest">
-              SIMPLE
-            </span>
-            <span className="ml-[-5px] mb-[0.18rem] text-sm font-semibold lowercase tracking-wide">
-              tuition
-            </span>
+          <Link href="/">
+            <img
+              src="/images/simple-text-black.svg"
+              alt="Simple Tuition"
+              className="h-[60px]"
+            />
           </Link>
           <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">
             <Link href="#tutors" onClick={createScrollHandler("tutors")}>
@@ -426,6 +416,14 @@ export default function HomePage() {
                                 alt={activeTutor.name}
                                 className="h-full w-full object-cover"
                                 loading="lazy"
+                                onError={(event) => {
+                                  if (
+                                    event.currentTarget.src.includes("/images/tutors/default.webp")
+                                  ) {
+                                    return;
+                                  }
+                                  event.currentTarget.src = "/images/tutors/default.webp";
+                                }}
                               />
                             </div>
                             <div>

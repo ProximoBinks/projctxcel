@@ -12,13 +12,12 @@ export default function EnquireClient() {
     <div className="min-h-screen bg-slate-50">
       <header className="border-b border-slate-100 bg-white">
         <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5 sm:px-10">
-          <Link href="/" className="flex items-end gap-2 text-slate-950">
-            <span className="text-2xl font-bold tracking-widest">
-              SIMPLE
-            </span>
-            <span className="ml-[-5px] mb-[0.18rem] text-sm font-semibold lowercase tracking-wide">
-              tuition
-            </span>
+          <Link href="/">
+            <img
+              src="/images/simple-text-black.svg"
+              alt="Simple Tuition"
+              className="h-[60px]"
+            />
           </Link>
           <div className="flex items-center gap-4">
             <button
