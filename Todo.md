@@ -12,6 +12,7 @@
 - [x] Tutor grid (3x3) linking to `/tutors/[slug]` (no slug for now)
 - [x] `/tutors` redirect → `/`
 - [ ] Enquiry form (section `/#enquire` or `/enquire` page)
+- [ ] Harden auth flow (server-side auth checks, secure password hashing)
 - [x] Conditional enquiry form:
   - [x] First question: “How can we help you today?” → (Tutor enquiry / Join team)
   - [x] Student path fields: year level, target ATAR, struggling subjects, planned uni, interests/hobbies, then name/email/phone
