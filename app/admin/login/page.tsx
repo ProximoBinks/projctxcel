@@ -5,37 +5,33 @@ export const dynamic = 'force-dynamic';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { useAuth } from "../../../contexts/AuthContext";
 
 export default function AdminLoginPage() {
   const router = useRouter();
   const { loginAdmin } = useAuth();
-  const login = useMutation(api.auth.loginAdmin);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    console.log("Form submitted!");
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      console.log("Attempting login with:", { email, password });
-      const result = await login({ email, password });
-      console.log("Login result:", result);
-      if (result.success) {
-        console.log("Login successful, calling loginAdmin");
-        loginAdmin(result.adminId, result.name, result.email);
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role: "admin" }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        loginAdmin(result);
         router.push("/admin");
       } else {
-        console.log("Login failed:", result.error);
-        setError(result.error);
+        setError(result.error || "Invalid email or password");
       }
     } catch (err) {
       console.error("Login error:", err);

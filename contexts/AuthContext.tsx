@@ -28,52 +28,54 @@ type Session = TutorSession | AdminSession | null;
 type AuthContextValue = {
   session: Session;
   isLoading: boolean;
-  loginTutor: (id: string, name: string, email: string) => void;
-  loginAdmin: (id: string, name: string, email: string) => void;
+  loginTutor: (session: TutorSession) => void;
+  loginAdmin: (session: AdminSession) => void;
   logout: () => void;
+  refreshSession: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
-
-const SESSION_KEY = "simple_tuition_session";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    // Load session from localStorage
-    const stored = localStorage.getItem(SESSION_KEY);
-    if (stored) {
-      try {
-        setSession(JSON.parse(stored));
-      } catch {
-        localStorage.removeItem(SESSION_KEY);
+  const refreshSession = useCallback(async () => {
+    try {
+      const res = await fetch("/api/auth/session", { cache: "no-store" });
+      if (!res.ok) {
+        setSession(null);
+        return;
       }
+      const data = (await res.json()) as Session;
+      setSession(data);
+    } catch {
+      setSession(null);
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   }, []);
 
-  const loginTutor = useCallback((id: string, name: string, email: string) => {
-    const newSession: TutorSession = { type: "tutor", id, name, email };
+  useEffect(() => {
+    void refreshSession();
+  }, [refreshSession]);
+
+  const loginTutor = useCallback((newSession: TutorSession) => {
     setSession(newSession);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
   }, []);
 
-  const loginAdmin = useCallback((id: string, name: string, email: string) => {
-    const newSession: AdminSession = { type: "admin", id, name, email };
+  const loginAdmin = useCallback((newSession: AdminSession) => {
     setSession(newSession);
-    localStorage.setItem(SESSION_KEY, JSON.stringify(newSession));
   }, []);
 
   const logout = useCallback(() => {
+    void fetch("/api/auth/logout", { method: "POST" });
     setSession(null);
-    localStorage.removeItem(SESSION_KEY);
   }, []);
 
   return (
     <AuthContext.Provider
-      value={{ session, isLoading, loginTutor, loginAdmin, logout }}
+      value={{ session, isLoading, loginTutor, loginAdmin, logout, refreshSession }}
     >
       {children}
     </AuthContext.Provider>

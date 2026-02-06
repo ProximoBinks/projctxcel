@@ -1,22 +1,46 @@
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import bcrypt from "bcryptjs";
 
-// Simple hash function for passwords (in production, use bcrypt via action)
-// This is a basic implementation - for production, use a proper hashing library
-async function hashPassword(password: string): Promise<string> {
+const LEGACY_SALT = "simple_tuition_salt_2024";
+const BCRYPT_ROUNDS = 12;
+
+async function hashPasswordLegacy(password: string): Promise<string> {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password + "simple_tuition_salt_2024");
+  const data = encoder.encode(password + LEGACY_SALT);
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
-async function verifyPassword(
+function isBcryptHash(hash: string): boolean {
+  return hash.startsWith("$2a$") || hash.startsWith("$2b$") || hash.startsWith("$2y$");
+}
+
+async function verifyPasswordAndMaybeUpgrade(
   password: string,
-  hash: string
-): Promise<boolean> {
-  const inputHash = await hashPassword(password);
-  return inputHash === hash;
+  currentHash: string
+): Promise<{ valid: boolean; newHash?: string }> {
+  if (isBcryptHash(currentHash)) {
+    const valid = bcrypt.compareSync(password, currentHash);
+    return { valid };
+  }
+
+  const legacyHash = await hashPasswordLegacy(password);
+  if (legacyHash !== currentHash) {
+    return { valid: false };
+  }
+
+  const upgradedHash = bcrypt.hashSync(password, BCRYPT_ROUNDS);
+  return { valid: true, newHash: upgradedHash };
+}
+
+function hashPassword(password: string): string {
+  return bcrypt.hashSync(password, BCRYPT_ROUNDS);
+}
+
+function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
 }
 
 // Tutor authentication
@@ -28,7 +52,7 @@ export const loginTutor = mutation({
   returns: v.union(
     v.object({
       success: v.literal(true),
-      tutorId: v.string(),
+      tutorId: v.id("tutorAccounts"),
       name: v.string(),
       email: v.string(),
     }),
@@ -40,7 +64,7 @@ export const loginTutor = mutation({
   handler: async (ctx, { email, password }) => {
     const tutor = await ctx.db
       .query("tutorAccounts")
-      .withIndex("by_email", (q) => q.eq("email", email.toLowerCase()))
+      .withIndex("by_email", (q) => q.eq("email", normalizeEmail(email)))
       .unique();
 
     if (!tutor) {
@@ -51,9 +75,15 @@ export const loginTutor = mutation({
       return { success: false as const, error: "Account is inactive" };
     }
 
-    const valid = await verifyPassword(password, tutor.passwordHash);
+    const { valid, newHash } = await verifyPasswordAndMaybeUpgrade(
+      password,
+      tutor.passwordHash
+    );
     if (!valid) {
       return { success: false as const, error: "Invalid email or password" };
+    }
+    if (newHash) {
+      await ctx.db.patch(tutor._id, { passwordHash: newHash });
     }
 
     return {
@@ -74,7 +104,7 @@ export const loginAdmin = mutation({
   returns: v.union(
     v.object({
       success: v.literal(true),
-      adminId: v.string(),
+      adminId: v.id("adminAccounts"),
       name: v.string(),
       email: v.string(),
     }),
@@ -86,16 +116,22 @@ export const loginAdmin = mutation({
   handler: async (ctx, { email, password }) => {
     const admin = await ctx.db
       .query("adminAccounts")
-      .withIndex("by_email", (q) => q.eq("email", email.toLowerCase()))
+      .withIndex("by_email", (q) => q.eq("email", normalizeEmail(email)))
       .unique();
 
     if (!admin) {
       return { success: false as const, error: "Invalid email or password" };
     }
 
-    const valid = await verifyPassword(password, admin.passwordHash);
+    const { valid, newHash } = await verifyPasswordAndMaybeUpgrade(
+      password,
+      admin.passwordHash
+    );
     if (!valid) {
       return { success: false as const, error: "Invalid email or password" };
+    }
+    if (newHash) {
+      await ctx.db.patch(admin._id, { passwordHash: newHash });
     }
 
     return {
@@ -123,17 +159,54 @@ export const createTutorAccount = mutation({
   handler: async (ctx, { email, password, name, tutorSlug, hourlyRate }) => {
     const existing = await ctx.db
       .query("tutorAccounts")
-      .withIndex("by_email", (q) => q.eq("email", email.toLowerCase()))
+      .withIndex("by_email", (q) => q.eq("email", normalizeEmail(email)))
       .unique();
 
     if (existing) {
       return { success: false as const, error: "Email already exists" };
     }
 
-    const passwordHash = await hashPassword(password);
+    const passwordHash = hashPassword(password);
 
     const tutorId = await ctx.db.insert("tutorAccounts", {
-      email: email.toLowerCase(),
+      email: normalizeEmail(email),
+      passwordHash,
+      name,
+      tutorSlug,
+      hourlyRate,
+      active: true,
+    });
+
+    return { success: true as const, tutorId };
+  },
+});
+
+// Internal helper for creating tutor accounts with a pre-hashed password
+export const createTutorAccountWithHash = internalMutation({
+  args: {
+    email: v.string(),
+    passwordHash: v.string(),
+    name: v.string(),
+    tutorSlug: v.optional(v.string()),
+    hourlyRate: v.number(),
+  },
+  returns: v.union(
+    v.object({ success: v.literal(true), tutorId: v.id("tutorAccounts") }),
+    v.object({ success: v.literal(false), error: v.string() })
+  ),
+  handler: async (ctx, { email, passwordHash, name, tutorSlug, hourlyRate }) => {
+    const normalizedEmail = normalizeEmail(email);
+    const existing = await ctx.db
+      .query("tutorAccounts")
+      .withIndex("by_email", (q) => q.eq("email", normalizedEmail))
+      .unique();
+
+    if (existing) {
+      return { success: false as const, error: "Email already exists" };
+    }
+
+    const tutorId = await ctx.db.insert("tutorAccounts", {
+      email: normalizedEmail,
       passwordHash,
       name,
       tutorSlug,
@@ -159,17 +232,17 @@ export const createAdminAccount = mutation({
   handler: async (ctx, { email, password, name }) => {
     const existing = await ctx.db
       .query("adminAccounts")
-      .withIndex("by_email", (q) => q.eq("email", email.toLowerCase()))
+      .withIndex("by_email", (q) => q.eq("email", normalizeEmail(email)))
       .unique();
 
     if (existing) {
       return { success: false as const, error: "Email already exists" };
     }
 
-    const passwordHash = await hashPassword(password);
+    const passwordHash = hashPassword(password);
 
     const adminId = await ctx.db.insert("adminAccounts", {
-      email: email.toLowerCase(),
+      email: normalizeEmail(email),
       passwordHash,
       name,
     });
