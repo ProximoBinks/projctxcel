@@ -5,15 +5,11 @@ export const dynamic = 'force-dynamic';
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useMutation } from "convex/react";
-import { api } from "../../../convex/_generated/api";
 import { useAuth } from "../../../contexts/AuthContext";
 
 export default function TutorLoginPage() {
   const router = useRouter();
   const { loginTutor } = useAuth();
-  const login = useMutation(api.auth.loginTutor);
-
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -25,12 +21,17 @@ export default function TutorLoginPage() {
     setLoading(true);
 
     try {
-      const result = await login({ email, password });
-      if (result.success) {
-        loginTutor(result.tutorId, result.name, result.email);
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password, role: "tutor" }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        loginTutor(result);
         router.push("/tutor");
       } else {
-        setError(result.error);
+        setError(result.error || "Invalid email or password");
       }
     } catch (err) {
       setError("Something went wrong. Please try again.");
