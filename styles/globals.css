@@ -82,7 +82,7 @@
         height: 520px;
         width: 520px;
         border-radius: 999px;
-        background: radial-gradient(circle at 30% 30%, rgba(5, 8, 109, 0.25), rgba(61, 165, 255, 0.18), transparent 60%);
+        background: radial-gradient(circle at 30% 30%, rgba(5, 8, 109, 0.12), rgba(61, 165, 255, 0.08), transparent 60%);
         filter: blur(40px);
         animation: blobFloat 12s ease-in-out infinite;
         pointer-events: none;

@@ -340,7 +340,7 @@ export default function HomePage() {
             <MotionInView className="relative">
               <div className="grid gap-6 lg:grid-cols-12">
                 <div className="lg:col-span-6">
-                  <div className="h-full rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
+                  <div className="h-full rounded-[28px] border border-slate-200/80 bg-white/90 p-6">
                     <p className="text-xs uppercase tracking-[0.3em] text-blue-500">
                       {t("hero.focusAreasLabel")}
                     </p>
@@ -388,8 +388,7 @@ export default function HomePage() {
                   </div>
                 </div>
                 <div className="relative lg:col-span-6">
-                  <div className="pointer-events-none absolute -left-3 top-10 hidden h-40 w-1 rounded-full bg-linear-to-b from-blue-500/0 via-blue-500/40 to-blue-500/0 lg:block" />
-                  <div className="h-full rounded-[28px] border border-slate-200/80 bg-white/90 p-6 shadow-lg backdrop-blur">
+                  <div className="h-full rounded-[28px] border border-slate-200/80 bg-white/90 p-6">
                     <div className="flex items-center justify-between text-xs uppercase tracking-[0.3em] text-blue-500">
                       <span>{t("hero.matchPreview")}</span>
                       <span className="normal-case tracking-normal text-slate-500">
@@ -486,8 +485,7 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-              <div className="pointer-events-none absolute -bottom-12 -right-12 hidden h-40 w-40 rounded-full bg-blue-200/60 blur-3xl lg:block" />
-            </MotionInView>
+                          </MotionInView>
           </div>
         </section>
 
