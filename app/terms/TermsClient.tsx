@@ -1,38 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { useTranslation } from "../../i18n/LanguageContext";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 
 export default function TermsClient() {
-  const { lang, toggleLang, t, tArray } = useTranslation();
+  const { t, tArray } = useTranslation();
 
   const sections = tArray<{ heading: string; body: string }>("terms.sections");
 
   return (
     <div className="min-h-screen bg-white">
-      <header className="border-b border-slate-100">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5 sm:px-10">
-          <Link href="/">
-            <img
-              src="/images/simple-text-black.svg"
-              alt="Simple Tuition"
-              className="h-[50px]"
-            />
-          </Link>
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={toggleLang}
-              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
-            >
-              {lang === "en" ? "中" : "EN"}
-            </button>
-            <Link href="/#enquire" className="text-sm font-semibold text-slate-600">
-              {t("nav.enquire")}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="mx-auto w-full max-w-3xl px-6 py-16 sm:px-10">
         <p className="text-xs uppercase tracking-[0.3em] text-blue-500">
@@ -70,6 +49,8 @@ export default function TermsClient() {
           ))}
         </section>
       </main>
+
+      <Footer />
     </div>
   );
 }

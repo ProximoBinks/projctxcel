@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useTranslation } from "../../../i18n/LanguageContext";
+import Header from "../../../components/Header";
+import Footer from "../../../components/Footer";
 
 type TutorRecord = {
   name: string;
@@ -16,7 +18,7 @@ type TutorRecord = {
 };
 
 export default function TutorDetailClient({ tutor }: { tutor: TutorRecord }) {
-  const { lang, toggleLang, t } = useTranslation();
+  const { t } = useTranslation();
 
   const displayBio = (() => {
     const translated = t(`tutorBios.${tutor.slug}`);
@@ -32,29 +34,7 @@ export default function TutorDetailClient({ tutor }: { tutor: TutorRecord }) {
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-100 bg-white">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5 sm:px-10">
-          <Link href="/">
-            <img
-              src="/images/simple-text-black.svg"
-              alt="Simple Tuition"
-              className="h-[50px]"
-            />
-          </Link>
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={toggleLang}
-              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
-            >
-              {lang === "en" ? "中" : "EN"}
-            </button>
-            <Link href="/#enquire" className="btn">
-              {t("tutorDetail.enquire")}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="mx-auto w-full max-w-5xl px-6 py-16 sm:px-10">
         <div className="grid gap-10 lg:grid-cols-[1fr,1.2fr] lg:items-start">
@@ -159,6 +139,8 @@ export default function TutorDetailClient({ tutor }: { tutor: TutorRecord }) {
           </div>
         </div>
       </main>
+
+      <Footer />
     </div>
   );
 }

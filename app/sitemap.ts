@@ -43,8 +43,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.2,
     },
 
+    {
+      url: `${BASE_URL}/programs/accelerate`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+
     // ── Add these as you build the pages ──────────────────────
-    // { url: `${BASE_URL}/programs/year-4-10`, ... },
     // { url: `${BASE_URL}/programs/medicine-pathway`, ... },
     // { url: `${BASE_URL}/ucat`, ... },
     // { url: `${BASE_URL}/ucat/group-program`, ... },

@@ -1,38 +1,17 @@
 "use client";
 
-import Link from "next/link";
 import { Suspense } from "react";
 import EnquiryForm from "../../components/EnquiryForm";
+import Header from "../../components/Header";
+import Footer from "../../components/Footer";
 import { useTranslation } from "../../i18n/LanguageContext";
 
 export default function EnquireClient() {
-  const { lang, toggleLang, t } = useTranslation();
+  const { t } = useTranslation();
 
   return (
     <div className="min-h-screen bg-slate-50">
-      <header className="border-b border-slate-100 bg-white">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5 sm:px-10">
-          <Link href="/">
-            <img
-              src="/images/simple-text-black.svg"
-              alt="Simple Tuition"
-              className="h-[50px]"
-            />
-          </Link>
-          <div className="flex items-center gap-4">
-            <button
-              type="button"
-              onClick={toggleLang}
-              className="rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
-            >
-              {lang === "en" ? "中" : "EN"}
-            </button>
-            <Link href="/#tutors" className="text-sm font-semibold text-slate-600">
-              {t("nav.backToSite")}
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <main className="mx-auto w-full max-w-4xl px-6 py-16 sm:px-10">
         <div className="mb-10 max-w-2xl">
@@ -56,6 +35,8 @@ export default function EnquireClient() {
           <EnquiryForm />
         </Suspense>
       </main>
+
+      <Footer />
     </div>
   );
 }
