@@ -45,6 +45,7 @@ export async function POST(req: Request) {
       id: adminResult.adminId,
       name: adminResult.name,
       email: adminResult.email,
+      roles: adminResult.roles,
     };
     const token = await signAuthToken(session);
     const response = NextResponse.json(session);
@@ -69,6 +70,7 @@ export async function POST(req: Request) {
       id: tutorResult.tutorId,
       name: tutorResult.name,
       email: tutorResult.email,
+      roles: tutorResult.roles,
     };
     const token = await signAuthToken(session);
     const response = NextResponse.json(session);

@@ -70,6 +70,7 @@ export default defineSchema({
     tutorSlug: v.optional(v.string()), // links to tutors.slug
     hourlyRate: v.number(), // base hourly rate in cents
     active: v.boolean(),
+    roles: v.optional(v.array(v.string())), // e.g. ["tutor", "admin"]
   })
     .index("by_email", ["email"])
     .index("by_tutorSlug", ["tutorSlug"]),
@@ -123,4 +124,50 @@ export default defineSchema({
   })
     .index("by_tutor", ["tutorId"])
     .index("by_tutor_and_subject", ["tutorId", "subject"]),
+
+  // Scheduled classes
+  classes: defineTable({
+    name: v.string(),
+    subject: v.string(),
+    yearLevel: v.string(),
+    dayOfWeek: v.string(),
+    startTime: v.string(), // "HH:MM"
+    endTime: v.string(), // "HH:MM"
+    location: v.optional(v.string()),
+    active: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_day", ["dayOfWeek"])
+    .index("by_active", ["active"]),
+
+  // Tutor assignments to classes
+  classAssignments: defineTable({
+    classId: v.id("classes"),
+    tutorId: v.id("tutorAccounts"),
+    assignedAt: v.number(),
+    active: v.boolean(),
+  })
+    .index("by_class", ["classId"])
+    .index("by_tutor", ["tutorId"]),
+
+  // Students assigned to classes
+  classStudents: defineTable({
+    classId: v.id("classes"),
+    studentId: v.id("students"),
+    assignedAt: v.number(),
+    active: v.boolean(),
+  })
+    .index("by_class", ["classId"])
+    .index("by_student", ["studentId"])
+    .index("by_student_and_class", ["studentId", "classId"]),
+
+  subjects: defineTable({
+    name: v.string(),
+    stage: v.optional(v.string()),
+    label: v.string(),
+    active: v.boolean(),
+    sortOrder: v.number(),
+  })
+    .index("by_active", ["active"])
+    .index("by_name", ["name"]),
 });

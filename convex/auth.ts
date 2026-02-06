@@ -55,6 +55,7 @@ export const loginTutor = mutation({
       tutorId: v.id("tutorAccounts"),
       name: v.string(),
       email: v.string(),
+      roles: v.array(v.string()),
     }),
     v.object({
       success: v.literal(false),
@@ -91,6 +92,7 @@ export const loginTutor = mutation({
       tutorId: tutor._id,
       name: tutor.name,
       email: tutor.email,
+      roles: tutor.roles ?? ["tutor"],
     };
   },
 });
@@ -104,9 +106,10 @@ export const loginAdmin = mutation({
   returns: v.union(
     v.object({
       success: v.literal(true),
-      adminId: v.id("adminAccounts"),
+      adminId: v.id("tutorAccounts"),
       name: v.string(),
       email: v.string(),
+      roles: v.array(v.string()),
     }),
     v.object({
       success: v.literal(false),
@@ -115,12 +118,16 @@ export const loginAdmin = mutation({
   ),
   handler: async (ctx, { email, password }) => {
     const admin = await ctx.db
-      .query("adminAccounts")
+      .query("tutorAccounts")
       .withIndex("by_email", (q) => q.eq("email", normalizeEmail(email)))
       .unique();
 
-    if (!admin) {
+    if (!admin || !admin.roles?.includes("admin")) {
       return { success: false as const, error: "Invalid email or password" };
+    }
+
+    if (!admin.active) {
+      return { success: false as const, error: "Account is inactive" };
     }
 
     const { valid, newHash } = await verifyPasswordAndMaybeUpgrade(
@@ -139,6 +146,7 @@ export const loginAdmin = mutation({
       adminId: admin._id,
       name: admin.name,
       email: admin.email,
+      roles: admin.roles ?? ["tutor"],
     };
   },
 });
@@ -175,6 +183,7 @@ export const createTutorAccount = mutation({
       tutorSlug,
       hourlyRate,
       active: true,
+      roles: ["tutor"],
     });
 
     return { success: true as const, tutorId };
@@ -212,6 +221,7 @@ export const createTutorAccountWithHash = internalMutation({
       tutorSlug,
       hourlyRate,
       active: true,
+      roles: ["tutor"],
     });
 
     return { success: true as const, tutorId };
@@ -226,12 +236,12 @@ export const createAdminAccount = mutation({
     name: v.string(),
   },
   returns: v.union(
-    v.object({ success: v.literal(true), adminId: v.id("adminAccounts") }),
+    v.object({ success: v.literal(true), adminId: v.id("tutorAccounts") }),
     v.object({ success: v.literal(false), error: v.string() })
   ),
   handler: async (ctx, { email, password, name }) => {
     const existing = await ctx.db
-      .query("adminAccounts")
+      .query("tutorAccounts")
       .withIndex("by_email", (q) => q.eq("email", normalizeEmail(email)))
       .unique();
 
@@ -241,10 +251,13 @@ export const createAdminAccount = mutation({
 
     const passwordHash = hashPassword(password);
 
-    const adminId = await ctx.db.insert("adminAccounts", {
+    const adminId = await ctx.db.insert("tutorAccounts", {
       email: normalizeEmail(email),
       passwordHash,
       name,
+      hourlyRate: 0,
+      active: true,
+      roles: ["tutor", "admin"],
     });
 
     return { success: true as const, adminId };

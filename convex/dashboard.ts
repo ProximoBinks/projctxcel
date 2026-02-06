@@ -140,6 +140,49 @@ export const getMySessions = query({
   },
 });
 
+// Get weekly class timetable for a tutor
+export const getMyWeeklyClasses = query({
+  args: { tutorId: v.id("tutorAccounts") },
+  returns: v.array(
+    v.object({
+      _id: v.id("classes"),
+      name: v.string(),
+      subject: v.string(),
+      yearLevel: v.string(),
+      dayOfWeek: v.string(),
+      startTime: v.string(),
+      endTime: v.string(),
+      location: v.optional(v.string()),
+      active: v.boolean(),
+    })
+  ),
+  handler: async (ctx, { tutorId }) => {
+    const assignments = await ctx.db
+      .query("classAssignments")
+      .withIndex("by_tutor", (q) => q.eq("tutorId", tutorId))
+      .collect();
+    const activeAssignments = assignments.filter((a) => a.active);
+    const classes = await Promise.all(
+      activeAssignments.map(async (assignment) => {
+        const cls = await ctx.db.get(assignment.classId);
+        if (!cls) return null;
+        return {
+          _id: cls._id,
+          name: cls.name,
+          subject: cls.subject,
+          yearLevel: cls.yearLevel,
+          dayOfWeek: cls.dayOfWeek,
+          startTime: cls.startTime,
+          endTime: cls.endTime,
+          location: cls.location,
+          active: cls.active,
+        };
+      })
+    );
+    return classes.filter((c): c is NonNullable<typeof c> => Boolean(c));
+  },
+});
+
 // Get weekly earnings summary
 export const getWeeklyEarnings = query({
   args: { tutorId: v.id("tutorAccounts") },
@@ -237,5 +280,50 @@ export const deleteSession = mutation({
 
     await ctx.db.delete(sessionId);
     return true;
+  },
+});
+
+// Get classes for a tutor's student
+export const getStudentClasses = query({
+  args: {
+    tutorId: v.id("tutorAccounts"),
+    studentId: v.id("students"),
+  },
+  returns: v.array(
+    v.object({
+      _id: v.id("classes"),
+      name: v.string(),
+      dayOfWeek: v.string(),
+      startTime: v.string(),
+      endTime: v.string(),
+    })
+  ),
+  handler: async (ctx, { tutorId, studentId }) => {
+    const student = await ctx.db.get(studentId);
+    if (!student || student.assignedTutorId !== tutorId) {
+      return [];
+    }
+
+    const links = await ctx.db
+      .query("classStudents")
+      .withIndex("by_student", (q) => q.eq("studentId", studentId))
+      .collect();
+    const activeLinks = links.filter((link) => link.active);
+
+    const classes = await Promise.all(
+      activeLinks.map(async (link) => {
+        const cls = await ctx.db.get(link.classId);
+        if (!cls) return null;
+        return {
+          _id: cls._id,
+          name: cls.name,
+          dayOfWeek: cls.dayOfWeek,
+          startTime: cls.startTime,
+          endTime: cls.endTime,
+        };
+      })
+    );
+
+    return classes.filter((cls): cls is NonNullable<typeof cls> => Boolean(cls));
   },
 });

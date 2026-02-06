@@ -15,12 +15,20 @@ export default function TutorDashboardPage() {
   const { session, isLoading: authLoading, logout } = useAuth();
 
   useEffect(() => {
-    if (!authLoading && (!session || session.type !== "tutor")) {
+    if (
+      !authLoading &&
+      (!session || session.type !== "tutor" || !session.roles.includes("tutor"))
+    ) {
       router.push("/tutor/login");
     }
   }, [session, authLoading, router]);
 
-  if (authLoading || !session || session.type !== "tutor") {
+  if (
+    authLoading ||
+    !session ||
+    session.type !== "tutor" ||
+    !session.roles.includes("tutor")
+  ) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <p className="text-slate-600">Loading...</p>
@@ -47,12 +55,15 @@ function TutorDashboard({
   onLogout: () => void;
 }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"overview" | "sessions" | "students">("overview");
+  const [activeTab, setActiveTab] = useState<
+    "overview" | "sessions" | "students" | "timetable"
+  >("overview");
   const [showLogSession, setShowLogSession] = useState(false);
 
   const students = useQuery(api.dashboard.getMyStudents, { tutorId });
   const earnings = useQuery(api.dashboard.getWeeklyEarnings, { tutorId });
   const sessions = useQuery(api.dashboard.getMySessions, { tutorId });
+  const weeklyClasses = useQuery(api.dashboard.getMyWeeklyClasses, { tutorId });
 
   const handleLogout = () => {
     onLogout();
@@ -90,7 +101,7 @@ function TutorDashboard({
       {/* Tabs */}
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl gap-6 px-6">
-          {(["overview", "sessions", "students"] as const).map((tab) => (
+          {(["overview", "sessions", "students", "timetable"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -126,6 +137,9 @@ function TutorDashboard({
         )}
         {activeTab === "students" && (
           <StudentsTab tutorId={tutorId} students={students} />
+        )}
+        {activeTab === "timetable" && (
+          <TimetableTab classes={weeklyClasses} />
         )}
       </main>
 
@@ -247,6 +261,78 @@ function OverviewTab({
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function TimetableTab({
+  classes,
+}: {
+  classes: ReturnType<typeof useQuery<typeof api.dashboard.getMyWeeklyClasses>>;
+}) {
+  type ClassList = NonNullable<
+    ReturnType<typeof useQuery<typeof api.dashboard.getMyWeeklyClasses>>
+  >;
+  type ClassRow = ClassList[number];
+
+  const days = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
+
+  const grouped = days.map((day) => {
+    const dayClasses = (classes ?? [])
+      .filter((cls) => cls.dayOfWeek === day)
+      .sort((a, b) => a.startTime.localeCompare(b.startTime));
+    return { day, classes: dayClasses };
+  });
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-slate-900">Weekly Timetable</h2>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-7">
+        {grouped.map((group) => (
+          <div
+            key={group.day}
+            className="rounded-2xl border border-slate-200 bg-white p-4"
+          >
+            <div className="mb-3 text-sm font-semibold text-slate-700">
+              {group.day}
+            </div>
+            <div className="space-y-3">
+              {group.classes.length > 0 ? (
+                group.classes.map((cls: ClassRow) => (
+                  <div
+                    key={cls._id}
+                    className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-xs text-slate-600"
+                  >
+                    <div className="text-sm font-semibold text-slate-900">
+                      {cls.name}
+                    </div>
+                    <div>
+                      {cls.subject} • {cls.yearLevel}
+                    </div>
+                    <div>
+                      {cls.startTime}–{cls.endTime}
+                    </div>
+                    {cls.location && <div>{cls.location}</div>}
+                  </div>
+                ))
+              ) : (
+                <div className="text-xs text-slate-400">No classes</div>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
@@ -393,6 +479,7 @@ function StudentsTab({
               key={student._id}
               className="rounded-2xl border border-slate-200 bg-white p-6"
             >
+              <StudentClasses tutorId={tutorId} studentId={student._id} />
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="font-semibold text-slate-900">{student.name}</h3>
@@ -487,6 +574,44 @@ function StudentsTab({
             </p>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function StudentClasses({
+  tutorId,
+  studentId,
+}: {
+  tutorId: Id<"tutorAccounts">;
+  studentId: Id<"students">;
+}) {
+  const classes = useQuery(api.dashboard.getStudentClasses, {
+    tutorId,
+    studentId,
+  });
+
+  if (!classes || classes.length === 0) {
+    return null;
+  }
+
+  return (
+    <div className="mb-4">
+      <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
+        Classes
+      </p>
+      <div className="mt-2 space-y-2">
+        {classes.map((cls) => (
+          <div
+            key={cls._id}
+            className="rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-600"
+          >
+            <div className="font-semibold text-slate-900">{cls.name}</div>
+            <div>
+              {cls.dayOfWeek} • {cls.startTime}–{cls.endTime}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

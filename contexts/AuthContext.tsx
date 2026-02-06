@@ -14,6 +14,7 @@ type TutorSession = {
   id: string;
   name: string;
   email: string;
+  roles: string[];
 };
 
 type AdminSession = {
@@ -21,6 +22,7 @@ type AdminSession = {
   id: string;
   name: string;
   email: string;
+  roles: string[];
 };
 
 type Session = TutorSession | AdminSession | null;

@@ -42,13 +42,19 @@ async function handleProtectedRoute(request, { needsAdmin, needsTutor }) {
     return redirect;
   }
 
-  if (needsAdmin && session.type !== "admin") {
+  if (
+    needsAdmin &&
+    (session.type !== "admin" || !session.roles?.includes("admin"))
+  ) {
     const redirect = NextResponse.redirect(new URL("/admin/login", request.url));
     applySecurityHeaders(redirect);
     return redirect;
   }
 
-  if (needsTutor && session.type !== "tutor") {
+  if (
+    needsTutor &&
+    (session.type !== "tutor" || !session.roles?.includes("tutor"))
+  ) {
     const redirect = NextResponse.redirect(new URL("/tutor/login", request.url));
     applySecurityHeaders(redirect);
     return redirect;

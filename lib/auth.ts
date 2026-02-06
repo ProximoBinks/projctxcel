@@ -6,6 +6,7 @@ export type AuthSession = {
   id: string;
   name: string;
   email: string;
+  roles: string[];
 };
 
 const secret = process.env.AUTH_JWT_SECRET;
@@ -20,6 +21,7 @@ export async function signAuthToken(session: AuthSession): Promise<string> {
     type: session.type,
     name: session.name,
     email: session.email,
+    roles: session.roles,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(session.id)
@@ -35,12 +37,15 @@ export async function verifyAuthToken(token: string): Promise<AuthSession | null
     if (payload.type !== "admin" && payload.type !== "tutor") return null;
     if (typeof payload.name !== "string") return null;
     if (typeof payload.email !== "string") return null;
+    if (!Array.isArray(payload.roles)) return null;
+    const roles = payload.roles.filter((role) => typeof role === "string");
 
     return {
       type: payload.type,
       id: payload.sub,
       name: payload.name,
       email: payload.email,
+      roles,
     };
   } catch {
     return null;
