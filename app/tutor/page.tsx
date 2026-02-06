@@ -263,6 +263,11 @@ function SessionsTab({
   students: ReturnType<typeof useQuery<typeof api.dashboard.getMyStudents>>;
   onLogSession: () => void;
 }) {
+  type SessionList = NonNullable<
+    ReturnType<typeof useQuery<typeof api.dashboard.getMySessions>>
+  >;
+  type SessionRow = SessionList[number];
+
   const deleteSession = useMutation(api.dashboard.deleteSession);
   const [deleting, setDeleting] = useState<string | null>(null);
 
@@ -310,7 +315,7 @@ function SessionsTab({
             </thead>
             <tbody className="divide-y divide-slate-100">
               {sessions && sessions.length > 0 ? (
-                sessions.map((session) => (
+                sessions.map((session: SessionRow) => (
                   <tr key={session._id} className="text-sm">
                     <td className="px-6 py-4 text-slate-900">{session.date}</td>
                     <td className="px-6 py-4 text-slate-900">{session.studentName}</td>
@@ -357,6 +362,11 @@ function StudentsTab({
   tutorId: Id<"tutorAccounts">;
   students: ReturnType<typeof useQuery<typeof api.dashboard.getMyStudents>>;
 }) {
+  type StudentList = NonNullable<
+    ReturnType<typeof useQuery<typeof api.dashboard.getMyStudents>>
+  >;
+  type StudentRow = StudentList[number];
+
   const updateNotes = useMutation(api.dashboard.updateStudentNotes);
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [notesValue, setNotesValue] = useState("");
@@ -378,7 +388,7 @@ function StudentsTab({
 
       <div className="grid gap-6 md:grid-cols-2">
         {students && students.length > 0 ? (
-          students.map((student) => (
+          students.map((student: StudentRow) => (
             <div
               key={student._id}
               className="rounded-2xl border border-slate-200 bg-white p-6"
@@ -400,7 +410,7 @@ function StudentsTab({
               </div>
 
               <div className="mt-4 flex flex-wrap gap-2">
-                {student.subjects.map((subject) => (
+                {student.subjects.map((subject: string) => (
                   <span
                     key={subject}
                     className="rounded-full bg-slate-100 px-2 py-1 text-xs text-slate-600"

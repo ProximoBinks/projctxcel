@@ -28,43 +28,55 @@ export async function POST(req: Request) {
   }
 
   const { email, password, role } = payload;
-  let result:
-    | { success: true; tutorId: string; name: string; email: string }
-    | { success: true; adminId: string; name: string; email: string }
-    | { success: false; error: string };
-
   if (role === "admin") {
-    result = await convex.mutation(api.auth.loginAdmin, { email, password });
-  } else if (role === "tutor") {
-    result = await convex.mutation(api.auth.loginTutor, { email, password });
-  } else {
-    return NextResponse.json({ error: "Invalid role." }, { status: 400 });
+    const adminResult = await convex.mutation(api.auth.loginAdmin, {
+      email,
+      password,
+    });
+    if (!adminResult.success) {
+      return NextResponse.json(
+        { error: adminResult.error || "Invalid email or password." },
+        { status: 401 }
+      );
+    }
+
+    const session: AuthSession = {
+      type: "admin",
+      id: adminResult.adminId,
+      name: adminResult.name,
+      email: adminResult.email,
+    };
+    const token = await signAuthToken(session);
+    const response = NextResponse.json(session);
+    response.cookies.set(COOKIE_NAME, token, COOKIE_OPTIONS);
+    return response;
   }
 
-  if (!result.success) {
-    return NextResponse.json(
-      { error: result.error || "Invalid email or password." },
-      { status: 401 }
-    );
+  if (role === "tutor") {
+    const tutorResult = await convex.mutation(api.auth.loginTutor, {
+      email,
+      password,
+    });
+    if (!tutorResult.success) {
+      return NextResponse.json(
+        { error: tutorResult.error || "Invalid email or password." },
+        { status: 401 }
+      );
+    }
+
+    const session: AuthSession = {
+      type: "tutor",
+      id: tutorResult.tutorId,
+      name: tutorResult.name,
+      email: tutorResult.email,
+    };
+    const token = await signAuthToken(session);
+    const response = NextResponse.json(session);
+    response.cookies.set(COOKIE_NAME, token, COOKIE_OPTIONS);
+    return response;
   }
 
-  const session: AuthSession =
-    role === "admin"
-      ? {
-          type: "admin",
-          id: result.adminId,
-          name: result.name,
-          email: result.email,
-        }
-      : {
-          type: "tutor",
-          id: result.tutorId,
-          name: result.name,
-          email: result.email,
-        };
+  return NextResponse.json({ error: "Invalid role." }, { status: 400 });
 
-  const token = await signAuthToken(session);
-  const response = NextResponse.json(session);
-  response.cookies.set(COOKIE_NAME, token, COOKIE_OPTIONS);
-  return response;
+  // Unreachable, but keep default response for safety.
 }
