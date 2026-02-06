@@ -404,9 +404,10 @@ export default function HomePage() {
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -10 }}
                           transition={{ duration: 0.25 }}
+                          className="flex h-full flex-col"
                         >
                           <div className="flex items-center gap-4">
-                            <div className="h-14 w-14 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
+                            <div className="h-16 w-16 shrink-0 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
                               <img
                                 src={
                                   activeTutor.photoFile
@@ -435,28 +436,20 @@ export default function HomePage() {
                               </p>
                             </div>
                           </div>
-                          <p className="mt-3 text-sm text-slate-600">
+                          <p className="mt-6 text-sm text-slate-600">
                             {getDisplayBio(activeTutor.slug, activeTutor.bioShort)}
                           </p>
-                          <div className="mt-4 flex flex-wrap gap-2">
+                          <div className="mt-6 flex flex-wrap gap-2">
                             {activeTutor.stats.map((stat) => (
                               <span
                                 key={`${activeTutor.slug}-${stat.label}`}
-                                className="rounded-md border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700"
+                                className="rounded-md border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-medium text-slate-700"
                               >
                                 {stat.value} {getDisplayStatLabel(stat.label)}
                               </span>
                             ))}
                           </div>
-                          <div className="mt-4">
-                            <p className="text-xs font-semibold text-slate-700">
-                              {t("hero.matchingSignals")}
-                            </p>
-                            <p className="mt-1 text-sm text-slate-600">
-                              {getFocusSignals(activeFocus).join(" • ")}
-                            </p>
-                          </div>
-                          <div className="mt-4">
+                          <div className="mt-6">
                             <p className="text-xs font-semibold text-slate-700">
                               {t("hero.subjects")}
                             </p>
@@ -471,7 +464,7 @@ export default function HomePage() {
                               ))}
                             </div>
                           </div>
-                          <div className="mt-5 flex flex-wrap items-center gap-3">
+                          <div className="mt-auto flex flex-wrap items-center gap-3 pt-6">
                             <Link
                               href="#enquire"
                               className="btn"
@@ -598,23 +591,22 @@ export default function HomePage() {
                   return (
                     <div
                       key={`${testimonial.name}-top-${index}`}
-                      className="relative w-[320px] shrink-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
+                      className="relative flex h-[220px] w-[320px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
                     >
-                      <span className="pointer-events-none absolute -left-2 top-2 text-7xl font-bold text-slate-200/60">
-                        &ldquo;
-                      </span>
-                      <Icon name="quote" />
-                      <p className="mt-4 text-sm text-slate-600">
-                        &ldquo;{translated?.quote ?? testimonial.quote}&rdquo;
+                      <Icon name="quote" className="bg-[#e6edff] text-[#1232c3]" />
+                      <p className="mt-4 flex-1 text-sm text-slate-600">
+                        {translated?.quote ?? testimonial.quote}
                       </p>
-                      <div className="mt-6 text-sm font-semibold text-slate-950">
-                        {testimonial.name}
+                      <div className="mt-auto pt-4">
+                        <div className="text-sm font-semibold text-slate-950">
+                          {testimonial.name}
+                        </div>
+                        {(translated?.context ?? testimonial.context) ? (
+                          <p className="text-xs text-slate-500">
+                            {translated?.context ?? testimonial.context}
+                          </p>
+                        ) : null}
                       </div>
-                      {(translated?.context ?? testimonial.context) ? (
-                        <p className="text-xs text-slate-500">
-                          {translated?.context ?? testimonial.context}
-                        </p>
-                      ) : null}
                     </div>
                   );
                 })}
@@ -631,23 +623,22 @@ export default function HomePage() {
                   return (
                     <div
                       key={`${testimonial.name}-bottom-${index}`}
-                      className="relative w-[320px] shrink-0 overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
+                      className="relative flex h-[220px] w-[320px] shrink-0 flex-col overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
                     >
-                      <span className="pointer-events-none absolute -left-2 top-2 text-7xl font-bold text-slate-200/60">
-                        &ldquo;
-                      </span>
-                      <Icon name="quote" />
-                      <p className="mt-4 text-sm text-slate-600">
-                        &ldquo;{translated?.quote ?? testimonial.quote}&rdquo;
+                      <Icon name="quote" className="bg-[#e6edff] text-[#1232c3]" />
+                      <p className="mt-4 flex-1 text-sm text-slate-600">
+                        {translated?.quote ?? testimonial.quote}
                       </p>
-                      <div className="mt-6 text-sm font-semibold text-slate-950">
-                        {testimonial.name}
+                      <div className="mt-auto pt-4">
+                        <div className="text-sm font-semibold text-slate-950">
+                          {testimonial.name}
+                        </div>
+                        {(translated?.context ?? testimonial.context) ? (
+                          <p className="text-xs text-slate-500">
+                            {translated?.context ?? testimonial.context}
+                          </p>
+                        ) : null}
                       </div>
-                      {(translated?.context ?? testimonial.context) ? (
-                        <p className="text-xs text-slate-500">
-                          {translated?.context ?? testimonial.context}
-                        </p>
-                      ) : null}
                     </div>
                   );
                 })}
