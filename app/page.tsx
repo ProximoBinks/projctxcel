@@ -199,7 +199,7 @@ export default function HomePage() {
             <img
               src="/images/simple-text-black.svg"
               alt="Simple Tuition"
-              className="h-[60px]"
+              className="h-[50px]"
             />
           </Link>
           <nav className="hidden items-center gap-8 text-sm text-slate-600 md:flex">

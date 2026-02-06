@@ -54,7 +54,7 @@ export default function AdminLoginPage() {
               <img
                 src="/images/simple-text-black.svg"
                 alt="Simple Tuition"
-                className="h-[60px] mx-auto"
+                className="h-[50px] mx-auto"
               />
             </Link>
             <h1 className="mt-4 text-2xl font-semibold text-slate-900">
