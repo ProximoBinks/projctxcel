@@ -16,7 +16,7 @@ export default function TermsClient() {
             <img
               src="/images/simple-text-black.svg"
               alt="Simple Tuition"
-              className="h-[60px]"
+              className="h-[50px]"
             />
           </Link>
           <div className="flex items-center gap-4">
