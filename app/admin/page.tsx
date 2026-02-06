@@ -129,6 +129,11 @@ function TutorsTab({
   tutors: ReturnType<typeof useQuery<typeof api.admin.listTutorAccounts>>;
   onAddTutor: () => void;
 }) {
+  type TutorList = NonNullable<
+    ReturnType<typeof useQuery<typeof api.admin.listTutorAccounts>>
+  >;
+  type TutorRow = TutorList[number];
+
   const updateTutor = useMutation(api.admin.updateTutorAccount);
   const [editingRate, setEditingRate] = useState<string | null>(null);
   const [rateValue, setRateValue] = useState("");
@@ -172,7 +177,7 @@ function TutorsTab({
             </thead>
             <tbody className="divide-y divide-slate-100">
               {tutors && tutors.length > 0 ? (
-                tutors.map((tutor) => (
+                tutors.map((tutor: TutorRow) => (
                   <tr key={tutor._id} className="text-sm">
                     <td className="px-6 py-4 font-medium text-slate-900">{tutor.name}</td>
                     <td className="px-6 py-4 text-slate-600">{tutor.email}</td>
@@ -256,6 +261,11 @@ function StudentsTab({
   tutors: ReturnType<typeof useQuery<typeof api.admin.listTutorAccounts>>;
   onAddStudent: () => void;
 }) {
+  type StudentList = NonNullable<
+    ReturnType<typeof useQuery<typeof api.admin.listStudents>>
+  >;
+  type StudentRow = StudentList[number];
+
   const updateStudent = useMutation(api.admin.updateStudent);
 
   const toggleActive = async (studentId: Id<"students">, currentActive: boolean) => {
@@ -289,7 +299,7 @@ function StudentsTab({
             </thead>
             <tbody className="divide-y divide-slate-100">
               {students && students.length > 0 ? (
-                students.map((student) => (
+                students.map((student: StudentRow) => (
                   <tr key={student._id} className="text-sm">
                     <td className="px-6 py-4 font-medium text-slate-900">
                       {student.name}
@@ -297,7 +307,7 @@ function StudentsTab({
                     <td className="px-6 py-4 text-slate-600">{student.yearLevel}</td>
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-1">
-                        {student.subjects.slice(0, 3).map((s) => (
+                        {student.subjects.slice(0, 3).map((s: string) => (
                           <span
                             key={s}
                             className="rounded bg-slate-100 px-1.5 py-0.5 text-xs text-slate-600"
@@ -352,6 +362,15 @@ function StudentsTab({
 }
 
 function SessionsTab() {
+  type SummaryList = NonNullable<
+    ReturnType<typeof useQuery<typeof api.admin.getEarningsSummary>>
+  >;
+  type SummaryRow = SummaryList[number];
+  type SessionList = NonNullable<
+    ReturnType<typeof useQuery<typeof api.admin.getAllSessions>>
+  >;
+  type SessionRow = SessionList[number];
+
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - 7);
@@ -404,7 +423,7 @@ function SessionsTab() {
         </div>
         <div className="divide-y divide-slate-100">
           {summary && summary.length > 0 ? (
-            summary.map((item) => (
+            summary.map((item: SummaryRow) => (
               <div
                 key={item.tutorId}
                 className="flex items-center justify-between px-6 py-4"
@@ -447,7 +466,7 @@ function SessionsTab() {
             </thead>
             <tbody className="divide-y divide-slate-100">
               {sessions && sessions.length > 0 ? (
-                sessions.map((session) => (
+                sessions.map((session: SessionRow) => (
                   <tr key={session._id} className="text-sm">
                     <td className="px-6 py-4 text-slate-900">{session.date}</td>
                     <td className="px-6 py-4 text-slate-600">{session.tutorName}</td>

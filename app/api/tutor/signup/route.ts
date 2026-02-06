@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     );
   }
 
-  const result = await convex.action(api.authActions.createTutorAccount, {
+  const result = await convex.mutation(api.auth.createTutorAccount, {
     name,
     email,
     password,
