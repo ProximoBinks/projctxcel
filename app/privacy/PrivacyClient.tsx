@@ -36,10 +36,10 @@ export default function PrivacyClient() {
                   <>
                     {" "}
                     <a
-                      href="mailto:simpletuitionau@gmail.com"
+                      href="mailto:admin@simpletuition.com.au"
                       className="font-semibold text-blue-600"
                     >
-                      simpletuitionau@gmail.com
+                      admin@simpletuition.com.au
                     </a>
                     .
                   </>

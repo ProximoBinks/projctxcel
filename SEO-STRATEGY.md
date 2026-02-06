@@ -418,7 +418,7 @@ Sessions are one-on-one and matched to your student's pace, whether they need to
   "url": "https://simpletuition.au",
   "logo": "https://simpletuition.au/images/logo.png",
   "description": "Private tutoring from top 1% ATAR achievers for Year 4–12 students in Adelaide. SACE, UCAT, and medicine interview preparation.",
-  "email": "simpletuitionau@gmail.com",
+  "email": "admin@simpletuition.com.au",
   "areaServed": {
     "@type": "City",
     "name": "Adelaide",

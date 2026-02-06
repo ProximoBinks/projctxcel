@@ -62,7 +62,7 @@ const organizationSchema = {
   logo: `${BASE_URL}/images/logo.png`,
   description:
     "Private tutoring from top 1% ATAR achievers for Year 4–12 students in Adelaide. SACE, UCAT, and medicine interview preparation.",
-  email: "simpletuitionau@gmail.com",
+  email: "admin@simpletuition.com.au",
   areaServed: {
     "@type": "City",
     name: "Adelaide",
