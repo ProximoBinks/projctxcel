@@ -20,7 +20,7 @@ export const sendNotification = action({
   handler: async (_ctx, args) => {
     const toEmail = process.env.CONTACT_TO_EMAIL;
     const fromEmail =
-      process.env.POSTMARK_FROM_EMAIL || "info@simpletuition.com.au";
+      process.env.POSTMARK_FROM_EMAIL || "admin@simpletuition.com.au";
     const smtpUser = process.env.POSTMARK_SMTP_USER;
     const smtpPass = process.env.POSTMARK_SMTP_PASS;
 
