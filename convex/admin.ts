@@ -2,9 +2,16 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 
+async function assertAdmin(ctx: { db: any }, adminId: Id<"tutorAccounts">) {
+  const admin = await ctx.db.get(adminId);
+  if (!admin || !admin.roles?.includes("admin")) {
+    throw new Error("Unauthorized");
+  }
+}
+
 // List all tutor accounts
 export const listTutorAccounts = query({
-  args: {},
+  args: { adminId: v.id("tutorAccounts") },
   returns: v.array(
     v.object({
       _id: v.id("tutorAccounts"),
@@ -13,9 +20,11 @@ export const listTutorAccounts = query({
       tutorSlug: v.optional(v.string()),
       hourlyRate: v.number(),
       active: v.boolean(),
+      roles: v.array(v.string()),
     })
   ),
-  handler: async (ctx) => {
+  handler: async (ctx, { adminId }) => {
+    await assertAdmin(ctx, adminId);
     const tutors = await ctx.db.query("tutorAccounts").collect();
     return tutors.map((t) => ({
       _id: t._id,
@@ -24,6 +33,7 @@ export const listTutorAccounts = query({
       tutorSlug: t.tutorSlug,
       hourlyRate: t.hourlyRate,
       active: t.active,
+      roles: t.roles ?? ["tutor"],
     }));
   },
 });
@@ -31,14 +41,17 @@ export const listTutorAccounts = query({
 // Update tutor account
 export const updateTutorAccount = mutation({
   args: {
+    adminId: v.id("tutorAccounts"),
     tutorId: v.id("tutorAccounts"),
     name: v.optional(v.string()),
     hourlyRate: v.optional(v.number()),
     tutorSlug: v.optional(v.string()),
     active: v.optional(v.boolean()),
+    roles: v.optional(v.array(v.string())),
   },
   returns: v.boolean(),
-  handler: async (ctx, { tutorId, ...updates }) => {
+  handler: async (ctx, { adminId, tutorId, ...updates }) => {
+    await assertAdmin(ctx, adminId);
     const tutor = await ctx.db.get(tutorId);
     if (!tutor) return false;
 
@@ -47,6 +60,7 @@ export const updateTutorAccount = mutation({
     if (updates.hourlyRate !== undefined) patch.hourlyRate = updates.hourlyRate;
     if (updates.tutorSlug !== undefined) patch.tutorSlug = updates.tutorSlug;
     if (updates.active !== undefined) patch.active = updates.active;
+    if (updates.roles !== undefined) patch.roles = updates.roles;
 
     await ctx.db.patch(tutorId, patch);
     return true;
@@ -55,7 +69,7 @@ export const updateTutorAccount = mutation({
 
 // List all students
 export const listStudents = query({
-  args: {},
+  args: { adminId: v.id("tutorAccounts") },
   returns: v.array(
     v.object({
       _id: v.id("students"),
@@ -74,7 +88,8 @@ export const listStudents = query({
       createdAt: v.number(),
     })
   ),
-  handler: async (ctx) => {
+  handler: async (ctx, { adminId }) => {
+    await assertAdmin(ctx, adminId);
     const students = await ctx.db.query("students").collect();
 
     return Promise.all(
@@ -104,6 +119,7 @@ export const listStudents = query({
 // Create student
 export const createStudent = mutation({
   args: {
+    adminId: v.id("tutorAccounts"),
     name: v.string(),
     email: v.optional(v.string()),
     phone: v.optional(v.string()),
@@ -116,7 +132,8 @@ export const createStudent = mutation({
     notes: v.optional(v.string()),
   },
   returns: v.id("students"),
-  handler: async (ctx, args) => {
+  handler: async (ctx, { adminId, ...args }) => {
+    await assertAdmin(ctx, adminId);
     return await ctx.db.insert("students", {
       ...args,
       active: true,
@@ -128,6 +145,7 @@ export const createStudent = mutation({
 // Update student
 export const updateStudent = mutation({
   args: {
+    adminId: v.id("tutorAccounts"),
     studentId: v.id("students"),
     name: v.optional(v.string()),
     email: v.optional(v.string()),
@@ -142,7 +160,8 @@ export const updateStudent = mutation({
     active: v.optional(v.boolean()),
   },
   returns: v.boolean(),
-  handler: async (ctx, { studentId, ...updates }) => {
+  handler: async (ctx, { adminId, studentId, ...updates }) => {
+    await assertAdmin(ctx, adminId);
     const student = await ctx.db.get(studentId);
     if (!student) return false;
 
@@ -159,6 +178,7 @@ export const updateStudent = mutation({
 // Get all sessions (for admin overview)
 export const getAllSessions = query({
   args: {
+    adminId: v.id("tutorAccounts"),
     startDate: v.optional(v.string()),
     endDate: v.optional(v.string()),
   },
@@ -177,7 +197,8 @@ export const getAllSessions = query({
       earnings: v.number(),
     })
   ),
-  handler: async (ctx, { startDate, endDate }) => {
+  handler: async (ctx, { adminId, startDate, endDate }) => {
+    await assertAdmin(ctx, adminId);
     let sessions = await ctx.db.query("sessions").collect();
 
     if (startDate) {
@@ -217,6 +238,7 @@ export const getAllSessions = query({
 // Get earnings summary by tutor
 export const getEarningsSummary = query({
   args: {
+    adminId: v.id("tutorAccounts"),
     startDate: v.string(),
     endDate: v.string(),
   },
@@ -229,7 +251,8 @@ export const getEarningsSummary = query({
       sessionCount: v.number(),
     })
   ),
-  handler: async (ctx, { startDate, endDate }) => {
+  handler: async (ctx, { adminId, startDate, endDate }) => {
+    await assertAdmin(ctx, adminId);
     const sessions = await ctx.db.query("sessions").collect();
     const filtered = sessions.filter(
       (s) => s.date >= startDate && s.date <= endDate
@@ -275,12 +298,14 @@ export const getEarningsSummary = query({
 // Set subject-specific rate for a tutor
 export const setSubjectRate = mutation({
   args: {
+    adminId: v.id("tutorAccounts"),
     tutorId: v.id("tutorAccounts"),
     subject: v.string(),
     ratePerHour: v.number(),
   },
   returns: v.boolean(),
-  handler: async (ctx, { tutorId, subject, ratePerHour }) => {
+  handler: async (ctx, { adminId, tutorId, subject, ratePerHour }) => {
+    await assertAdmin(ctx, adminId);
     const existing = await ctx.db
       .query("subjectRates")
       .withIndex("by_tutor_and_subject", (q) =>
@@ -300,7 +325,7 @@ export const setSubjectRate = mutation({
 
 // Get subject rates for a tutor
 export const getSubjectRates = query({
-  args: { tutorId: v.id("tutorAccounts") },
+  args: { adminId: v.id("tutorAccounts"), tutorId: v.id("tutorAccounts") },
   returns: v.array(
     v.object({
       _id: v.id("subjectRates"),
@@ -308,7 +333,8 @@ export const getSubjectRates = query({
       ratePerHour: v.number(),
     })
   ),
-  handler: async (ctx, { tutorId }) => {
+  handler: async (ctx, { adminId, tutorId }) => {
+    await assertAdmin(ctx, adminId);
     const rates = await ctx.db
       .query("subjectRates")
       .withIndex("by_tutor", (q) => q.eq("tutorId", tutorId))
@@ -324,9 +350,10 @@ export const getSubjectRates = query({
 
 // Delete subject rate
 export const deleteSubjectRate = mutation({
-  args: { rateId: v.id("subjectRates") },
+  args: { adminId: v.id("tutorAccounts"), rateId: v.id("subjectRates") },
   returns: v.boolean(),
-  handler: async (ctx, { rateId }) => {
+  handler: async (ctx, { adminId, rateId }) => {
+    await assertAdmin(ctx, adminId);
     await ctx.db.delete(rateId);
     return true;
   },

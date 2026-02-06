@@ -15,12 +15,20 @@ export default function AdminDashboardPage() {
   const { session, isLoading: authLoading, logout } = useAuth();
 
   useEffect(() => {
-    if (!authLoading && (!session || session.type !== "admin")) {
+    if (
+      !authLoading &&
+      (!session || session.type !== "admin" || !session.roles.includes("admin"))
+    ) {
       router.push("/admin/login");
     }
   }, [session, authLoading, router]);
 
-  if (authLoading || !session || session.type !== "admin") {
+  if (
+    authLoading ||
+    !session ||
+    session.type !== "admin" ||
+    !session.roles.includes("admin")
+  ) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">
         <p className="text-slate-600">Loading...</p>
@@ -28,23 +36,40 @@ export default function AdminDashboardPage() {
     );
   }
 
-  return <AdminDashboard adminName={session.name} onLogout={logout} />;
+  return (
+    <AdminDashboard
+      adminId={session.id as Id<"tutorAccounts">}
+      adminName={session.name}
+      onLogout={logout}
+    />
+  );
 }
 
 function AdminDashboard({
+  adminId,
   adminName,
   onLogout,
 }: {
+  adminId: Id<"tutorAccounts">;
   adminName: string;
   onLogout: () => void;
 }) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<"tutors" | "students" | "sessions">("tutors");
+  const [activeTab, setActiveTab] = useState<
+    "tutors" | "students" | "sessions" | "classes"
+  >("tutors");
   const [showAddTutor, setShowAddTutor] = useState(false);
   const [showAddStudent, setShowAddStudent] = useState(false);
+  const [showAddClass, setShowAddClass] = useState(false);
 
-  const tutors = useQuery(api.admin.listTutorAccounts);
-  const students = useQuery(api.admin.listStudents);
+  const tutors = useQuery(
+    api.admin.listTutorAccounts,
+    { adminId }
+  );
+  const students = useQuery(
+    api.admin.listStudents,
+    { adminId }
+  );
 
   const handleLogout = () => {
     onLogout();
@@ -82,7 +107,7 @@ function AdminDashboard({
       {/* Tabs */}
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl gap-6 px-6">
-          {(["tutors", "students", "sessions"] as const).map((tab) => (
+          {(["tutors", "students", "sessions", "classes"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -101,31 +126,56 @@ function AdminDashboard({
       {/* Content */}
       <main className="mx-auto max-w-6xl px-6 py-8">
         {activeTab === "tutors" && (
-          <TutorsTab tutors={tutors} onAddTutor={() => setShowAddTutor(true)} />
+          <TutorsTab
+            adminId={adminId}
+            tutors={tutors}
+            onAddTutor={() => setShowAddTutor(true)}
+          />
         )}
         {activeTab === "students" && (
           <StudentsTab
+            adminId={adminId}
             students={students}
             tutors={tutors}
             onAddStudent={() => setShowAddStudent(true)}
           />
         )}
-        {activeTab === "sessions" && <SessionsTab />}
+        {activeTab === "sessions" && <SessionsTab adminId={adminId} />}
+        {activeTab === "classes" && (
+          <ClassesTab
+            adminId={adminId}
+            tutors={tutors}
+            onAddClass={() => setShowAddClass(true)}
+          />
+        )}
       </main>
 
       {/* Modals */}
       {showAddTutor && <AddTutorModal onClose={() => setShowAddTutor(false)} />}
-      {showAddStudent && tutors && (
-        <AddStudentModal tutors={tutors} onClose={() => setShowAddStudent(false)} />
+      {showAddStudent && tutors && adminId && (
+        <AddStudentModal
+          adminId={adminId}
+          tutors={tutors}
+          onClose={() => setShowAddStudent(false)}
+        />
+      )}
+      {showAddClass && tutors && adminId && (
+        <AddClassModal
+          adminId={adminId}
+          tutors={tutors}
+          onClose={() => setShowAddClass(false)}
+        />
       )}
     </div>
   );
 }
 
 function TutorsTab({
+  adminId,
   tutors,
   onAddTutor,
 }: {
+  adminId: Id<"tutorAccounts">;
   tutors: ReturnType<typeof useQuery<typeof api.admin.listTutorAccounts>>;
   onAddTutor: () => void;
 }) {
@@ -143,12 +193,23 @@ function TutorsTab({
   const saveRate = async (tutorId: Id<"tutorAccounts">) => {
     const cents = Math.round(parseFloat(rateValue) * 100);
     if (isNaN(cents)) return;
-    await updateTutor({ tutorId, hourlyRate: cents });
+    await updateTutor({ adminId, tutorId, hourlyRate: cents });
     setEditingRate(null);
   };
 
   const toggleActive = async (tutorId: Id<"tutorAccounts">, currentActive: boolean) => {
-    await updateTutor({ tutorId, active: !currentActive });
+    await updateTutor({ adminId, tutorId, active: !currentActive });
+  };
+
+  const toggleAdminRole = async (
+    tutorId: Id<"tutorAccounts">,
+    roles: string[]
+  ) => {
+    const hasAdmin = roles.includes("admin");
+    const nextRoles = hasAdmin
+      ? roles.filter((role) => role !== "admin")
+      : [...roles, "admin"];
+    await updateTutor({ adminId, tutorId, roles: nextRoles });
   };
 
   return (
@@ -226,6 +287,11 @@ function TutorsTab({
                       >
                         {tutor.active ? "Active" : "Inactive"}
                       </span>
+                      {tutor.roles.includes("admin") && (
+                        <span className="ml-2 rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700">
+                          Admin
+                        </span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <button
@@ -233,6 +299,12 @@ function TutorsTab({
                         className="text-sm text-slate-500 hover:text-slate-700"
                       >
                         {tutor.active ? "Deactivate" : "Activate"}
+                      </button>
+                      <button
+                        onClick={() => toggleAdminRole(tutor._id, tutor.roles)}
+                        className="ml-3 text-sm text-blue-600 hover:text-blue-700"
+                      >
+                        {tutor.roles.includes("admin") ? "Revoke admin" : "Make admin"}
                       </button>
                     </td>
                   </tr>
@@ -253,10 +325,12 @@ function TutorsTab({
 }
 
 function StudentsTab({
+  adminId,
   students,
   tutors,
   onAddStudent,
 }: {
+  adminId: Id<"tutorAccounts">;
   students: ReturnType<typeof useQuery<typeof api.admin.listStudents>>;
   tutors: ReturnType<typeof useQuery<typeof api.admin.listTutorAccounts>>;
   onAddStudent: () => void;
@@ -267,9 +341,24 @@ function StudentsTab({
   type StudentRow = StudentList[number];
 
   const updateStudent = useMutation(api.admin.updateStudent);
+  const [managingClasses, setManagingClasses] = useState<{
+    _id: Id<"students">;
+    name: string;
+  } | null>(null);
+  const [editingStudent, setEditingStudent] = useState<{
+    _id: Id<"students">;
+    name: string;
+    yearLevel: string;
+    subjects: string[];
+    assignedTutorId: Id<"tutorAccounts">;
+    parentName?: string;
+    parentEmail?: string;
+    parentPhone?: string;
+    active: boolean;
+  } | null>(null);
 
   const toggleActive = async (studentId: Id<"students">, currentActive: boolean) => {
-    await updateStudent({ studentId, active: !currentActive });
+    await updateStudent({ adminId, studentId, active: !currentActive });
   };
 
   return (
@@ -343,6 +432,18 @@ function StudentsTab({
                       >
                         {student.active ? "Deactivate" : "Activate"}
                       </button>
+                      <button
+                        onClick={() => setManagingClasses(student)}
+                        className="ml-3 text-sm text-blue-600 hover:text-blue-700"
+                      >
+                        Classes
+                      </button>
+                      <button
+                        onClick={() => setEditingStudent(student)}
+                        className="ml-3 text-sm text-slate-500 hover:text-slate-700"
+                      >
+                        Edit
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -357,11 +458,979 @@ function StudentsTab({
           </table>
         </div>
       </div>
+
+      {managingClasses && (
+        <ManageStudentClassesModal
+          adminId={adminId}
+          student={managingClasses}
+          onClose={() => setManagingClasses(null)}
+        />
+      )}
+      {editingStudent && (
+        <EditStudentModal
+          adminId={adminId}
+          tutors={tutors}
+          initialStudent={editingStudent}
+          onClose={() => setEditingStudent(null)}
+        />
+      )}
     </div>
   );
 }
 
-function SessionsTab() {
+function ClassesTab({
+  adminId,
+  tutors,
+  onAddClass,
+}: {
+  adminId: Id<"tutorAccounts">;
+  tutors: ReturnType<typeof useQuery<typeof api.admin.listTutorAccounts>>;
+  onAddClass: () => void;
+}) {
+  type ClassList = NonNullable<
+    ReturnType<typeof useQuery<typeof api.classes.listClasses>>
+  >;
+  type ClassRow = ClassList[number];
+  type TutorList = NonNullable<
+    ReturnType<typeof useQuery<typeof api.admin.listTutorAccounts>>
+  >;
+  type TutorRow = TutorList[number];
+
+  const classes = useQuery(
+    api.classes.listClasses,
+    { adminId }
+  );
+  const assignTutor = useMutation(api.classes.assignTutorToClass);
+  const unassignTutor = useMutation(api.classes.unassignTutorFromClass);
+  const archiveClass = useMutation(api.classes.archiveClass);
+  const [editingClass, setEditingClass] = useState<ClassRow | null>(null);
+  const [managingStudents, setManagingStudents] = useState<ClassRow | null>(null);
+
+  const handleAssign = async (classId: Id<"classes">, tutorId: string) => {
+    if (!tutorId) {
+      await unassignTutor({ adminId, classId });
+      return;
+    }
+    await assignTutor({
+      adminId,
+      classId,
+      tutorId: tutorId as Id<"tutorAccounts">,
+    });
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold text-slate-900">Classes</h2>
+        <button
+          onClick={onAddClass}
+          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+        >
+          + Add Class
+        </button>
+      </div>
+
+      <div className="rounded-2xl border border-slate-200 bg-white">
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
+                <th className="px-6 py-3 font-medium">Class</th>
+                <th className="px-6 py-3 font-medium">Schedule</th>
+                <th className="px-6 py-3 font-medium">Tutor</th>
+                <th className="px-6 py-3 font-medium">Status</th>
+                <th className="px-6 py-3 font-medium"></th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {classes && classes.length > 0 ? (
+                classes.map((cls: ClassRow) => (
+                  <tr key={cls._id} className="text-sm">
+                    <td className="px-6 py-4">
+                      <div className="font-medium text-slate-900">{cls.name}</div>
+                      <div className="text-slate-500">
+                        {cls.subject} • {cls.yearLevel}
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-slate-600">
+                      {cls.dayOfWeek} • {cls.startTime}–{cls.endTime}
+                      {cls.location ? ` • ${cls.location}` : ""}
+                    </td>
+                    <td className="px-6 py-4">
+                      <select
+                        value={cls.tutorId ?? ""}
+                        onChange={(e) => handleAssign(cls._id, e.target.value)}
+                        className="rounded border border-slate-200 px-2 py-1 text-sm"
+                      >
+                        <option value="">Unassigned</option>
+                        {tutors?.map((tutor: TutorRow) => (
+                          <option key={tutor._id} value={tutor._id}>
+                            {tutor.name}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`rounded-full px-2 py-1 text-xs font-medium ${
+                          cls.active
+                            ? "bg-green-100 text-green-700"
+                            : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {cls.active ? "Active" : "Inactive"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <button
+                        onClick={() => setEditingClass(cls)}
+                        className="text-sm text-slate-500 hover:text-slate-700"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => setManagingStudents(cls)}
+                        className="ml-3 text-sm text-blue-600 hover:text-blue-700"
+                      >
+                        Students
+                      </button>
+                      <button
+                        onClick={() => archiveClass({ adminId, classId: cls._id })}
+                        className="ml-3 text-sm text-red-600 hover:text-red-700"
+                      >
+                        Archive
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
+                    No classes yet
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {editingClass && (
+        <EditClassModal
+          adminId={adminId}
+          initialClass={editingClass}
+          onClose={() => setEditingClass(null)}
+        />
+      )}
+      {managingStudents && (
+        <ManageClassStudentsModal
+          adminId={adminId}
+          classItem={managingStudents}
+          onClose={() => setManagingStudents(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function AddClassModal({
+  adminId,
+  tutors,
+  onClose,
+}: {
+  adminId: Id<"tutorAccounts">;
+  tutors: Array<{ _id: Id<"tutorAccounts">; name: string }>;
+  onClose: () => void;
+}) {
+  const createClass = useMutation(api.classes.createClass);
+  const assignTutor = useMutation(api.classes.assignTutorToClass);
+  const subjects = useQuery(api.subjects.listSubjects);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [name, setName] = useState("");
+  const [subject, setSubject] = useState("");
+  const [yearLevel, setYearLevel] = useState("");
+  const [dayOfWeek, setDayOfWeek] = useState("Monday");
+  const [startTime, setStartTime] = useState("16:00");
+  const [endTime, setEndTime] = useState("17:00");
+  const [location, setLocation] = useState("");
+  const [tutorId, setTutorId] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      const classId = await createClass({
+        adminId,
+        name,
+        subject,
+        yearLevel,
+        dayOfWeek,
+        startTime,
+        endTime,
+        location: location || undefined,
+      });
+      if (tutorId) {
+        await assignTutor({
+          adminId,
+          classId,
+          tutorId: tutorId as Id<"tutorAccounts">,
+        });
+      }
+      onClose();
+    } catch (err) {
+      setError("Failed to create class. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6">
+        <h2 className="text-lg font-semibold text-slate-900">Add Class</h2>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Class name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Subject
+            </label>
+            <select
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            >
+              <option value="">Select subject</option>
+              {subjects?.map((s) => (
+                <option key={s._id} value={s.label}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Year level
+            </label>
+            <input
+              type="text"
+              value={yearLevel}
+              onChange={(e) => setYearLevel(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Day
+              </label>
+              <select
+                value={dayOfWeek}
+                onChange={(e) => setDayOfWeek(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              >
+                {[
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday",
+                ].map((day) => (
+                  <option key={day} value={day}>
+                    {day}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Start time
+              </label>
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                End time
+              </label>
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Location
+              </label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Assign tutor
+            </label>
+            <select
+              value={tutorId}
+              onChange={(e) => setTutorId(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+            >
+              <option value="">Unassigned</option>
+              {tutors.map((tutor) => (
+                <option key={tutor._id} value={tutor._id}>
+                  {tutor.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
+            >
+              {loading ? "Creating..." : "Create Class"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function EditClassModal({
+  adminId,
+  initialClass,
+  onClose,
+}: {
+  adminId: Id<"tutorAccounts">;
+  initialClass: {
+    _id: Id<"classes">;
+    name: string;
+    subject: string;
+    yearLevel: string;
+    dayOfWeek: string;
+    startTime: string;
+    endTime: string;
+    location?: string;
+  };
+  onClose: () => void;
+}) {
+  const updateClass = useMutation(api.classes.updateClass);
+  const subjects = useQuery(api.subjects.listSubjects);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [name, setName] = useState(initialClass.name);
+  const [subject, setSubject] = useState(initialClass.subject);
+  const [yearLevel, setYearLevel] = useState(initialClass.yearLevel);
+  const [dayOfWeek, setDayOfWeek] = useState(initialClass.dayOfWeek);
+  const [startTime, setStartTime] = useState(initialClass.startTime);
+  const [endTime, setEndTime] = useState(initialClass.endTime);
+  const [location, setLocation] = useState(initialClass.location ?? "");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      await updateClass({
+        adminId,
+        classId: initialClass._id,
+        name,
+        subject,
+        yearLevel,
+        dayOfWeek,
+        startTime,
+        endTime,
+        location: location || undefined,
+      });
+      onClose();
+    } catch (err) {
+      setError("Failed to update class. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6">
+        <h2 className="text-lg font-semibold text-slate-900">Edit Class</h2>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Class name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Subject
+            </label>
+            <select
+              value={subject}
+              onChange={(e) => setSubject(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            >
+              <option value="">Select subject</option>
+              {subjects?.map((s) => (
+                <option key={s._id} value={s.label}>
+                  {s.label}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Year level
+            </label>
+            <input
+              type="text"
+              value={yearLevel}
+              onChange={(e) => setYearLevel(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Day
+              </label>
+              <select
+                value={dayOfWeek}
+                onChange={(e) => setDayOfWeek(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              >
+                {[
+                  "Monday",
+                  "Tuesday",
+                  "Wednesday",
+                  "Thursday",
+                  "Friday",
+                  "Saturday",
+                  "Sunday",
+                ].map((day) => (
+                  <option key={day} value={day}>
+                    {day}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Start time
+              </label>
+              <input
+                type="time"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                End time
+              </label>
+              <input
+                type="time"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Location
+              </label>
+              <input
+                type="text"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
+            >
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function ManageClassStudentsModal({
+  adminId,
+  classItem,
+  onClose,
+}: {
+  adminId: Id<"tutorAccounts">;
+  classItem: { _id: Id<"classes">; name: string };
+  onClose: () => void;
+}) {
+  const students = useQuery(api.admin.listStudents, { adminId });
+  const assigned = useQuery(api.classes.listClassStudents, {
+    adminId,
+    classId: classItem._id,
+  });
+  const assignStudent = useMutation(api.classes.assignStudentToClass);
+  const unassignStudent = useMutation(api.classes.unassignStudentFromClass);
+
+  const assignedIds = new Set((assigned ?? []).map((s) => s._id));
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6">
+        <h2 className="text-lg font-semibold text-slate-900">
+          Students for {classItem.name}
+        </h2>
+
+        <div className="mt-4 space-y-2">
+          {students && students.length > 0 ? (
+            students.map((student) => (
+              <label
+                key={student._id}
+                className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 text-sm text-slate-700"
+              >
+                <div>
+                  <div className="font-medium">{student.name}</div>
+                  <div className="text-xs text-slate-400">{student.yearLevel}</div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={assignedIds.has(student._id)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      void assignStudent({
+                        adminId,
+                        classId: classItem._id,
+                        studentId: student._id,
+                      });
+                    } else {
+                      void unassignStudent({
+                        adminId,
+                        classId: classItem._id,
+                        studentId: student._id,
+                      });
+                    }
+                  }}
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+              </label>
+            ))
+          ) : (
+            <p className="text-sm text-slate-500">No students available.</p>
+          )}
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ManageStudentClassesModal({
+  adminId,
+  student,
+  onClose,
+}: {
+  adminId: Id<"tutorAccounts">;
+  student: { _id: Id<"students">; name: string };
+  onClose: () => void;
+}) {
+  const classes = useQuery(api.classes.listClasses, { adminId });
+  const assigned = useQuery(api.classes.listStudentClasses, {
+    adminId,
+    studentId: student._id,
+  });
+  const assignStudent = useMutation(api.classes.assignStudentToClass);
+  const unassignStudent = useMutation(api.classes.unassignStudentFromClass);
+
+  const assignedIds = new Set((assigned ?? []).map((c) => c._id));
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6">
+        <h2 className="text-lg font-semibold text-slate-900">
+          Classes for {student.name}
+        </h2>
+
+        <div className="mt-4 space-y-2">
+          {classes && classes.length > 0 ? (
+            classes.map((cls) => (
+              <label
+                key={cls._id}
+                className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 text-sm text-slate-700"
+              >
+                <div>
+                  <div className="font-medium">{cls.name}</div>
+                  <div className="text-xs text-slate-400">
+                    {cls.dayOfWeek} • {cls.startTime}–{cls.endTime}
+                  </div>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={assignedIds.has(cls._id)}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      void assignStudent({
+                        adminId,
+                        classId: cls._id,
+                        studentId: student._id,
+                      });
+                    } else {
+                      void unassignStudent({
+                        adminId,
+                        classId: cls._id,
+                        studentId: student._id,
+                      });
+                    }
+                  }}
+                  className="h-4 w-4 rounded border-slate-300"
+                />
+              </label>
+            ))
+          ) : (
+            <p className="text-sm text-slate-500">No classes available.</p>
+          )}
+        </div>
+
+        <div className="mt-6 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+          >
+            Done
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditStudentModal({
+  adminId,
+  tutors,
+  initialStudent,
+  onClose,
+}: {
+  adminId: Id<"tutorAccounts">;
+  tutors: ReturnType<typeof useQuery<typeof api.admin.listTutorAccounts>>;
+  initialStudent: {
+    _id: Id<"students">;
+    name: string;
+    yearLevel: string;
+    subjects: string[];
+    assignedTutorId: Id<"tutorAccounts">;
+    parentName?: string;
+    parentEmail?: string;
+    parentPhone?: string;
+    active: boolean;
+  };
+  onClose: () => void;
+}) {
+  const updateStudent = useMutation(api.admin.updateStudent);
+  const subjects = useQuery(api.subjects.listSubjects);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [name, setName] = useState(initialStudent.name);
+  const [yearLevel, setYearLevel] = useState(initialStudent.yearLevel);
+  const [selectedSubjects, setSelectedSubjects] = useState<Array<string>>(
+    initialStudent.subjects ?? []
+  );
+  const [assignedTutorId, setAssignedTutorId] = useState(
+    initialStudent.assignedTutorId
+  );
+  const [parentName, setParentName] = useState(initialStudent.parentName ?? "");
+  const [parentEmail, setParentEmail] = useState(initialStudent.parentEmail ?? "");
+  const [parentPhone, setParentPhone] = useState(initialStudent.parentPhone ?? "");
+  const [active, setActive] = useState(initialStudent.active);
+
+  const activeTutors = (tutors ?? []).filter((t) => t.active);
+
+  const yearLevels = [
+    "Year 4", "Year 5", "Year 6", "Year 7", "Year 8",
+    "Year 9", "Year 10", "Year 11", "Year 12",
+  ];
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      await updateStudent({
+        adminId,
+        studentId: initialStudent._id,
+        name,
+        yearLevel,
+        subjects: selectedSubjects,
+        assignedTutorId,
+        parentName: parentName || undefined,
+        parentEmail: parentEmail || undefined,
+        parentPhone: parentPhone || undefined,
+        active,
+      });
+      onClose();
+    } catch (err) {
+      setError("Failed to update student. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6">
+        <h2 className="text-lg font-semibold text-slate-900">Edit Student</h2>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Student Name
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Year Level
+            </label>
+            <select
+              value={yearLevel}
+              onChange={(e) => setYearLevel(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            >
+              <option value="">Select year level</option>
+              {yearLevels.map((y) => (
+                <option key={y} value={y}>
+                  {y}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Subjects
+            </label>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {subjects?.map((subject) => (
+                <label
+                  key={subject._id}
+                  className="flex items-center gap-2 text-sm text-slate-600"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedSubjects.includes(subject.label)}
+                    onChange={(e) => {
+                      setSelectedSubjects((prev) =>
+                        e.target.checked
+                          ? [...prev, subject.label]
+                          : prev.filter((s) => s !== subject.label)
+                      );
+                    }}
+                    className="h-4 w-4 rounded border-slate-300"
+                  />
+                  {subject.label}
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Assign to Tutor
+            </label>
+            <select
+              value={assignedTutorId}
+              onChange={(e) => setAssignedTutorId(e.target.value as Id<"tutorAccounts">)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            >
+              <option value="">Select tutor</option>
+              {activeTutors.map((t) => (
+                <option key={t._id} value={t._id}>
+                  {t.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="border-t border-slate-100 pt-4">
+            <p className="text-sm font-medium text-slate-700">Parent/Guardian</p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Parent Name
+            </label>
+            <input
+              type="text"
+              value={parentName}
+              onChange={(e) => setParentName(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Parent Email
+            </label>
+            <input
+              type="email"
+              value={parentEmail}
+              onChange={(e) => setParentEmail(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Parent Phone
+            </label>
+            <input
+              type="tel"
+              value={parentPhone}
+              onChange={(e) => setParentPhone(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+            />
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-slate-600">
+            <input
+              id="student-active"
+              type="checkbox"
+              checked={active}
+              onChange={(e) => setActive(e.target.checked)}
+              className="h-4 w-4 rounded border-slate-300"
+            />
+            <label htmlFor="student-active">Active</label>
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
+            >
+              {loading ? "Saving..." : "Save Changes"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function SessionsTab({ adminId }: { adminId: Id<"tutorAccounts"> }) {
   type SummaryList = NonNullable<
     ReturnType<typeof useQuery<typeof api.admin.getEarningsSummary>>
   >;
@@ -378,8 +1447,14 @@ function SessionsTab() {
   });
   const [endDate, setEndDate] = useState(() => new Date().toISOString().split("T")[0]);
 
-  const sessions = useQuery(api.admin.getAllSessions, { startDate, endDate });
-  const summary = useQuery(api.admin.getEarningsSummary, { startDate, endDate });
+  const sessions = useQuery(
+    api.admin.getAllSessions,
+    { adminId, startDate, endDate }
+  );
+  const summary = useQuery(
+    api.admin.getEarningsSummary,
+    { adminId, startDate, endDate }
+  );
 
   const formatCurrency = (cents: number) => `$${(cents / 100).toFixed(2)}`;
   const formatDuration = (minutes: number) => {
@@ -610,19 +1685,22 @@ function AddTutorModal({ onClose }: { onClose: () => void }) {
 }
 
 function AddStudentModal({
+  adminId,
   tutors,
   onClose,
 }: {
+  adminId: Id<"tutorAccounts">;
   tutors: Array<{ _id: Id<"tutorAccounts">; name: string; active: boolean }>;
   onClose: () => void;
 }) {
   const createStudent = useMutation(api.admin.createStudent);
+  const subjects = useQuery(api.subjects.listSubjects);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
   const [name, setName] = useState("");
   const [yearLevel, setYearLevel] = useState("");
-  const [subjects, setSubjects] = useState("");
+  const [selectedSubjects, setSelectedSubjects] = useState<Array<string>>([]);
   const [assignedTutorId, setAssignedTutorId] = useState("");
   const [parentName, setParentName] = useState("");
   const [parentEmail, setParentEmail] = useState("");
@@ -641,15 +1719,20 @@ function AddStudentModal({
       setError("Please select a tutor");
       return;
     }
+    if (selectedSubjects.length === 0) {
+      setError("Please select at least one subject");
+      return;
+    }
 
     setLoading(true);
     setError("");
 
     try {
       await createStudent({
+        adminId,
         name,
         yearLevel,
-        subjects: subjects.split(",").map((s) => s.trim()).filter(Boolean),
+        subjects: selectedSubjects,
         assignedTutorId: assignedTutorId as Id<"tutorAccounts">,
         parentName: parentName || undefined,
         parentEmail: parentEmail || undefined,
@@ -701,16 +1784,30 @@ function AddStudentModal({
 
           <div>
             <label className="block text-sm font-medium text-slate-700">
-              Subjects (comma separated)
+              Subjects
             </label>
-            <input
-              type="text"
-              value={subjects}
-              onChange={(e) => setSubjects(e.target.value)}
-              placeholder="Maths Methods, Chemistry, Physics"
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-              required
-            />
+            <div className="mt-2 grid gap-2 sm:grid-cols-2">
+              {subjects?.map((subject) => (
+                <label
+                  key={subject._id}
+                  className="flex items-center gap-2 text-sm text-slate-600"
+                >
+                  <input
+                    type="checkbox"
+                    checked={selectedSubjects.includes(subject.label)}
+                    onChange={(e) => {
+                      setSelectedSubjects((prev) =>
+                        e.target.checked
+                          ? [...prev, subject.label]
+                          : prev.filter((s) => s !== subject.label)
+                      );
+                    }}
+                    className="h-4 w-4 rounded border-slate-300"
+                  />
+                  {subject.label}
+                </label>
+              ))}
+            </div>
           </div>
 
           <div>
