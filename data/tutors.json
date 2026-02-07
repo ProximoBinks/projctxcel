@@ -79,7 +79,7 @@
     "slug": "andrew-xu",
     "photoFile": "andrew-xu.jpg",
     "headline": "Tutor",
-    "bioShort": "Andrew achieved a merit in Physics and achieved a very strong UCAT - all while competing in the state badminton team.",
+    "bioShort": "Andrew achieved a merit in Physics and a very strong UCAT score, all while competing in the state badminton team.",
     "subjects": ["Maths Methods", "Chemistry", "Physics", "Accounting", "UCAT"],
     "stats": [
       { "label": "ATAR", "value": "99.65" },
@@ -109,7 +109,7 @@
     "slug": "bal-gilhotra",
     "photoFile": "bal-gilhotra.jpg",
     "headline": "Tutor",
-    "bioShort": "Bal juggled seven subjects all in Year 12 and earnt a first-round offer for medicine at the University of Adelaide.",
+    "bioShort": "Bal juggled seven subjects in Year 12 and earned a first-round offer for medicine at the University of Adelaide.",
     "subjects": ["General Maths", "English", "Accounting", "UCAT", "Interview Prep"],
     "stats": [
       { "label": "ATAR", "value": "99.55" },

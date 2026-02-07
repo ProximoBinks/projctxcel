@@ -165,12 +165,12 @@ const getSubjectStyle = (subject: string) => {
 const SACE_SUBJECTS = [
   { name: "Maths Methods", description: ["Skills & Assessment Tasks — 50%", "Mathematical Investigation — 20%", "Exam — 30%"] },
   { name: "Specialist Maths", description: ["Skills & Assessment Tasks — 50%", "Mathematical Investigation — 20%", "Exam — 30%"] },
-  { name: "General Maths", description: ["Skills & Assessment Tasks— 40%", "Mathematical Investigation — 30%", "Exam — 30%"] },
+  { name: "General Maths", description: ["Skills & Assessment Tasks — 40%", "Mathematical Investigation — 30%", "Exam — 30%"] },
   { name: "Biology", description: ["Topic Tests — 40%", "Practical Reports + SHE Task — 30%", "Exam — 30%"] },
   { name: "Chemistry", description: ["Topic Tests — 40%", "Practical Reports + SHE Task — 30%", "Exam — 30%"] },
   { name: "Physics", description: ["Topic Tests — 40%", "Practical Reports + SHE Task — 30%", "Exam — 30%"] },
   { name: "English", description: ["Responding to Texts — 30%", "Creating Texts — 40%", "Comparative Analysis — 30%"] },
-  { name: "English Literature", description: ["Responding to Texts — 50%", "Creating Texts — 20%", "Comparative Analysis + Critical Reading - 30%"] },
+  { name: "English Literature", description: ["Responding to Texts — 50%", "Creating Texts — 20%", "Comparative Analysis + Critical Reading — 30%"] },
   { name: "Accounting", description: ["Accounting Concepts and Solutions — 40%", "Accounting Advice — 30%", "Exam — 30%"] },
   { name: "Business Innovation", description: ["Business Skills — 40%", "Business Model — 30%", "Business Plan & Pitch — 30%"] },
   { name: "Economics", description: ["Folio — 40%", "Economic Project — 30%", "Exam — 30%"] },
@@ -220,7 +220,7 @@ export default function SACEProgramPage() {
               SACE Program
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-slate-600">
-              Year 11 and 12 are difficult but defining years. The difference between a strong
+              Years 11 and 12 are demanding but defining years. The difference between a strong
               ATAR and a great one often comes down to the quality of support
               around a student — and that&apos;s exactly where Simple Tuition comes in.
             </p>
@@ -251,7 +251,7 @@ export default function SACEProgramPage() {
                 },
                 {
                   title: "The results speak for themselves",
-                  copy: "Check out the testimonials from students and parents on the homepage.",
+                  copy: "See testimonials from students and parents on our homepage.",
                 },
               ].map((item) => (
                 <div

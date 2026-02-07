@@ -12,14 +12,14 @@ const BASE_URL =
 export const metadata: Metadata = {
   title: "UCAT Tutoring Adelaide — Expert UCAT Preparation",
   description:
-    "Maximise your UCAT score with Adelaide's top UCAT tutors. Expert preparation for all five subtests with proven strategies. Enquire today.",
+    "Maximise your UCAT score with Adelaide's top UCAT tutors. Expert preparation for all four UCAT subtests with proven strategies. Enquire today.",
   alternates: {
     canonical: "/programs/ucat",
   },
   openGraph: {
     title: "UCAT Tutoring Adelaide — Expert UCAT Preparation | Simple Tuition",
     description:
-      "Maximise your UCAT score with Adelaide's top UCAT tutors. Expert preparation for all five subtests with proven strategies.",
+      "Maximise your UCAT score with Adelaide's top UCAT tutors. Expert preparation for all four UCAT subtests with proven strategies.",
     url: `${BASE_URL}/programs/ucat`,
     type: "website",
     images: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "UCAT Tutoring Adelaide — Expert UCAT Preparation | Simple Tuition",
     description:
-      "Maximise your UCAT score with Adelaide's top UCAT tutors. Expert preparation for all five subtests with proven strategies.",
+      "Maximise your UCAT score with Adelaide's top UCAT tutors. Expert preparation for all four UCAT subtests with proven strategies.",
     images: ["/images/banner.webp"],
   },
 };
@@ -47,7 +47,7 @@ const serviceSchema = {
   "@type": "Service",
   name: "UCAT Preparation Program",
   description:
-    "Comprehensive UCAT preparation covering all five subtests with strategies, practice questions, and mock exams.",
+    "Comprehensive UCAT preparation covering all four UCAT subtests with strategies, practice questions, and mock exams.",
   provider: {
     "@type": "Organization",
     name: "Simple Tuition",
@@ -130,7 +130,7 @@ const faqSchema = {
       name: "What makes your UCAT tutors qualified?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "All our UCAT tutors scored in the top percentiles and have successfully gained admission to medical school. They understand the test inside-out and can teach the strategies that actually work.",
+        text: "All our UCAT tutors scored in the top percentiles and have successfully gained admission to medical school. They understand the test inside out and can teach the strategies that actually work.",
       },
     },
   ],
@@ -141,7 +141,7 @@ const faqSchema = {
 const UCAT_SUBTESTS = [
   { name: "Verbal Reasoning", description: ["Reading comprehension", "Critical analysis", "Inference skills"] },
   { name: "Decision Making", description: ["Logical puzzles", "Data interpretation", "Probabilistic reasoning"] },
-  { name: "Quantitative Reasoning", description: ["Mental arithmetic", "Data analysis", "Problem solving"] },
+  { name: "Quantitative Reasoning", description: ["Mental arithmetic", "Data analysis", "Problem-solving"] },
   { name: "Situational Judgement", description: ["Ethical scenarios", "Professional behaviour", "Decision prioritisation"] },
 ];
 

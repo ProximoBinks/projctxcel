@@ -12,14 +12,14 @@ const BASE_URL =
 export const metadata: Metadata = {
   title: "Year 4–10 Tutoring Adelaide — Build Strong Foundations",
   description:
-    "Personalised tutoring for Year 4–10 students in Adelaide. Build confidence in maths, science & english with top-achieving tutors. Enquire today.",
+    "Personalised tuition in Adelaide for Year 4-10 students. Build confidence in maths, science, and English with top-achieving tutors. Enquire today.",
   alternates: {
     canonical: "/programs/accelerate",
   },
   openGraph: {
     title: "Year 4–10 Tutoring Adelaide — Build Strong Foundations | Simple Tuition",
     description:
-      "Personalised tutoring for Year 4–10 students in Adelaide. Build confidence in maths, science & english with top-achieving tutors.",
+      "Personalised tuition in Adelaide for Year 4-10 students. Build confidence in maths, science, and English with top-achieving tutors.",
     url: `${BASE_URL}/programs/accelerate`,
     type: "website",
     images: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Year 4–10 Tutoring Adelaide — Build Strong Foundations | Simple Tuition",
     description:
-      "Personalised tutoring for Year 4–10 students in Adelaide. Build confidence in maths, science & english with top-achieving tutors.",
+      "Personalised tuition in Adelaide for Year 4-10 students. Build confidence in maths, science, and English with top-achieving tutors.",
     images: ["/images/banner.webp"],
   },
 };
@@ -47,7 +47,7 @@ const serviceSchema = {
   "@type": "Service",
   name: "Year 4–10 Acceleration Program",
   description:
-    "Personalised tutoring for Year 4–10 students, building strong foundations in maths, english, and science.",
+    "Personalised tutoring for Year 4-10 students, building strong foundations in maths, English, and science.",
   provider: {
     "@type": "Organization",
     name: "Simple Tuition",
@@ -106,7 +106,7 @@ const faqSchema = {
       name: "What subjects do you cover for Year 4–10?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "We cover maths, english, and science across all year levels from Year 4 to Year 10. Our tutors adapt to your child's curriculum and learning needs.",
+        text: "We cover maths, English, and science across all year levels from Year 4 to Year 10. Our tutors adapt to your child's curriculum and learning needs.",
       },
     },
     {
@@ -139,8 +139,8 @@ const faqSchema = {
 /* ── Subjects ───────────────────────────────────────────────── */
 
 const YEAR_4_10_SUBJECTS = [
-  { name: "Maths", description: "Learn the foundations of algebra and problem solving skills." },
-  { name: "English", description: "Learn the foundations of good essay writing and critical reading. " },
+  { name: "Maths", description: "Learn the foundations of algebra and problem-solving skills." },
+  { name: "English", description: "Learn the foundations of strong essay writing and critical reading." },
   { name: "Science", description: "Learn the foundations of the 3 core sciences: biology, chemistry, and physics." },
 ];
 
@@ -189,7 +189,7 @@ export default function AccelerateProgramPage() {
             <p className="mt-6 text-lg leading-relaxed text-slate-600">
               The habits and confidence built in primary and middle school shape
               everything that comes after. Our Year 4–10 Acceleration Program
-              gives students a structured edge and sets them up well to excel academically in the senior school.
+              gives students a structured edge and sets them up to excel academically in senior school.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link href="/enquire" className="btn">
@@ -210,7 +210,7 @@ export default function AccelerateProgramPage() {
               {[
                 {
                   title: "Build strong foundations",
-                  copy: "Core concepts in maths, english, and science build on each other. A student's capacity to learn carries throughout high school and the rest of their life.",
+                  copy: "Core concepts in maths, English, and science build on each other. Their ability to learn carries through high school and beyond.",
                 },
                 {
                   title: "Develop study habits",
@@ -287,7 +287,7 @@ export default function AccelerateProgramPage() {
                   Tailored plans
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Our tutors will do their best to adapt their teaching style to suit the student's needs, creating tailored plans along the way to ensure their best outcome.
+                  Our tutors adapt their teaching style to each student's needs and build tailored plans to support the best possible outcome.
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">

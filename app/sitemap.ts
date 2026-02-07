@@ -1,6 +1,12 @@
 import type { MetadataRoute } from "next";
+import tutorsData from "../data/tutors.json";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+
+type TutorRecord = {
+  slug: string;
+  active: boolean;
+};
 
 /**
  * Sitemap — only include pages that actually exist and are built.
@@ -10,6 +16,14 @@ const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date().toISOString();
+  const tutorPages = (tutorsData as TutorRecord[])
+    .filter((tutor) => tutor.active)
+    .map((tutor) => ({
+      url: `${BASE_URL}/tutors/${tutor.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.7,
+    }));
 
   return [
     {
@@ -67,5 +81,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.9,
     },
+    ...tutorPages,
   ];
 }

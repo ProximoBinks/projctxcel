@@ -5,16 +5,21 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
 
 export const metadata: Metadata = {
-  title: "Enquire — Find Your Tutor",
+  title: "Enquire for Adelaide Tutors",
   description:
-    "Tell us your student's year level, subjects, and goals. We'll recommend a matched tutor within 1 business day. Enquire now at Simple Tuition.",
+    "Looking for tuition in Adelaide? Tell us your student's year level, subjects, and goals, and we'll match you with the right tutor within 1 business day.",
+  keywords: [
+    "enquire adelaide tutors",
+    "tuition in adelaide",
+    "private tutoring adelaide",
+  ],
   alternates: {
     canonical: "/enquire",
   },
   openGraph: {
-    title: "Enquire — Find Your Tutor | Simple Tuition",
+    title: "Enquire for Adelaide Tutors | Simple Tuition",
     description:
-      "Tell us your student's year level, subjects, and goals. We'll recommend a matched tutor within 1 business day.",
+      "Looking for tuition in Adelaide? Tell us your student's year level, subjects, and goals, and we'll match you with the right tutor within 1 business day.",
     url: `${BASE_URL}/enquire`,
     type: "website",
     images: [
@@ -28,9 +33,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Enquire — Find Your Tutor | Simple Tuition",
+    title: "Enquire for Adelaide Tutors | Simple Tuition",
     description:
-      "Tell us your student's year level, subjects, and goals. We'll recommend a matched tutor within 1 business day.",
+      "Looking for tuition in Adelaide? Tell us your student's year level, subjects, and goals, and we'll match you with the right tutor within 1 business day.",
     images: ["/images/banner.webp"],
   },
 };

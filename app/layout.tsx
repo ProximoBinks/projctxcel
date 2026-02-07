@@ -10,11 +10,19 @@ const BASE_URL =
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Adelaide Tutoring — Top 1% ATAR Tutors | Simple Tuition",
+    default: "Adelaide Tutors & Tuition | Top 1% ATAR Tutors | Simple Tuition",
     template: "%s | Simple Tuition",
   },
   description:
-    "Private tutoring from top 1% ATAR achievers. SACE, UCAT & medicine prep for Year 4–12 students in Adelaide. Enquire today — we respond within 1 business day.",
+    "Private tuition in Adelaide from top 1% ATAR achievers. SACE, UCAT, and medicine prep for Year 4-12 students. Enquire today and we respond within 1 business day.",
+  keywords: [
+    "adelaide tutors",
+    "tuition in adelaide",
+    "adelaide tuition",
+    "private tutors adelaide",
+    "sace tutors adelaide",
+    "ucat tutors adelaide",
+  ],
   icons: [
     { rel: "icon", url: "/favicon.ico" },
     { rel: "icon", url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
@@ -25,9 +33,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_AU",
     siteName: "Simple Tuition",
-    title: "Adelaide Tutoring — Top 1% ATAR Tutors | Simple Tuition",
+    title: "Adelaide Tutors & Tuition | Top 1% ATAR Tutors | Simple Tuition",
     description:
-      "Private tutoring from top 1% ATAR achievers. SACE, UCAT & medicine prep for Year 4–12 students in Adelaide.",
+      "Private tuition in Adelaide from top 1% ATAR achievers. SACE, UCAT, and medicine prep for Year 4-12 students.",
     url: BASE_URL,
     images: [
       {
@@ -40,9 +48,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Adelaide Tutoring — Top 1% ATAR Tutors | Simple Tuition",
+    title: "Adelaide Tutors & Tuition | Top 1% ATAR Tutors | Simple Tuition",
     description:
-      "Private tutoring from top 1% ATAR achievers. SACE, UCAT & medicine prep for Year 4–12 students in Adelaide.",
+      "Private tuition in Adelaide from top 1% ATAR achievers. SACE, UCAT, and medicine prep for Year 4-12 students.",
     images: ["/images/banner.webp"],
   },
   alternates: {
@@ -56,13 +64,18 @@ export const metadata: Metadata = {
 
 const organizationSchema = {
   "@context": "https://schema.org",
-  "@type": "Organization",
+  "@type": "EducationalOrganization",
   name: "Simple Tuition",
   url: BASE_URL,
   logo: `${BASE_URL}/images/logo.png`,
   description:
-    "Private tutoring from top 1% ATAR achievers for Year 4–12 students in Adelaide. SACE, UCAT, and medicine interview preparation.",
+    "Private tuition in Adelaide from top 1% ATAR achievers for Year 4-12 students. SACE, UCAT, and medicine interview preparation.",
   email: "admin@simpletuition.com.au",
+  sameAs: [
+    "https://www.facebook.com/simpletuition.au",
+    "https://www.instagram.com/simpletuition.au/",
+    "https://www.tiktok.com/@simpletuition.au",
+  ],
   areaServed: {
     "@type": "City",
     name: "Adelaide",

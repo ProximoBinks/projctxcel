@@ -3,7 +3,7 @@
 ## Blockers
 - [x] Confirm business name + domain
 - [x] Collect tutor bios/photos/stats
-- [ ] Decide accent color
+- [x] Decide accent color
 - [x] Business email (for Postmark)
 
 ## Build

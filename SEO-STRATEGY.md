@@ -401,7 +401,7 @@ Sessions are one-on-one and matched to your student's pace, whether they need to
 ### 4.10 Enquire (`/enquire`)
 
 **Title tag:** `Enquire — Find Your Tutor | Simple Tuition Adelaide`
-**Meta description:** `Tell us your student's year level, subjects, and goals. We'll recommend a matched tutor within 1 business day. Enquire now.`
+**Meta description:** `Tell us your student's year level, subjects, and goals. We'll match a tutor with you within 1 business day. Enquire now.`
 **H1:** `Tell Us How We Can Help`
 
 ---

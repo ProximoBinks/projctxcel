@@ -33,7 +33,7 @@ export async function generateMetadata({
   if (!slug) {
     return {
       title: "Tutor not found",
-      description: "Simple Tuition premium tutoring.",
+      description: "Simple Tuition Adelaide tutors and private tuition services.",
     };
   }
 
@@ -42,15 +42,16 @@ export async function generateMetadata({
   if (!tutor) {
     return {
       title: "Tutor not found",
-      description: "Simple Tuition premium tutoring.",
+      description: "Simple Tuition Adelaide tutors and private tuition services.",
     };
   }
 
   const atarStat = tutor.stats.find((s) => s.label === "ATAR");
   const subjectList = tutor.subjects.slice(0, 4).join(", ");
+  const headlinePrefix = tutor.headline ? `${tutor.headline} ` : "";
   const description = atarStat
-    ? `${tutor.name} — ${atarStat.value} ATAR. ${tutor.headline ?? ""} Subjects: ${subjectList}. Enquire at Simple Tuition.`
-    : `${tutor.name} — ${tutor.headline ?? tutor.bioShort}. Subjects: ${subjectList}. Enquire at Simple Tuition.`;
+    ? `${tutor.name} - ${atarStat.value} ATAR tutor in Adelaide. ${headlinePrefix}Subjects: ${subjectList}. Enquire with Simple Tuition.`
+    : `${tutor.name} - Adelaide tutor. ${tutor.headline ?? tutor.bioShort} Subjects: ${subjectList}. Enquire with Simple Tuition.`;
 
   const ogImage = tutor.photoFile
     ? `/images/tutors/${tutor.photoFile}`

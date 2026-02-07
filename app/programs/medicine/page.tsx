@@ -12,14 +12,14 @@ const BASE_URL =
 export const metadata: Metadata = {
   title: "Medicine Pathway Tutoring Adelaide — UCAT & Interview Prep",
   description:
-    "Prepare for medical school with Adelaide's top medicine pathway tutors. Expert UCAT preparation, interview coaching, and academic support. Enquire today.",
+    "Prepare for medical school with Adelaide's top medicine pathway tutors. Expert UCAT preparation, interview coaching, and private tuition in Adelaide. Enquire today.",
   alternates: {
     canonical: "/programs/medicine",
   },
   openGraph: {
     title: "Medicine Pathway Tutoring Adelaide — UCAT & Interview Prep | Simple Tuition",
     description:
-      "Prepare for medical school with Adelaide's top medicine pathway tutors. Expert UCAT preparation, interview coaching, and academic support.",
+      "Prepare for medical school with Adelaide's top medicine pathway tutors. Expert UCAT preparation, interview coaching, and private tuition in Adelaide.",
     url: `${BASE_URL}/programs/medicine`,
     type: "website",
     images: [
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Medicine Pathway Tutoring Adelaide — UCAT & Interview Prep | Simple Tuition",
     description:
-      "Prepare for medical school with Adelaide's top medicine pathway tutors. Expert UCAT preparation, interview coaching, and academic support.",
+      "Prepare for medical school with Adelaide's top medicine pathway tutors. Expert UCAT preparation, interview coaching, and private tuition in Adelaide.",
     images: ["/images/banner.webp"],
   },
 };
@@ -122,7 +122,7 @@ const faqSchema = {
       name: "How does UCAT preparation work?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "We offer structured UCAT preparation covering all five subtests: Verbal Reasoning, Decision Making, Quantitative Reasoning, Abstract Reasoning, and Situational Judgement. Sessions include strategy, practice questions, and timed mock tests.",
+        text: "We offer structured UCAT preparation covering all four subtests: Verbal Reasoning, Decision Making, Quantitative Reasoning, and Situational Judgement. Sessions include strategy, practice questions, and timed mock tests.",
       },
     },
     {
@@ -139,9 +139,9 @@ const faqSchema = {
 /* ── What We Offer ──────────────────────────────────────────── */
 
 const MEDICINE_SERVICES = [
-  { name: "UCAT Preparation", description: "Comprehensive preparation for all five UCAT subtests with strategies and practice." },
-  { name: "Interview Coaching", description: "MMI preparation with mock interviews and personalised feedback." },
-  { name: "Prerequisite Subjects", description: "Tutoring in Chemistry, Biology, and other required subjects." },
+  { name: "UCAT Preparation", description: "Comprehensive preparation for all four UCAT subtests with strategies and practice." },
+  { name: "Interview Preparation", description: "In-person preparation with mock interviews and personalised feedback." },
+  { name: "Pathway Consultations", description: "Speak to an expert about maximising your chances of getting into medicine nationwide." },
 ];
 
 /* ── Page Component ────────────────────────────────────────── */
@@ -240,7 +240,7 @@ export default function MedicinePathwayPage() {
               What this program covers
             </h2>
             <p className="mt-4 text-base text-slate-600">
-              Everything you need to maximise your chances of medical school admission.
+              Everything you need to maximise your chances for medical school admission.
             </p>
             <div className="mt-8 grid gap-6 md:grid-cols-3">
               {MEDICINE_SERVICES.map((service) => (
@@ -286,8 +286,7 @@ export default function MedicinePathwayPage() {
                   Insider knowledge
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Our tutors share what actually worked for them — the strategies, mindset,
-                  and preparation that led to their successful admission.
+                  We share strategies and preparation frameworks from doctors who have sat on interview panels and from medical students who secured successful admission.
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
@@ -295,7 +294,7 @@ export default function MedicinePathwayPage() {
                   Holistic support
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Beyond test prep, we help with personal statements, understanding
+                  Beyond test prep, we help with personal statements for various universities, understanding
                   different pathways, and managing the stress of the application process.
                 </p>
               </div>
