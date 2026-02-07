@@ -241,9 +241,9 @@ export default function UCATPage() {
               What we cover
             </h2>
             <p className="mt-4 text-base text-slate-600">
-              Comprehensive preparation for all five UCAT subtests.
+              Comprehensive preparation for all four UCAT subtests.
             </p>
-            <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            <div className="mt-8 grid gap-6 grid-cols-2 lg:grid-cols-4">
               {UCAT_SUBTESTS.map((subtest) => (
                 <div
                   key={subtest.name}

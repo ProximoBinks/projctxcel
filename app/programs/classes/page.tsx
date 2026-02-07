@@ -266,33 +266,6 @@ export default function ClassesPage() {
             </div>
           </section>
 
-          {/* Subjects Available */}
-          <section className="border-t border-slate-100 py-16">
-            <h2 className="text-3xl font-semibold text-slate-950">
-              Subjects available
-            </h2>
-            <p className="mt-4 text-base text-slate-600">
-              We offer classes in high-demand SACE subjects. Availability varies by term.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              {["Maths Methods", "Specialist Maths", "Chemistry", "Physics", "Biology", "English"].map((subject) => (
-                <span
-                  key={subject}
-                  className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-medium text-slate-700"
-                >
-                  {subject}
-                </span>
-              ))}
-            </div>
-            <p className="mt-6 text-sm text-slate-500">
-              Don&apos;t see your subject?{" "}
-              <Link href="/enquire" className="text-blue-600 underline">
-                Enquire anyway
-              </Link>{" "}
-              — we&apos;re always expanding our offerings.
-            </p>
-          </section>
-
           {/* How It Works */}
           <section className="border-t border-slate-100 py-16">
             <h2 className="text-3xl font-semibold text-slate-950">
