@@ -88,22 +88,32 @@ export default function Header() {
             {t("nav.enquire")}
           </Link>
         </nav>
-        <button
-          type="button"
-          className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white/80 p-2 text-slate-600 shadow-sm transition hover:text-slate-900 md:hidden"
-          onClick={() => setMenuOpen((open) => !open)}
-          aria-label="Toggle navigation"
-          aria-expanded={menuOpen}
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
-            <path
-              d="M3 6.5h18M3 12h18M3 17.5h18"
-              stroke="currentColor"
-              strokeWidth="1.6"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
+        {/* Mobile: Language toggle + Hamburger menu */}
+        <div className="flex items-center gap-3 md:hidden">
+          <button
+            type="button"
+            onClick={toggleLang}
+            className="rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-blue-300 hover:text-blue-600"
+          >
+            {lang === "en" ? "中文" : "EN"}
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white/80 p-2 text-slate-600 shadow-sm transition hover:text-slate-900"
+            onClick={() => setMenuOpen((open) => !open)}
+            aria-label="Toggle navigation"
+            aria-expanded={menuOpen}
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
+              <path
+                d="M3 6.5h18M3 12h18M3 17.5h18"
+                stroke="currentColor"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
       {menuOpen ? (
         <div className="border-t border-slate-100 bg-white md:hidden">

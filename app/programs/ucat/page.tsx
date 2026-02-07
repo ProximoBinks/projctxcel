@@ -142,7 +142,6 @@ const UCAT_SUBTESTS = [
   { name: "Verbal Reasoning", description: ["Reading comprehension", "Critical analysis", "Inference skills"] },
   { name: "Decision Making", description: ["Logical puzzles", "Data interpretation", "Probabilistic reasoning"] },
   { name: "Quantitative Reasoning", description: ["Mental arithmetic", "Data analysis", "Problem solving"] },
-  { name: "Abstract Reasoning", description: ["Pattern recognition", "Spatial reasoning", "Logical sequences"] },
   { name: "Situational Judgement", description: ["Ethical scenarios", "Professional behaviour", "Decision prioritisation"] },
 ];
 
