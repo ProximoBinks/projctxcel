@@ -24,7 +24,9 @@ import matchPreviewData from "../data/matchPreview.json";
 import { useTranslation } from "../i18n/LanguageContext";
 
 const serviceIcons = ["school", "book", "stethoscope"] as const;
+const serviceLinks = ["/programs/accelerate", "/programs/sace", "/programs/medicine"];
 const groupIcons = ["sparkle", "stethoscope"] as const;
+const groupLinks = ["/programs/classes", "/programs/ucat"];
 
 const getSubjectStyle = (subject: string) => {
   const s = subject.toLowerCase();
@@ -369,19 +371,21 @@ export default function HomePage() {
           <div className="grid gap-6 md:grid-cols-3">
             {services.map((service, index) => (
               <MotionInView key={service.title} delay={index * 0.08}>
-                <motion.div
-                  whileHover={{
-                    y: -4,
-                    boxShadow: "0 20px 40px rgba(15,23,42,0.08)",
-                  }}
-                  className="h-full min-h-[220px] rounded-2xl border border-slate-200/70 bg-white p-8 shadow-sm"
-                >
-                  <Icon name={serviceIcons[index] ?? "school"} />
-                  <h3 className="mt-4 text-xl font-semibold text-slate-950">
-                    {service.title}
-                  </h3>
-                  <p className="mt-3 text-base text-slate-600">{service.copy}</p>
-                </motion.div>
+                <Link href={serviceLinks[index] ?? "/programs"}>
+                  <motion.div
+                    whileHover={{
+                      y: -4,
+                      boxShadow: "0 20px 40px rgba(15,23,42,0.08)",
+                    }}
+                    className="h-full min-h-[220px] rounded-2xl border border-slate-200/70 bg-white p-8 shadow-sm transition-colors hover:border-blue-200"
+                  >
+                    <Icon name={serviceIcons[index] ?? "school"} />
+                    <h3 className="mt-4 text-xl font-semibold text-slate-950">
+                      {service.title}
+                    </h3>
+                    <p className="mt-3 text-base text-slate-600">{service.copy}</p>
+                  </motion.div>
+                </Link>
               </MotionInView>
             ))}
           </div>
@@ -392,19 +396,21 @@ export default function HomePage() {
           <div className="mt-10 grid gap-6 md:grid-cols-2">
             {groupPrograms.map((item, index) => (
               <MotionInView key={item.title} delay={index * 0.08}>
-                <motion.div
-                  whileHover={{
-                    y: -4,
-                    boxShadow: "0 20px 40px rgba(15,23,42,0.08)",
-                  }}
-                  className="h-full min-h-[240px] rounded-2xl border border-slate-200/70 bg-white p-8 shadow-sm"
-                >
-                  <Icon name={groupIcons[index] ?? "sparkle"} />
-                  <h3 className="mt-4 text-xl font-semibold text-slate-950">
-                    {item.title}
-                  </h3>
-                  <p className="mt-3 text-base text-slate-600">{item.copy}</p>
-                </motion.div>
+                <Link href={groupLinks[index] ?? "/programs"}>
+                  <motion.div
+                    whileHover={{
+                      y: -4,
+                      boxShadow: "0 20px 40px rgba(15,23,42,0.08)",
+                    }}
+                    className="h-full min-h-[240px] rounded-2xl border border-slate-200/70 bg-white p-8 shadow-sm transition-colors hover:border-blue-200"
+                  >
+                    <Icon name={groupIcons[index] ?? "sparkle"} />
+                    <h3 className="mt-4 text-xl font-semibold text-slate-950">
+                      {item.title}
+                    </h3>
+                    <p className="mt-3 text-base text-slate-600">{item.copy}</p>
+                  </motion.div>
+                </Link>
               </MotionInView>
             ))}
           </div>

@@ -49,17 +49,23 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.9,
     },
-
-    // ── Add these as you build the pages ──────────────────────
-    // { url: `${BASE_URL}/programs/medicine-pathway`, ... },
-    // { url: `${BASE_URL}/ucat`, ... },
-    // { url: `${BASE_URL}/ucat/group-program`, ... },
-    // { url: `${BASE_URL}/how-it-works`, ... },
-    // { url: `${BASE_URL}/testimonials`, ... },
-    // { url: `${BASE_URL}/subjects/maths-methods`, ... },
-    // { url: `${BASE_URL}/subjects/chemistry`, ... },
-    // { url: `${BASE_URL}/blog`, ... },
-    // { url: `${BASE_URL}/tutors`, ... },
-    // { url: `${BASE_URL}/tutors/[slug]`, ... },
+    {
+      url: `${BASE_URL}/programs/medicine`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/programs/ucat`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
+    {
+      url: `${BASE_URL}/programs/classes`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.9,
+    },
   ];
 }

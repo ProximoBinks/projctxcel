@@ -10,32 +10,32 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
 
 export const metadata: Metadata = {
-  title: "SACE Tutoring Adelaide — Year 11–12 ATAR Tutors",
+  title: "UCAT Tutoring Adelaide — Expert UCAT Preparation",
   description:
-    "Maximise your ATAR with Adelaide's top-performing SACE tutors. Expert support in Maths Methods, Chemistry, Physics, English & more. Enquire today.",
+    "Maximise your UCAT score with Adelaide's top UCAT tutors. Expert preparation for all five subtests with proven strategies. Enquire today.",
   alternates: {
-    canonical: "/programs/sace",
+    canonical: "/programs/ucat",
   },
   openGraph: {
-    title: "SACE Tutoring Adelaide — Year 11–12 ATAR Tutors | Simple Tuition",
+    title: "UCAT Tutoring Adelaide — Expert UCAT Preparation | Simple Tuition",
     description:
-      "Maximise your ATAR with Adelaide's top-performing SACE tutors. Expert support in Maths Methods, Chemistry, Physics, English & more.",
-    url: `${BASE_URL}/programs/sace`,
+      "Maximise your UCAT score with Adelaide's top UCAT tutors. Expert preparation for all five subtests with proven strategies.",
+    url: `${BASE_URL}/programs/ucat`,
     type: "website",
     images: [
       {
         url: "/images/banner.webp",
         width: 1200,
         height: 630,
-        alt: "Simple Tuition — SACE Tutoring in Adelaide",
+        alt: "Simple Tuition — UCAT Tutoring in Adelaide",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "SACE Tutoring Adelaide — Year 11–12 ATAR Tutors | Simple Tuition",
+    title: "UCAT Tutoring Adelaide — Expert UCAT Preparation | Simple Tuition",
     description:
-      "Maximise your ATAR with Adelaide's top-performing SACE tutors. Expert support in Maths Methods, Chemistry, Physics, English & more.",
+      "Maximise your UCAT score with Adelaide's top UCAT tutors. Expert preparation for all five subtests with proven strategies.",
     images: ["/images/banner.webp"],
   },
 };
@@ -45,9 +45,9 @@ export const metadata: Metadata = {
 const serviceSchema = {
   "@context": "https://schema.org",
   "@type": "Service",
-  name: "SACE Tutoring Program",
+  name: "UCAT Preparation Program",
   description:
-    "Targeted tutoring for Year 11–12 students across all SACE subjects, focused on maximising ATAR results.",
+    "Comprehensive UCAT preparation covering all five subtests with strategies, practice questions, and mock exams.",
   provider: {
     "@type": "Organization",
     name: "Simple Tuition",
@@ -60,7 +60,7 @@ const serviceSchema = {
   serviceType: "Tutoring",
   audience: {
     "@type": "Audience",
-    audienceType: "Year 11–12 students and parents",
+    audienceType: "Students preparing for UCAT",
   },
 };
 
@@ -83,8 +83,8 @@ const breadcrumbSchema = {
     {
       "@type": "ListItem",
       position: 3,
-      name: "SACE Program",
-      item: `${BASE_URL}/programs/sace`,
+      name: "UCAT Program",
+      item: `${BASE_URL}/programs/ucat`,
     },
   ],
 };
@@ -95,91 +95,60 @@ const faqSchema = {
   mainEntity: [
     {
       "@type": "Question",
-      name: "How much does SACE tutoring cost?",
+      name: "When should I start UCAT preparation?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Pricing varies by tutor experience and subject. Enquire for a personalised quote — we respond within 1 business day.",
+        text: "We recommend starting 3-6 months before your test date. This gives you enough time to learn strategies, practice consistently, and sit multiple mock tests without feeling rushed.",
       },
     },
     {
       "@type": "Question",
-      name: "What SACE subjects do you cover?",
+      name: "What UCAT score do I need for medicine?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "We cover Maths Methods, Specialist Maths, General Maths, Chemistry, Physics, Biology, English, English Literature, Accounting, and Research Project. Enquire for additional subjects.",
+        text: "Competitive scores vary by university and year, but generally a score in the 90th percentile or above significantly improves your chances. Our tutors help you understand realistic targets based on your university preferences.",
       },
     },
     {
       "@type": "Question",
-      name: "Are your SACE tutors qualified?",
+      name: "How is UCAT tutoring different from self-study?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "All our tutors are top 1% ATAR achievers with a current Working with Children Check. Many hold SACE subject merits and are current university students.",
+        text: "While self-study resources are valuable, tutoring provides personalised strategies for your weak areas, immediate feedback on your approach, and accountability to stay on track. Our tutors share techniques that aren't in textbooks.",
       },
     },
     {
       "@type": "Question",
-      name: "How often should a Year 12 student have tutoring?",
+      name: "Do you provide practice questions and mock tests?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Most Year 12 students benefit from 1–2 sessions per week per subject. We recommend discussing your specific needs when you enquire, and your tutor can adjust the frequency as needed.",
+        text: "Yes. We provide extensive practice materials and conduct timed mock tests under exam conditions. We also help you analyse your results to identify patterns and areas for improvement.",
       },
     },
     {
       "@type": "Question",
-      name: "Can tutoring actually improve my ATAR?",
+      name: "What makes your UCAT tutors qualified?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Consistent, targeted tutoring with a knowledgeable tutor can significantly improve understanding and exam performance. Our students have achieved ATARs of 99+ with the support of our tutors.",
+        text: "All our UCAT tutors scored in the top percentiles and have successfully gained admission to medical school. They understand the test inside-out and can teach the strategies that actually work.",
       },
     },
   ],
 };
 
-/* ── Subject Colors ─────────────────────────────────────────── */
+/* ── UCAT Subtests ──────────────────────────────────────────── */
 
-const getSubjectStyle = (subject: string) => {
-  const s = subject.toLowerCase();
-  // Maths
-  if (s === "general maths") return "bg-sky-100 text-sky-700 border-sky-200";
-  if (s === "maths methods") return "bg-blue-100 text-blue-700 border-blue-200";
-  if (s === "specialist maths") return "bg-blue-100 text-blue-800 border-blue-200";
-  // Sciences
-  if (s === "biology") return "bg-emerald-100 text-emerald-700 border-emerald-200";
-  if (s === "chemistry") return "bg-orange-100 text-orange-700 border-orange-200";
-  if (s === "physics") return "bg-violet-100 text-violet-700 border-violet-200";
-  // English
-  if (s === "english") return "bg-red-100 text-red-700 border-red-200";
-  if (s === "english literature") return "bg-rose-100 text-rose-800 border-rose-200";
-  if (s === "research project" || s === "research project/aif") return "bg-slate-100 text-slate-600 border-slate-200";
-  // Business
-  if (s === "accounting") return "bg-gray-200 text-gray-800 border-gray-300";
-  if (s === "business innovation") return "bg-teal-100 text-teal-700 border-teal-200";
-  if (s === "economics") return "bg-green-200 text-green-800 border-green-300";
-  // Default
-  return "border-slate-200 text-slate-600 bg-white";
-};
-
-/* ── Subjects ───────────────────────────────────────────────── */
-
-const SACE_SUBJECTS = [
-  { name: "Maths Methods", description: ["Skills & Assessment Tasks — 50%", "Mathematical Investigation — 20%", "Exam — 30%"] },
-  { name: "Specialist Maths", description: ["Skills & Assessment Tasks — 50%", "Mathematical Investigation — 20%", "Exam — 30%"] },
-  { name: "General Maths", description: ["Skills & Assessment Tasks— 40%", "Mathematical Investigation — 30%", "Exam — 30%"] },
-  { name: "Biology", description: ["Topic Tests — 40%", "Practical Reports + SHE Task — 30%", "Exam — 30%"] },
-  { name: "Chemistry", description: ["Topic Tests — 40%", "Practical Reports + SHE Task — 30%", "Exam — 30%"] },
-  { name: "Physics", description: ["Topic Tests — 40%", "Practical Reports + SHE Task — 30%", "Exam — 30%"] },
-  { name: "English", description: ["Responding to Texts — 30%", "Creating Texts — 40%", "Comparative Analysis — 30%"] },
-  { name: "English Literature", description: ["Responding to Texts — 50%", "Creating Texts — 20%", "Comparative Analysis + Critical Reading - 30%"] },
-  { name: "Accounting", description: ["Accounting Concepts and Solutions — 40%", "Accounting Advice — 30%", "Exam — 30%"] },
-  { name: "Business Innovation", description: ["Business Skills — 40%", "Business Model — 30%", "Business Plan & Pitch — 30%"] },
-  { name: "Economics", description: ["Folio — 40%", "Economic Project — 30%", "Exam — 30%"] },
-  { name: "Research Project/AIF", description: ["Folio — 30%", "Research Outcome — 40%", "Evaluation — 30%"] },
+const UCAT_SUBTESTS = [
+  { name: "Verbal Reasoning", description: ["Reading comprehension", "Critical analysis", "Inference skills"] },
+  { name: "Decision Making", description: ["Logical puzzles", "Data interpretation", "Probabilistic reasoning"] },
+  { name: "Quantitative Reasoning", description: ["Mental arithmetic", "Data analysis", "Problem solving"] },
+  { name: "Abstract Reasoning", description: ["Pattern recognition", "Spatial reasoning", "Logical sequences"] },
+  { name: "Situational Judgement", description: ["Ethical scenarios", "Professional behaviour", "Decision prioritisation"] },
 ];
 
 /* ── Page Component ────────────────────────────────────────── */
 
-export default function SACEProgramPage() {
+export default function UCATPage() {
   return (
     <>
       {/* Structured Data */}
@@ -206,7 +175,7 @@ export default function SACEProgramPage() {
               <span className="text-slate-400">Programs</span>
             </li>
             <li aria-hidden="true">/</li>
-            <li className="font-semibold text-slate-700">SACE Program</li>
+            <li className="font-semibold text-slate-700">UCAT Program</li>
           </ol>
         </nav>
 
@@ -217,12 +186,12 @@ export default function SACEProgramPage() {
               Our services
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-              SACE Program
+              UCAT Preparation Program
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-slate-600">
-              Year 11 and 12 are difficult but defining years. The difference between a strong
-              ATAR and a great one often comes down to the quality of support
-              around a student — and that&apos;s exactly where Simple Tuition comes in.
+              The UCAT is a critical component of medical school admission. Our program
+              equips you with proven strategies, extensive practice, and personalised
+              coaching from tutors who achieved top scores themselves.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link href="/enquire" className="btn">
@@ -234,24 +203,24 @@ export default function SACEProgramPage() {
             </div>
           </section>
 
-          {/* Why Simple Tuition */}
+          {/* Why Choose Us */}
           <section className="border-t border-slate-100 py-16">
             <h2 className="text-3xl font-semibold text-slate-950">
-              Why SACE students choose Simple Tuition
+              Why prepare with Simple Tuition?
             </h2>
             <div className="mt-8 grid gap-6 md:grid-cols-3">
               {[
                 {
-                  title: "Top 1% ATAR tutors",
-                  copy: "Every tutor has achieved an ATAR above 99, with many earning SACE subject merits, placing them in the top 1% of the state.",
+                  title: "Top percentile tutors",
+                  copy: "Learn from tutors who scored in the top percentiles and know exactly what it takes to excel in each subtest.",
                 },
                 {
-                  title: "Same tutor, every session",
-                  copy: "We don't rotate staff. Your student builds continuity and understanding with a dedicated tutor all year round.",
+                  title: "Proven strategies",
+                  copy: "Master the time-saving techniques and approaches that separate high scorers from average performers.",
                 },
                 {
-                  title: "The results speak for themselves",
-                  copy: "Check out the testimonials from students and parents on the homepage.",
+                  title: "Realistic practice",
+                  copy: "Access extensive question banks and sit timed mock tests that accurately simulate exam conditions.",
                 },
               ].map((item) => (
                 <div
@@ -267,30 +236,75 @@ export default function SACEProgramPage() {
             </div>
           </section>
 
-          {/* Subjects We Cover */}
+          {/* UCAT Subtests */}
           <section className="border-t border-slate-100 py-16">
             <h2 className="text-3xl font-semibold text-slate-950">
-              Subjects we cover
+              What we cover
             </h2>
             <p className="mt-4 text-base text-slate-600">
-              All major Stage 1 and Stage 2 SACE subjects.
+              Comprehensive preparation for all five UCAT subtests.
             </p>
             <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {SACE_SUBJECTS.map((subject) => (
+              {UCAT_SUBTESTS.map((subtest) => (
                 <div
-                  key={subject.name}
+                  key={subtest.name}
                   className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
                 >
-                  <span className={`inline-block rounded-full border px-3 py-1 text-sm font-semibold ${getSubjectStyle(subject.name)}`}>
-                    {subject.name}
+                  <span className="inline-block rounded-full border border-pink-200 bg-pink-100 px-3 py-1 text-sm font-semibold text-pink-700">
+                    {subtest.name}
                   </span>
                   <div className="mt-3 space-y-1 text-sm text-slate-600">
-                    {subject.description.map((line, i) => (
+                    {subtest.description.map((line, i) => (
                       <p key={i}>{line}</p>
                     ))}
                   </div>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* Our Approach */}
+          <section className="border-t border-slate-100 py-16">
+            <h2 className="text-3xl font-semibold text-slate-950">
+              Our approach to UCAT preparation
+            </h2>
+            <div className="mt-8 grid gap-6 lg:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-slate-950">
+                  Diagnostic assessment
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  We start with a diagnostic test to identify your strengths and weaknesses
+                  across all subtests, then build a targeted study plan.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-slate-950">
+                  Strategy-focused sessions
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  Each session focuses on specific techniques — time management, question
+                  triage, pattern recognition — not just content review.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-slate-950">
+                  Regular mock tests
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  Practice under realistic conditions with timed mock tests, followed by
+                  detailed analysis of your performance and areas for improvement.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+                <h3 className="text-lg font-semibold text-slate-950">
+                  Flexible scheduling
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  We work around your school schedule with sessions that can be intensified
+                  as your test date approaches.
+                </p>
+              </div>
             </div>
           </section>
 
@@ -325,12 +339,13 @@ export default function SACEProgramPage() {
           {/* CTA */}
           <section className="border-t border-slate-100 py-16 text-center">
             <h2 className="text-3xl font-semibold text-slate-950">
-              Ready to get started?
+              Ready to boost your UCAT score?
             </h2>
             <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-slate-600">
-              Tell us your year level, subjects, and goals. We&apos;ll match a tutor with you within 1 business day.
+              Tell us your test date and current preparation level. We&apos;ll match you
+              with a tutor who can maximise your score.
             </p>
-            <div className="mt-3 flex flex-wrap items-center justify-center gap-4">
+            <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
               <Link href="/enquire" className="btn">
                 Enquire now
               </Link>
