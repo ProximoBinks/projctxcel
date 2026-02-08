@@ -13,7 +13,7 @@
     "subtitle": "Simple Tuition 为学生匹配高分学长学姐，提供 SACE 科目、UCAT 及医学面试辅导。",
     "cta": "立即咨询",
     "ctaSecondary": "查看导师",
-    "focusAreasLabel": "服务方向",
+    "focusAreasLabel": "着重关注",
     "focusAreasHint": "将鼠标悬停在服务方向上，预览匹配的导师。",
     "matchPreview": "导师预览",
     "takingStudents": "本周可接收新学生",
@@ -63,7 +63,7 @@
       }
     ],
     "groupTitle": "小组课程",
-    "groupSubtitle": "协作式课程，旨在共同提升技能和考试信心。",
+    "groupSubtitle": "与志同道合的学生一同进步，旨在共同提升技能和考试信心。",
     "groupItems": [
       {
         "title": "科目集训班",
@@ -88,8 +88,8 @@
   },
   "testimonials": {
     "eyebrow": "学生反馈",
-    "title": "受到学生和家长的信任",
-    "subtitle": "个性化支持，成效持久。",
+    "title": "深受受到学生和家长的信任",
+    "subtitle": "个性化服务，成效持久。",
     "row1": [
       { "quote": "Simple Tuition 为我最难的科目匹配了合适的导师。我每周都期待见到我的导师，他们的支持帮助我取得了 99.80 的 ATAR。", "context": "2024 毕业生" },
       { "quote": "UCAT 准备课程结构清晰、强度适中，面试辅导更是出色。", "context": "Year 12 学生" },
