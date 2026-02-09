@@ -190,6 +190,130 @@ export const updateStudent = mutation({
   },
 });
 
+// Delete student
+export const deleteStudent = mutation({
+  args: {
+    adminId: v.id("tutorAccounts"),
+    studentId: v.id("students"),
+  },
+  returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
+  handler: async (ctx, { adminId, studentId }) => {
+    await assertAdmin(ctx, adminId);
+
+    const student = await ctx.db.get(studentId);
+    if (!student) {
+      return { success: false, error: "Student not found" };
+    }
+
+    // Delete related records
+    // Delete class enrollments
+    const classEnrollments = await ctx.db
+      .query("classStudents")
+      .withIndex("by_student", (q) => q.eq("studentId", studentId))
+      .collect();
+    for (const enrollment of classEnrollments) {
+      await ctx.db.delete(enrollment._id);
+    }
+
+    // Delete sessions
+    const sessions = await ctx.db
+      .query("sessions")
+      .withIndex("by_student", (q) => q.eq("studentId", studentId))
+      .collect();
+    for (const session of sessions) {
+      await ctx.db.delete(session._id);
+    }
+
+    // Delete student resources
+    const resources = await ctx.db
+      .query("studentResources")
+      .withIndex("by_student", (q) => q.eq("studentId", studentId))
+      .collect();
+    for (const resource of resources) {
+      await ctx.db.delete(resource._id);
+    }
+
+    // Delete student account if exists
+    const studentAccount = await ctx.db
+      .query("studentAccounts")
+      .withIndex("by_studentId", (q) => q.eq("studentId", studentId))
+      .first();
+    if (studentAccount) {
+      await ctx.db.delete(studentAccount._id);
+    }
+
+    // Delete invite codes
+    const inviteCodes = await ctx.db
+      .query("studentInviteCodes")
+      .withIndex("by_studentId", (q) => q.eq("studentId", studentId))
+      .collect();
+    for (const code of inviteCodes) {
+      await ctx.db.delete(code._id);
+    }
+
+    // Finally delete the student
+    await ctx.db.delete(studentId);
+    return { success: true };
+  },
+});
+
+// Delete tutor account
+export const deleteTutorAccount = mutation({
+  args: {
+    adminId: v.id("tutorAccounts"),
+    tutorId: v.id("tutorAccounts"),
+  },
+  returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
+  handler: async (ctx, { adminId, tutorId }) => {
+    await assertAdmin(ctx, adminId);
+
+    // Can't delete yourself
+    if (adminId === tutorId) {
+      return { success: false, error: "Cannot delete your own account" };
+    }
+
+    const tutor = await ctx.db.get(tutorId);
+    if (!tutor) {
+      return { success: false, error: "Tutor not found" };
+    }
+
+    // Delete class assignments
+    const classAssignments = await ctx.db
+      .query("classAssignments")
+      .withIndex("by_tutor", (q) => q.eq("tutorId", tutorId))
+      .collect();
+    for (const assignment of classAssignments) {
+      await ctx.db.delete(assignment._id);
+    }
+
+    // Delete sessions
+    const sessions = await ctx.db
+      .query("sessions")
+      .withIndex("by_tutor", (q) => q.eq("tutorId", tutorId))
+      .collect();
+    for (const session of sessions) {
+      await ctx.db.delete(session._id);
+    }
+
+    // Delete subject rates
+    const subjectRates = await ctx.db
+      .query("subjectRates")
+      .withIndex("by_tutor", (q) => q.eq("tutorId", tutorId))
+      .collect();
+    for (const rate of subjectRates) {
+      await ctx.db.delete(rate._id);
+    }
+
+    // Reassign students to a different tutor or just leave them (they'll show as orphaned)
+    // For now, we'll just delete the tutor and leave students assigned to the deleted tutor ID
+    // Admin should reassign students before deleting
+
+    // Finally delete the tutor
+    await ctx.db.delete(tutorId);
+    return { success: true };
+  },
+});
+
 // Get all sessions (for admin overview)
 export const getAllSessions = query({
   args: {

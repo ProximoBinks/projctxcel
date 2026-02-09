@@ -185,9 +185,11 @@ function TutorsTab({
   type TutorRow = TutorList[number];
 
   const updateTutor = useMutation(api.admin.updateTutorAccount);
+  const deleteTutor = useMutation(api.admin.deleteTutorAccount);
   const [editingRate, setEditingRate] = useState<string | null>(null);
   const [rateValue, setRateValue] = useState("");
   const [editingTutor, setEditingTutor] = useState<TutorRow | null>(null);
+  const [deletingTutor, setDeletingTutor] = useState<string | null>(null);
 
   const formatCurrency = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
@@ -211,6 +213,23 @@ function TutorsTab({
       ? roles.filter((role) => role !== "admin")
       : [...roles, "admin"];
     await updateTutor({ adminId, tutorId, roles: nextRoles });
+  };
+
+  const handleDeleteTutor = async (tutorId: Id<"tutorAccounts">, tutorName: string) => {
+    if (!confirm(`Are you sure you want to delete "${tutorName}"? This will also delete all their sessions and class assignments. This cannot be undone.`)) {
+      return;
+    }
+    setDeletingTutor(tutorId);
+    try {
+      const result = await deleteTutor({ adminId, tutorId });
+      if (!result.success) {
+        alert(result.error || "Failed to delete tutor");
+      }
+    } catch {
+      alert("Failed to delete tutor");
+    } finally {
+      setDeletingTutor(null);
+    }
   };
 
   return (
@@ -313,6 +332,14 @@ function TutorsTab({
                       >
                         {tutor.roles.includes("admin") ? "Revoke admin" : "Make admin"}
                       </button>
+                      <button
+                        onClick={() => handleDeleteTutor(tutor._id, tutor.name)}
+                        disabled={deletingTutor === tutor._id || tutor._id === adminId}
+                        className="ml-3 text-sm text-red-600 hover:text-red-700 disabled:opacity-50"
+                        title={tutor._id === adminId ? "Cannot delete yourself" : ""}
+                      >
+                        {deletingTutor === tutor._id ? "..." : "Delete"}
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -356,7 +383,7 @@ function StudentsTab({
   type StudentRow = StudentList[number];
 
   const updateStudent = useMutation(api.admin.updateStudent);
-  const generateInviteCode = useMutation(api.studentDashboard.generateInviteCode);
+  const deleteStudent = useMutation(api.admin.deleteStudent);
   const [managingClasses, setManagingClasses] = useState<{
     _id: Id<"students">;
     name: string;
@@ -372,26 +399,26 @@ function StudentsTab({
     parentPhone?: string;
     active: boolean;
   } | null>(null);
-  const [inviteCode, setInviteCode] = useState<{ studentName: string; code: string } | null>(null);
-  const [generatingCode, setGeneratingCode] = useState<string | null>(null);
+  const [deletingStudent, setDeletingStudent] = useState<string | null>(null);
 
   const toggleActive = async (studentId: Id<"students">, currentActive: boolean) => {
     await updateStudent({ adminId, studentId, active: !currentActive });
   };
 
-  const handleGenerateInvite = async (studentId: Id<"students">, studentName: string) => {
-    setGeneratingCode(studentId);
+  const handleDeleteStudent = async (studentId: Id<"students">, studentName: string) => {
+    if (!confirm(`Are you sure you want to delete "${studentName}"? This will also delete all their sessions, class enrollments, and resources. This cannot be undone.`)) {
+      return;
+    }
+    setDeletingStudent(studentId);
     try {
-      const result = await generateInviteCode({ adminId, studentId });
-      if (result.success && result.code) {
-        setInviteCode({ studentName, code: result.code });
-      } else {
-        alert(result.error || "Failed to generate invite code");
+      const result = await deleteStudent({ adminId, studentId });
+      if (!result.success) {
+        alert(result.error || "Failed to delete student");
       }
     } catch {
-      alert("Failed to generate invite code");
+      alert("Failed to delete student");
     } finally {
-      setGeneratingCode(null);
+      setDeletingStudent(null);
     }
   };
 
@@ -461,15 +488,8 @@ function StudentsTab({
                     </td>
                     <td className="px-6 py-4">
                       <button
-                        onClick={() => handleGenerateInvite(student._id, student.name)}
-                        disabled={generatingCode === student._id}
-                        className="text-sm text-green-600 hover:text-green-700 disabled:opacity-50"
-                      >
-                        {generatingCode === student._id ? "..." : "Invite"}
-                      </button>
-                      <button
                         onClick={() => toggleActive(student._id, student.active)}
-                        className="ml-3 text-sm text-slate-500 hover:text-slate-700"
+                        className="text-sm text-slate-500 hover:text-slate-700"
                       >
                         {student.active ? "Deactivate" : "Activate"}
                       </button>
@@ -484,6 +504,13 @@ function StudentsTab({
                         className="ml-3 text-sm text-slate-500 hover:text-slate-700"
                       >
                         Edit
+                      </button>
+                      <button
+                        onClick={() => handleDeleteStudent(student._id, student.name)}
+                        disabled={deletingStudent === student._id}
+                        className="ml-3 text-sm text-red-600 hover:text-red-700 disabled:opacity-50"
+                      >
+                        {deletingStudent === student._id ? "..." : "Delete"}
                       </button>
                     </td>
                   </tr>
@@ -514,41 +541,6 @@ function StudentsTab({
           initialStudent={editingStudent}
           onClose={() => setEditingStudent(null)}
         />
-      )}
-      {inviteCode && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-sm rounded-2xl bg-white p-6 text-center">
-            <h2 className="text-lg font-semibold text-slate-900">Student Invite Code</h2>
-            <p className="mt-2 text-sm text-slate-600">
-              Share this code with <strong>{inviteCode.studentName}</strong> to create their account
-            </p>
-            <div className="mt-4 rounded-xl bg-slate-100 px-4 py-3">
-              <p className="font-mono text-2xl font-bold tracking-widest text-slate-900">
-                {inviteCode.code}
-              </p>
-            </div>
-            <p className="mt-3 text-xs text-slate-500">
-              Student signup: <span className="font-medium">/student/signup</span>
-            </p>
-            <div className="mt-6 flex gap-3">
-              <button
-                onClick={() => {
-                  navigator.clipboard.writeText(inviteCode.code);
-                  alert("Code copied!");
-                }}
-                className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-              >
-                Copy Code
-              </button>
-              <button
-                onClick={() => setInviteCode(null)}
-                className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                Done
-              </button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );
