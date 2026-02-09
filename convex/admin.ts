@@ -44,26 +44,41 @@ export const updateTutorAccount = mutation({
     adminId: v.id("tutorAccounts"),
     tutorId: v.id("tutorAccounts"),
     name: v.optional(v.string()),
+    email: v.optional(v.string()),
+    passwordHash: v.optional(v.string()),
     hourlyRate: v.optional(v.number()),
     tutorSlug: v.optional(v.string()),
     active: v.optional(v.boolean()),
     roles: v.optional(v.array(v.string())),
   },
-  returns: v.boolean(),
+  returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
   handler: async (ctx, { adminId, tutorId, ...updates }) => {
     await assertAdmin(ctx, adminId);
     const tutor = await ctx.db.get(tutorId);
-    if (!tutor) return false;
+    if (!tutor) return { success: false, error: "Tutor not found" };
+
+    // Check if email is being changed and if it's already in use
+    if (updates.email !== undefined && updates.email !== tutor.email) {
+      const existingTutor = await ctx.db
+        .query("tutorAccounts")
+        .withIndex("by_email", (q) => q.eq("email", updates.email!))
+        .first();
+      if (existingTutor) {
+        return { success: false, error: "Email already in use" };
+      }
+    }
 
     const patch: Partial<typeof tutor> = {};
     if (updates.name !== undefined) patch.name = updates.name;
+    if (updates.email !== undefined) patch.email = updates.email;
+    if (updates.passwordHash !== undefined) patch.passwordHash = updates.passwordHash;
     if (updates.hourlyRate !== undefined) patch.hourlyRate = updates.hourlyRate;
     if (updates.tutorSlug !== undefined) patch.tutorSlug = updates.tutorSlug;
     if (updates.active !== undefined) patch.active = updates.active;
     if (updates.roles !== undefined) patch.roles = updates.roles;
 
     await ctx.db.patch(tutorId, patch);
-    return true;
+    return { success: true };
   },
 });
 

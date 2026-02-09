@@ -187,6 +187,7 @@ function TutorsTab({
   const updateTutor = useMutation(api.admin.updateTutorAccount);
   const [editingRate, setEditingRate] = useState<string | null>(null);
   const [rateValue, setRateValue] = useState("");
+  const [editingTutor, setEditingTutor] = useState<TutorRow | null>(null);
 
   const formatCurrency = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
@@ -295,14 +296,20 @@ function TutorsTab({
                     </td>
                     <td className="px-6 py-4">
                       <button
+                        onClick={() => setEditingTutor(tutor)}
+                        className="text-sm text-blue-600 hover:text-blue-700"
+                      >
+                        Edit
+                      </button>
+                      <button
                         onClick={() => toggleActive(tutor._id, tutor.active)}
-                        className="text-sm text-slate-500 hover:text-slate-700"
+                        className="ml-3 text-sm text-slate-500 hover:text-slate-700"
                       >
                         {tutor.active ? "Deactivate" : "Activate"}
                       </button>
                       <button
                         onClick={() => toggleAdminRole(tutor._id, tutor.roles)}
-                        className="ml-3 text-sm text-blue-600 hover:text-blue-700"
+                        className="ml-3 text-sm text-slate-500 hover:text-slate-700"
                       >
                         {tutor.roles.includes("admin") ? "Revoke admin" : "Make admin"}
                       </button>
@@ -320,6 +327,14 @@ function TutorsTab({
           </table>
         </div>
       </div>
+
+      {editingTutor && (
+        <EditTutorModal
+          adminId={adminId}
+          tutor={editingTutor}
+          onClose={() => setEditingTutor(null)}
+        />
+      )}
     </div>
   );
 }
@@ -1676,6 +1691,164 @@ function AddTutorModal({ onClose }: { onClose: () => void }) {
               className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
             >
               {loading ? "Creating..." : "Create Tutor"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function EditTutorModal({
+  adminId,
+  tutor,
+  onClose,
+}: {
+  adminId: Id<"tutorAccounts">;
+  tutor: {
+    _id: Id<"tutorAccounts">;
+    name: string;
+    email: string;
+    hourlyRate: number;
+    tutorSlug?: string;
+  };
+  onClose: () => void;
+}) {
+  const updateTutor = useMutation(api.admin.updateTutorAccount);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const [name, setName] = useState(tutor.name);
+  const [email, setEmail] = useState(tutor.email);
+  const [password, setPassword] = useState("");
+  const [hourlyRate, setHourlyRate] = useState((tutor.hourlyRate / 100).toFixed(2));
+  const [tutorSlug, setTutorSlug] = useState(tutor.tutorSlug || "");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+
+    try {
+      // Hash password if provided
+      let passwordHash: string | undefined;
+      if (password) {
+        // Use the same hashing as the create function
+        const encoder = new TextEncoder();
+        const data = encoder.encode(password);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        passwordHash = hashArray.map(b => b.toString(16).padStart(2, "0")).join("");
+      }
+
+      const result = await updateTutor({
+        adminId,
+        tutorId: tutor._id,
+        name,
+        email,
+        ...(passwordHash && { passwordHash }),
+        hourlyRate: Math.round(parseFloat(hourlyRate) * 100),
+        tutorSlug: tutorSlug || undefined,
+      });
+
+      if (result.success) {
+        onClose();
+      } else {
+        setError(result.error || "Failed to update tutor");
+      }
+    } catch (err) {
+      setError("Failed to update tutor. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6">
+        <h2 className="text-lg font-semibold text-slate-900">Edit Tutor Profile</h2>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Name</label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              New Password <span className="font-normal text-slate-400">(leave blank to keep current)</span>
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              minLength={6}
+              placeholder="••••••••"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Hourly Rate ($)
+            </label>
+            <input
+              type="number"
+              value={hourlyRate}
+              onChange={(e) => setHourlyRate(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+              min="0"
+              step="0.01"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Tutor Slug <span className="font-normal text-slate-400">(for public profile link)</span>
+            </label>
+            <input
+              type="text"
+              value={tutorSlug}
+              onChange={(e) => setTutorSlug(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              placeholder="john-smith"
+            />
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
+            >
+              {loading ? "Saving..." : "Save Changes"}
             </button>
           </div>
         </form>

@@ -276,6 +276,8 @@ function TimetableTab({
   >;
   type ClassRow = ClassList[number];
 
+  const [weekOffset, setWeekOffset] = useState(0);
+
   const days = [
     "Monday",
     "Tuesday",
@@ -286,17 +288,85 @@ function TimetableTab({
     "Sunday",
   ];
 
-  const grouped = days.map((day) => {
+  // Calculate the week's date range based on offset
+  const getWeekDates = (offset: number) => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    // Adjust so Monday is day 0 (getDay() returns 0 for Sunday)
+    const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + mondayOffset + offset * 7);
+
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+
+    return { monday, sunday };
+  };
+
+  const { monday, sunday } = getWeekDates(weekOffset);
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString("en-AU", { day: "numeric", month: "short" });
+  };
+
+  const getDateForDay = (dayIndex: number) => {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + dayIndex);
+    return date.getDate();
+  };
+
+  const grouped = days.map((day, index) => {
     const dayClasses = (classes ?? [])
       .filter((cls) => cls.dayOfWeek === day)
       .sort((a, b) => a.startTime.localeCompare(b.startTime));
-    return { day, classes: dayClasses };
+    return { day, date: getDateForDay(index), classes: dayClasses };
   });
+
+  const isCurrentWeek = weekOffset === 0;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-slate-900">Weekly Timetable</h2>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setWeekOffset(weekOffset - 1)}
+            className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+            aria-label="Previous week"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <div className="min-w-[140px] text-center">
+            <span className="text-sm font-medium text-slate-700">
+              {formatDate(monday)} – {formatDate(sunday)}
+            </span>
+            {isCurrentWeek && (
+              <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                This week
+              </span>
+            )}
+          </div>
+          <button
+            onClick={() => setWeekOffset(weekOffset + 1)}
+            className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+            aria-label="Next week"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+          {!isCurrentWeek && (
+            <button
+              onClick={() => setWeekOffset(0)}
+              className="rounded-lg border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+            >
+              Today
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-7">
@@ -305,8 +375,9 @@ function TimetableTab({
             key={group.day}
             className="rounded-2xl border border-slate-200 bg-white p-4"
           >
-            <div className="mb-3 text-sm font-semibold text-slate-700">
-              {group.day}
+            <div className="mb-3">
+              <div className="text-sm font-semibold text-slate-700">{group.day}</div>
+              <div className="text-xs text-slate-400">{group.date}</div>
             </div>
             <div className="space-y-3">
               {group.classes.length > 0 ? (
