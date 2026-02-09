@@ -170,4 +170,41 @@ export default defineSchema({
   })
     .index("by_active", ["active"])
     .index("by_name", ["name"]),
+
+  // Student accounts for student dashboard login
+  studentAccounts: defineTable({
+    studentId: v.id("students"), // links to the students table
+    email: v.string(),
+    passwordHash: v.string(),
+    active: v.boolean(),
+    createdAt: v.number(),
+  })
+    .index("by_email", ["email"])
+    .index("by_studentId", ["studentId"]),
+
+  // Invite codes for student signup
+  studentInviteCodes: defineTable({
+    code: v.string(), // unique invite code
+    studentId: v.id("students"), // the student this code is for
+    createdBy: v.id("tutorAccounts"), // admin who created it
+    used: v.boolean(),
+    usedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    expiresAt: v.optional(v.number()), // optional expiration
+  })
+    .index("by_code", ["code"])
+    .index("by_studentId", ["studentId"]),
+
+  // Student resources/homework (links only)
+  studentResources: defineTable({
+    studentId: v.id("students"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    url: v.optional(v.string()), // link to resource (Google Drive, etc.)
+    subject: v.optional(v.string()),
+    createdBy: v.id("tutorAccounts"), // tutor or admin who created it
+    createdAt: v.number(),
+  })
+    .index("by_student", ["studentId"])
+    .index("by_student_and_subject", ["studentId", "subject"]),
 });

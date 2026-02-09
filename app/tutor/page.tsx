@@ -527,6 +527,7 @@ function StudentsTab({
   const updateNotes = useMutation(api.dashboard.updateStudentNotes);
   const [editingNotes, setEditingNotes] = useState<string | null>(null);
   const [notesValue, setNotesValue] = useState("");
+  const [managingResources, setManagingResources] = useState<{ _id: Id<"students">; name: string } | null>(null);
 
   const startEditNotes = (studentId: string, currentNotes: string) => {
     setEditingNotes(studentId);
@@ -635,6 +636,15 @@ function StudentsTab({
                   </p>
                 )}
               </div>
+
+              <div className="mt-4 border-t border-slate-100 pt-4">
+                <button
+                  onClick={() => setManagingResources({ _id: student._id, name: student.name })}
+                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+                >
+                  Manage Resources
+                </button>
+              </div>
             </div>
           ))
         ) : (
@@ -645,6 +655,199 @@ function StudentsTab({
             </p>
           </div>
         )}
+      </div>
+
+      {managingResources && (
+        <ManageResourcesModal
+          tutorId={tutorId}
+          student={managingResources}
+          onClose={() => setManagingResources(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function ManageResourcesModal({
+  tutorId,
+  student,
+  onClose,
+}: {
+  tutorId: Id<"tutorAccounts">;
+  student: { _id: Id<"students">; name: string };
+  onClose: () => void;
+}) {
+  const resources = useQuery(api.studentDashboard.getResources, { studentId: student._id });
+  const addResource = useMutation(api.studentDashboard.addResource);
+  const deleteResource = useMutation(api.studentDashboard.deleteResource);
+
+  const [showForm, setShowForm] = useState(false);
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [url, setUrl] = useState("");
+  const [subject, setSubject] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      await addResource({
+        creatorId: tutorId,
+        studentId: student._id,
+        title,
+        description: description || undefined,
+        url: url || undefined,
+        subject: subject || undefined,
+      });
+      setTitle("");
+      setDescription("");
+      setUrl("");
+      setSubject("");
+      setShowForm(false);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (resourceId: Id<"studentResources">) => {
+    if (!confirm("Delete this resource?")) return;
+    await deleteResource({ creatorId: tutorId, resourceId });
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="max-h-[80vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Resources for {student.name}
+          </h2>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-600"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {!showForm ? (
+          <button
+            onClick={() => setShowForm(true)}
+            className="mt-4 w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+          >
+            + Add Resource
+          </button>
+        ) : (
+          <form onSubmit={handleSubmit} className="mt-4 space-y-3">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Title *</label>
+              <input
+                type="text"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Description</label>
+              <textarea
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                rows={2}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Link (Google Drive, etc.)</label>
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                placeholder="https://..."
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Subject</label>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                placeholder="e.g., Maths Methods"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loading ? "Adding..." : "Add Resource"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+
+        <div className="mt-6 space-y-3">
+          {resources && resources.length > 0 ? (
+            resources.map((resource) => (
+              <div
+                key={resource._id}
+                className="rounded-xl border border-slate-200 bg-slate-50 p-4"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h4 className="font-medium text-slate-900">{resource.title}</h4>
+                    {resource.subject && (
+                      <span className="mt-1 inline-block rounded bg-slate-200 px-2 py-0.5 text-xs text-slate-600">
+                        {resource.subject}
+                      </span>
+                    )}
+                    {resource.description && (
+                      <p className="mt-2 text-sm text-slate-600">{resource.description}</p>
+                    )}
+                    <div className="mt-2 text-xs text-slate-400">
+                      Added {new Date(resource.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div className="ml-4 flex items-center gap-2">
+                    {resource.url && (
+                      <a
+                        href={resource.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 hover:bg-blue-200"
+                      >
+                        Open
+                      </a>
+                    )}
+                    <button
+                      onClick={() => handleDelete(resource._id)}
+                      className="text-xs text-red-600 hover:text-red-700"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))
+          ) : (
+            <p className="py-4 text-center text-sm text-slate-500">
+              No resources added yet
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

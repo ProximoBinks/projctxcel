@@ -25,13 +25,23 @@ type AdminSession = {
   roles: string[];
 };
 
-type Session = TutorSession | AdminSession | null;
+type StudentSession = {
+  type: "student";
+  id: string;
+  name: string;
+  email: string;
+  roles: string[];
+  studentId: string;
+};
+
+type Session = TutorSession | AdminSession | StudentSession | null;
 
 type AuthContextValue = {
   session: Session;
   isLoading: boolean;
   loginTutor: (session: TutorSession) => void;
   loginAdmin: (session: AdminSession) => void;
+  loginStudent: (session: StudentSession) => void;
   logout: () => void;
   refreshSession: () => Promise<void>;
 };
@@ -70,6 +80,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSession(newSession);
   }, []);
 
+  const loginStudent = useCallback((newSession: StudentSession) => {
+    setSession(newSession);
+  }, []);
+
   const logout = useCallback(() => {
     void fetch("/api/auth/logout", { method: "POST" });
     setSession(null);
@@ -77,7 +91,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ session, isLoading, loginTutor, loginAdmin, logout, refreshSession }}
+      value={{ session, isLoading, loginTutor, loginAdmin, loginStudent, logout, refreshSession }}
     >
       {children}
     </AuthContext.Provider>

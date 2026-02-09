@@ -1,12 +1,13 @@
 import { SignJWT, jwtVerify } from "jose";
 
-export type AuthRole = "admin" | "tutor";
+export type AuthRole = "admin" | "tutor" | "student";
 export type AuthSession = {
   type: AuthRole;
   id: string;
   name: string;
   email: string;
   roles: string[];
+  studentId?: string; // Only for student sessions
 };
 
 const secret = process.env.AUTH_JWT_SECRET;
@@ -22,6 +23,7 @@ export async function signAuthToken(session: AuthSession): Promise<string> {
     name: session.name,
     email: session.email,
     roles: session.roles,
+    studentId: session.studentId,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setSubject(session.id)
@@ -34,7 +36,7 @@ export async function verifyAuthToken(token: string): Promise<AuthSession | null
   try {
     const { payload } = await jwtVerify(token, secretKey);
     if (typeof payload.sub !== "string") return null;
-    if (payload.type !== "admin" && payload.type !== "tutor") return null;
+    if (payload.type !== "admin" && payload.type !== "tutor" && payload.type !== "student") return null;
     if (typeof payload.name !== "string") return null;
     if (typeof payload.email !== "string") return null;
     if (!Array.isArray(payload.roles)) return null;
@@ -46,6 +48,7 @@ export async function verifyAuthToken(token: string): Promise<AuthSession | null
       name: payload.name,
       email: payload.email,
       roles,
+      studentId: typeof payload.studentId === "string" ? payload.studentId : undefined,
     };
   } catch {
     return null;

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { convex } from "../../../../lib/convexServer";
 import { api } from "../../../../convex/_generated/api";
 import { signAuthToken, type AuthRole, type AuthSession } from "../../../../lib/auth";
+import type { Id } from "../../../../convex/_generated/dataModel";
 
 const COOKIE_NAME = "auth_token";
 const COOKIE_OPTIONS = {
@@ -78,7 +79,31 @@ export async function POST(req: Request) {
     return response;
   }
 
-  return NextResponse.json({ error: "Invalid role." }, { status: 400 });
+  if (role === "student") {
+    const studentResult = await convex.mutation(api.studentDashboard.login, {
+      email,
+      password,
+    });
+    if (!studentResult.success) {
+      return NextResponse.json(
+        { error: studentResult.error || "Invalid email or password." },
+        { status: 401 }
+      );
+    }
 
-  // Unreachable, but keep default response for safety.
+    const session: AuthSession = {
+      type: "student",
+      id: studentResult.studentAccountId as string,
+      name: studentResult.name || "",
+      email,
+      roles: ["student"],
+      studentId: studentResult.studentId as string,
+    };
+    const token = await signAuthToken(session);
+    const response = NextResponse.json(session);
+    response.cookies.set(COOKIE_NAME, token, COOKIE_OPTIONS);
+    return response;
+  }
+
+  return NextResponse.json({ error: "Invalid role." }, { status: 400 });
 }

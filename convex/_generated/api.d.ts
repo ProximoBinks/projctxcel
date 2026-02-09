@@ -17,6 +17,7 @@ import type * as enquiries from "../enquiries.js";
 import type * as enquiryNotifications from "../enquiryNotifications.js";
 import type * as seed from "../seed.js";
 import type * as seedAdmin from "../seedAdmin.js";
+import type * as studentDashboard from "../studentDashboard.js";
 import type * as subjects from "../subjects.js";
 import type * as testimonials from "../testimonials.js";
 import type * as tutors from "../tutors.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   enquiryNotifications: typeof enquiryNotifications;
   seed: typeof seed;
   seedAdmin: typeof seedAdmin;
+  studentDashboard: typeof studentDashboard;
   subjects: typeof subjects;
   testimonials: typeof testimonials;
   tutors: typeof tutors;
