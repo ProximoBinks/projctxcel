@@ -1,14 +1,12 @@
 "use client";
 
-export const dynamic = "force-dynamic";
-
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
-export default function StudentSignupPage() {
+function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialCode = searchParams.get("code") || "";
@@ -218,5 +216,19 @@ export default function StudentSignupPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function StudentSignupPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex min-h-screen items-center justify-center bg-slate-50">
+          <div className="text-slate-500">Loading...</div>
+        </div>
+      }
+    >
+      <SignupForm />
+    </Suspense>
   );
 }
