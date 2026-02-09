@@ -1,46 +1,21 @@
 "use client";
 
-import { Suspense, useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 
-function SignupForm() {
+export default function StudentSignupPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const initialCode = searchParams.get("code") || "";
+  const signup = useMutation(api.studentDashboard.signupStudent);
 
-  const [code, setCode] = useState(initialCode);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [step, setStep] = useState<"code" | "details">(initialCode ? "details" : "code");
-
-  const verifyCode = useQuery(
-    api.studentDashboard.verifyInviteCode,
-    step === "details" && code ? { code: code.toUpperCase() } : "skip"
-  );
-  const signup = useMutation(api.studentDashboard.signupWithCode);
-
-  useEffect(() => {
-    if (verifyCode && !verifyCode.valid && step === "details") {
-      setError(verifyCode.error || "Invalid invite code");
-      setStep("code");
-    }
-  }, [verifyCode, step]);
-
-  const handleCodeSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!code.trim()) {
-      setError("Please enter your invite code");
-      return;
-    }
-    setError("");
-    setStep("details");
-  };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,7 +35,7 @@ function SignupForm() {
 
     try {
       const result = await signup({
-        code: code.toUpperCase(),
+        name,
         email,
         password,
       });
@@ -93,112 +68,75 @@ function SignupForm() {
               Create Student Account
             </h1>
             <p className="mt-2 text-sm text-slate-600">
-              {step === "code"
-                ? "Enter your invite code to get started"
-                : `Welcome, ${verifyCode?.studentName || "Student"}!`}
+              Sign up to access your student portal
             </p>
           </div>
 
-          {step === "code" ? (
-            <form onSubmit={handleCodeSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-slate-700">
-                  Invite Code
-                </label>
-                <input
-                  type="text"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.toUpperCase())}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-center text-lg font-mono tracking-widest focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="XXXXXXXX"
-                  maxLength={8}
-                  required
-                />
-                <p className="mt-2 text-xs text-slate-500">
-                  Your tutor or admin will provide you with an invite code
-                </p>
-              </div>
+          <form onSubmit={handleSignup} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Full Name
+              </label>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                required
+              />
+            </div>
 
-              {error && <p className="text-sm text-red-600">{error}</p>}
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                required
+              />
+            </div>
 
-              <button
-                type="submit"
-                className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
-              >
-                Continue
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleSignup} className="space-y-4">
-              <div className="rounded-xl bg-slate-50 px-4 py-3">
-                <p className="text-xs text-slate-500">Invite code</p>
-                <p className="font-mono text-sm font-semibold text-slate-900">
-                  {code.toUpperCase()}
-                </p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setStep("code");
-                    setError("");
-                  }}
-                  className="mt-1 text-xs text-blue-600 hover:underline"
-                >
-                  Change code
-                </button>
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                required
+                minLength={6}
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  required
-                />
-              </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Confirm Password
+              </label>
+              <input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                required
+                minLength={6}
+              />
+            </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  required
-                  minLength={6}
-                />
-              </div>
+            {error && <p className="text-sm text-red-600">{error}</p>}
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700">
-                  Confirm Password
-                </label>
-                <input
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  required
-                  minLength={6}
-                />
-              </div>
-
-              {error && <p className="text-sm text-red-600">{error}</p>}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
-              >
-                {loading ? "Creating account..." : "Create Account"}
-              </button>
-            </form>
-          )}
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Creating account..." : "Create Account"}
+            </button>
+          </form>
 
           <div className="mt-6 text-center text-sm text-slate-500">
             <p>
@@ -216,19 +154,5 @@ function SignupForm() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function StudentSignupPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex min-h-screen items-center justify-center bg-slate-50">
-          <div className="text-slate-500">Loading...</div>
-        </div>
-      }
-    >
-      <SignupForm />
-    </Suspense>
   );
 }

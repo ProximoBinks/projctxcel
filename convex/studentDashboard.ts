@@ -513,6 +513,60 @@ export const deleteResource = mutation({
   },
 });
 
+// Student: Self-signup (no invite code required)
+export const signupStudent = mutation({
+  args: {
+    name: v.string(),
+    email: v.string(),
+    password: v.string(),
+  },
+  returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
+  handler: async (ctx, { name, email, password }) => {
+    const normalizedEmail = email.toLowerCase().trim();
+
+    // Check if email already in use in studentAccounts
+    const existingAccount = await ctx.db
+      .query("studentAccounts")
+      .withIndex("by_email", (q) => q.eq("email", normalizedEmail))
+      .first();
+    if (existingAccount) {
+      return { success: false, error: "Email already in use" };
+    }
+
+    // Find a default tutor to assign (first admin or first active tutor)
+    const tutors = await ctx.db.query("tutorAccounts").collect();
+    const adminTutor = tutors.find((t) => t.roles?.includes("admin") && t.active);
+    const defaultTutor = adminTutor || tutors.find((t) => t.active);
+
+    if (!defaultTutor) {
+      return { success: false, error: "System error: No tutors available" };
+    }
+
+    // Create the student record
+    const studentId = await ctx.db.insert("students", {
+      name: name.trim(),
+      email: normalizedEmail,
+      yearLevel: "Not Set",
+      subjects: [],
+      assignedTutorId: defaultTutor._id,
+      active: true,
+      createdAt: Date.now(),
+    });
+
+    // Create student account
+    const passwordHash = await hashPassword(password);
+    await ctx.db.insert("studentAccounts", {
+      studentId,
+      email: normalizedEmail,
+      passwordHash,
+      active: true,
+      createdAt: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
 // Admin: List all invite codes
 export const listInviteCodes = query({
   args: { adminId: v.id("tutorAccounts") },
