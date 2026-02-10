@@ -224,6 +224,9 @@ export const getOverview = query({
       name: v.string(),
       yearLevel: v.string(),
       subjects: v.array(v.string()),
+      parentName: v.optional(v.string()),
+      parentEmail: v.optional(v.string()),
+      parentPhone: v.optional(v.string()),
     }),
     tutors: v.array(
       v.object({
@@ -346,6 +349,9 @@ export const getOverview = query({
         name: student.name,
         yearLevel: student.yearLevel,
         subjects: student.subjects,
+        parentName: student.parentName,
+        parentEmail: student.parentEmail,
+        parentPhone: student.parentPhone,
       },
       tutors: tutors.filter((t): t is NonNullable<typeof t> => t !== null),
       upcomingSessions,
@@ -594,5 +600,32 @@ export const listInviteCodes = query({
         };
       })
     );
+  },
+});
+
+// Student: Update profile information
+export const updateProfile = mutation({
+  args: {
+    studentId: v.id("students"),
+    yearLevel: v.string(),
+    subjects: v.array(v.string()),
+    parentName: v.optional(v.string()),
+    parentEmail: v.optional(v.string()),
+    parentPhone: v.optional(v.string()),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, { studentId, ...updates }) => {
+    const student = await ctx.db.get(studentId);
+    if (!student) {
+      return false;
+    }
+
+    await ctx.db.patch(studentId, {
+      ...updates,
+      parentName: updates.parentName || undefined,
+      parentEmail: updates.parentEmail || undefined,
+      parentPhone: updates.parentPhone || undefined,
+    });
+    return true;
   },
 });

@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAuth } from "../../contexts/AuthContext";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -16,6 +16,7 @@ export default function StudentDashboardPage() {
   const router = useRouter();
   const { session, isLoading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
+  const [forceEditProfile, setForceEditProfile] = useState(false);
 
   useEffect(() => {
     if (!isLoading && (!session || session.type !== "student")) {
@@ -57,6 +58,15 @@ export default function StudentDashboardPage() {
             <span className="text-sm text-slate-600">Hi, {session.name}</span>
             <button
               onClick={() => {
+                setActiveTab("overview");
+                setForceEditProfile(true);
+              }}
+              className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50"
+            >
+              Edit profile
+            </button>
+            <button
+              onClick={() => {
                 logout();
                 router.push("/student/login");
               }}
@@ -91,7 +101,13 @@ export default function StudentDashboardPage() {
 
       {/* Content */}
       <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
-        {activeTab === "overview" && <OverviewTab studentId={studentId} />}
+        {activeTab === "overview" && (
+          <OverviewTab
+            studentId={studentId}
+            forceEditProfile={forceEditProfile}
+            onCloseEditProfile={() => setForceEditProfile(false)}
+          />
+        )}
         {activeTab === "timetable" && <TimetableTab studentId={studentId} />}
         {activeTab === "resources" && <ResourcesTab studentId={studentId} />}
       </main>
@@ -99,15 +115,241 @@ export default function StudentDashboardPage() {
   );
 }
 
-function OverviewTab({ studentId }: { studentId: Id<"students"> }) {
+function OverviewTab({
+  studentId,
+  forceEditProfile,
+  onCloseEditProfile,
+}: {
+  studentId: Id<"students">;
+  forceEditProfile: boolean;
+  onCloseEditProfile: () => void;
+}) {
   const overview = useQuery(api.studentDashboard.getOverview, { studentId });
+  const subjects = useQuery(api.subjects.listSubjects);
+  const updateProfile = useMutation(api.studentDashboard.updateProfile);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState("");
+
+  const [yearLevel, setYearLevel] = useState("");
+  const [selectedSubjects, setSelectedSubjects] = useState<Array<string>>([]);
+  const [parentName, setParentName] = useState("");
+  const [parentEmail, setParentEmail] = useState("");
+  const [parentPhone, setParentPhone] = useState("");
+
+  const student = overview?.student;
+
+  useEffect(() => {
+    if (!student) return;
+    if (student.yearLevel !== "Not Set" && yearLevel === "") {
+      setYearLevel(student.yearLevel);
+    }
+    if (selectedSubjects.length === 0 && student.subjects.length > 0) {
+      setSelectedSubjects(student.subjects);
+    }
+    if (parentName === "" && student.parentName) {
+      setParentName(student.parentName);
+    }
+    if (parentEmail === "" && student.parentEmail) {
+      setParentEmail(student.parentEmail);
+    }
+    if (parentPhone === "" && student.parentPhone) {
+      setParentPhone(student.parentPhone);
+    }
+  }, [
+    student,
+    yearLevel,
+    selectedSubjects,
+    parentName,
+    parentEmail,
+    parentPhone,
+  ]);
 
   if (!overview) {
     return <div className="text-slate-500">Loading...</div>;
   }
 
+  const profileNeedsUpdate =
+    overview.student.yearLevel === "Not Set" ||
+    overview.student.subjects.length === 0 ||
+    !overview.student.parentName ||
+    !overview.student.parentEmail ||
+    !overview.student.parentPhone;
+
+  const profileComplete =
+    yearLevel.trim().length > 0 &&
+    selectedSubjects.length > 0 &&
+    parentName.trim().length > 0 &&
+    parentEmail.trim().length > 0 &&
+    parentPhone.trim().length > 0;
+
   return (
     <div className="space-y-8">
+      {(profileNeedsUpdate || forceEditProfile) && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur">
+          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Complete your profile
+            </h2>
+            <p className="mt-1 text-sm text-slate-600">
+              Please fill in all required details to continue.
+            </p>
+
+            <form
+              className="mt-6 space-y-4"
+              onSubmit={async (e) => {
+                e.preventDefault();
+                setError("");
+                if (!profileComplete) {
+                  setError("Please complete all required fields.");
+                  return;
+                }
+                setSaving(true);
+                try {
+                  await updateProfile({
+                    studentId,
+                    yearLevel,
+                    subjects: selectedSubjects,
+                    parentName,
+                    parentEmail,
+                    parentPhone,
+                  });
+                  if (!profileNeedsUpdate) {
+                    onCloseEditProfile();
+                  }
+                } catch {
+                  setError("Failed to update your profile. Please try again.");
+                } finally {
+                  setSaving(false);
+                }
+              }}
+            >
+              <div>
+                <label className="block text-sm font-medium text-slate-700">
+                  Year Level
+                </label>
+                <select
+                  value={yearLevel}
+                  onChange={(e) => setYearLevel(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                  required
+                >
+                  <option value="">Select year level</option>
+                  {[
+                    "Year 4",
+                    "Year 5",
+                    "Year 6",
+                    "Year 7",
+                    "Year 8",
+                    "Year 9",
+                    "Year 10",
+                    "Year 11",
+                    "Year 12",
+                  ].map((level) => (
+                    <option key={level} value={level}>
+                      {level}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700">
+                  Subjects
+                </label>
+                <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                  {subjects?.map((subject) => (
+                    <label
+                      key={subject._id}
+                      className="flex items-center gap-2 text-sm text-slate-600"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedSubjects.includes(subject.label)}
+                        onChange={(e) => {
+                          setSelectedSubjects((prev) =>
+                            e.target.checked
+                              ? [...prev, subject.label]
+                              : prev.filter((s) => s !== subject.label)
+                          );
+                        }}
+                        className="h-4 w-4 rounded border-slate-300"
+                      />
+                      {subject.label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="border-t border-slate-100 pt-4">
+                <p className="text-sm font-medium text-slate-700">
+                  Parent/Guardian Contact
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700">
+                  Parent Name
+                </label>
+                <input
+                  type="text"
+                  value={parentName}
+                  onChange={(e) => setParentName(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700">
+                  Parent Email
+                </label>
+                <input
+                  type="email"
+                  value={parentEmail}
+                  onChange={(e) => setParentEmail(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700">
+                  Parent Phone
+                </label>
+                <input
+                  type="tel"
+                  value={parentPhone}
+                  onChange={(e) => setParentPhone(e.target.value)}
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                  required
+                />
+              </div>
+
+              {error && <p className="text-sm text-red-600">{error}</p>}
+
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                <button
+                  type="submit"
+                  disabled={saving || !profileComplete}
+                  className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
+                >
+                  {saving ? "Saving..." : "Save profile"}
+                </button>
+                {!profileNeedsUpdate && (
+                  <button
+                    type="button"
+                    onClick={onCloseEditProfile}
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 sm:w-auto"
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Welcome */}
       <div>
         <h1 className="text-2xl font-semibold text-slate-900">
