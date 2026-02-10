@@ -41,15 +41,15 @@ export default function TutorLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
+    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 sm:px-6">
       <div className="w-full max-w-md">
-        <div className="rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="mb-8 text-center">
             <Link href="/">
               <img
                 src="/images/simple-text-black.svg"
                 alt="Simple Tuition"
-                className="h-[50px] mx-auto"
+                className="mx-auto h-10 sm:h-[50px]"
               />
             </Link>
             <h1 className="mt-4 text-2xl font-semibold text-slate-900">

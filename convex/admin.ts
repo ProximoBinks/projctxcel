@@ -96,7 +96,7 @@ export const listStudents = query({
       parentPhone: v.optional(v.string()),
       yearLevel: v.string(),
       subjects: v.array(v.string()),
-      assignedTutorId: v.id("tutorAccounts"),
+      assignedTutorId: v.union(v.id("tutorAccounts"), v.null()),
       assignedTutorName: v.string(),
       notes: v.optional(v.string()),
       active: v.boolean(),
@@ -109,7 +109,9 @@ export const listStudents = query({
 
     return Promise.all(
       students.map(async (s) => {
-        const tutor = await ctx.db.get(s.assignedTutorId);
+        const tutor = s.assignedTutorId
+          ? await ctx.db.get(s.assignedTutorId)
+          : null;
         return {
           _id: s._id,
           name: s.name,
@@ -121,7 +123,7 @@ export const listStudents = query({
           yearLevel: s.yearLevel,
           subjects: s.subjects,
           assignedTutorId: s.assignedTutorId,
-          assignedTutorName: tutor?.name ?? "Unknown",
+          assignedTutorName: tutor?.name ?? "Unassigned",
           notes: s.notes,
           active: s.active,
           createdAt: s.createdAt,
@@ -143,7 +145,7 @@ export const createStudent = mutation({
     parentPhone: v.optional(v.string()),
     yearLevel: v.string(),
     subjects: v.array(v.string()),
-    assignedTutorId: v.id("tutorAccounts"),
+    assignedTutorId: v.optional(v.union(v.id("tutorAccounts"), v.null())),
     notes: v.optional(v.string()),
   },
   returns: v.id("students"),
@@ -151,6 +153,7 @@ export const createStudent = mutation({
     await assertAdmin(ctx, adminId);
     return await ctx.db.insert("students", {
       ...args,
+      assignedTutorId: args.assignedTutorId ?? null,
       active: true,
       createdAt: Date.now(),
     });
@@ -170,7 +173,7 @@ export const updateStudent = mutation({
     parentPhone: v.optional(v.string()),
     yearLevel: v.optional(v.string()),
     subjects: v.optional(v.array(v.string())),
-    assignedTutorId: v.optional(v.id("tutorAccounts")),
+    assignedTutorId: v.optional(v.union(v.id("tutorAccounts"), v.null())),
     notes: v.optional(v.string()),
     active: v.optional(v.boolean()),
   },

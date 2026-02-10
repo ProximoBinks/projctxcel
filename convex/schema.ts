@@ -92,7 +92,7 @@ export default defineSchema({
     parentPhone: v.optional(v.string()),
     yearLevel: v.string(),
     subjects: v.array(v.string()),
-    assignedTutorId: v.id("tutorAccounts"),
+    assignedTutorId: v.union(v.id("tutorAccounts"), v.null()),
     notes: v.optional(v.string()),
     active: v.boolean(),
     createdAt: v.number(),

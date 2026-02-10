@@ -7,12 +7,12 @@
 - [x] Business email (for Postmark)
 
 ## Build
-- [ ] Repo scaffold (Next.js + Tailwind + Framer Motion)
-- [ ] Landing sections
+- [x] Repo scaffold (Next.js + Tailwind + Framer Motion)
+- [x] Landing sections
 - [x] Tutor grid (3x3) linking to `/tutors/[slug]` (no slug for now)
 - [x] `/tutors` redirect → `/`
-- [ ] Enquiry form (section `/#enquire` or `/enquire` page)
-- [ ] Harden auth flow (server-side auth checks, secure password hashing)
+- [x] Enquiry form (section `/#enquire` or `/enquire` page)
+- [x] Harden auth flow (server-side auth checks, secure password hashing)
 - [x] Conditional enquiry form:
   - [x] First question: "How can we help you today?" → (Tutor enquiry / Join team)
   - [x] Student path fields: year level, target ATAR, struggling subjects, planned uni, interests/hobbies, then name/email/phone
@@ -36,8 +36,8 @@
 ## SEO — Next Steps (in priority order)
 
 ### Phase 1: Foundation pages (high impact, do first)
-- [ ] Set `NEXT_PUBLIC_SITE_URL` env var in Netlify with production domain
-- [ ] Submit sitemap to Google Search Console (`/sitemap.xml`)
+- [x] Set `NEXT_PUBLIC_SITE_URL` env var in Netlify with production domain
+- [x] Submit sitemap to Google Search Console (`/sitemap.xml`)
 - [ ] Create `/programs/year-4-10` page (copy + metadata in SEO-STRATEGY.md §4.3)
 - [ ] Create `/programs/medicine-pathway` page (copy in SEO-STRATEGY.md §4.4)
 - [ ] Create `/ucat` page (copy in SEO-STRATEGY.md §4.5)
