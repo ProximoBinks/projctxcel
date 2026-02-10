@@ -80,19 +80,19 @@ function AdminDashboard({
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="flex items-center gap-3">
             <Link href="/">
               <img
                 src="/images/simple-text-black.svg"
                 alt="Simple Tuition"
-                className="h-[50px]"
+                className="h-10 sm:h-[50px]"
               />
             </Link>
             <span className="text-sm text-slate-400">|</span>
             <span className="text-sm font-medium text-slate-600">Admin</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
             <span className="text-sm text-slate-600">Hi, {adminName}</span>
             <button
               onClick={handleLogout}
@@ -106,12 +106,12 @@ function AdminDashboard({
 
       {/* Tabs */}
       <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl gap-6 px-6">
+        <div className="mx-auto flex max-w-6xl gap-4 overflow-x-auto px-4 sm:gap-6 sm:px-6">
           {(["tutors", "students", "sessions", "classes"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`border-b-2 px-1 py-3 text-sm font-medium transition ${
+              className={`whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition ${
                 activeTab === tab
                   ? "border-slate-900 text-slate-900"
                   : "border-transparent text-slate-600 hover:text-slate-900"
@@ -124,7 +124,7 @@ function AdminDashboard({
       </div>
 
       {/* Content */}
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {activeTab === "tutors" && (
           <TutorsTab
             adminId={adminId}
@@ -234,11 +234,11 @@ function TutorsTab({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-slate-900">Tutor Accounts</h2>
         <button
           onClick={onAddTutor}
-          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+          className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 sm:w-auto"
         >
           + Add Tutor
         </button>
@@ -246,7 +246,7 @@ function TutorsTab({
 
       <div className="rounded-2xl border border-slate-200 bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[720px]">
             <thead>
               <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
                 <th className="px-6 py-3 font-medium">Name</th>
@@ -393,7 +393,7 @@ function StudentsTab({
     name: string;
     yearLevel: string;
     subjects: string[];
-    assignedTutorId: Id<"tutorAccounts">;
+    assignedTutorId: Id<"tutorAccounts"> | null;
     parentName?: string;
     parentEmail?: string;
     parentPhone?: string;
@@ -424,11 +424,11 @@ function StudentsTab({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-slate-900">Students</h2>
         <button
           onClick={onAddStudent}
-          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+          className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 sm:w-auto"
         >
           + Add Student
         </button>
@@ -436,7 +436,7 @@ function StudentsTab({
 
       <div className="rounded-2xl border border-slate-200 bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[840px]">
             <thead>
               <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
                 <th className="px-6 py-3 font-medium">Name</th>
@@ -588,11 +588,11 @@ function ClassesTab({
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-slate-900">Classes</h2>
         <button
           onClick={onAddClass}
-          className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+          className="w-full rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 sm:w-auto"
         >
           + Add Class
         </button>
@@ -600,7 +600,7 @@ function ClassesTab({
 
       <div className="rounded-2xl border border-slate-200 bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[760px]">
             <thead>
               <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
                 <th className="px-6 py-3 font-medium">Class</th>
@@ -1280,7 +1280,7 @@ function EditStudentModal({
     name: string;
     yearLevel: string;
     subjects: string[];
-    assignedTutorId: Id<"tutorAccounts">;
+    assignedTutorId: Id<"tutorAccounts"> | null;
     parentName?: string;
     parentEmail?: string;
     parentPhone?: string;
@@ -1298,9 +1298,9 @@ function EditStudentModal({
   const [selectedSubjects, setSelectedSubjects] = useState<Array<string>>(
     initialStudent.subjects ?? []
   );
-  const [assignedTutorId, setAssignedTutorId] = useState(
-    initialStudent.assignedTutorId
-  );
+  const [assignedTutorId, setAssignedTutorId] = useState<
+    Id<"tutorAccounts"> | null
+  >(initialStudent.assignedTutorId ?? null);
   const [parentName, setParentName] = useState(initialStudent.parentName ?? "");
   const [parentEmail, setParentEmail] = useState(initialStudent.parentEmail ?? "");
   const [parentPhone, setParentPhone] = useState(initialStudent.parentPhone ?? "");
@@ -1409,12 +1409,15 @@ function EditStudentModal({
               Assign to Tutor
             </label>
             <select
-              value={assignedTutorId}
-              onChange={(e) => setAssignedTutorId(e.target.value as Id<"tutorAccounts">)}
+              value={assignedTutorId ?? ""}
+              onChange={(e) =>
+                setAssignedTutorId(
+                  e.target.value ? (e.target.value as Id<"tutorAccounts">) : null
+                )
+              }
               className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-              required
             >
-              <option value="">Select tutor</option>
+              <option value="">Unassigned</option>
               {activeTutors.map((t) => (
                 <option key={t._id} value={t._id}>
                   {t.name}
@@ -1535,9 +1538,9 @@ function SessionsTab({ adminId }: { adminId: Id<"tutorAccounts"> }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-slate-900">Sessions & Earnings</h2>
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
           <div className="flex items-center gap-2">
             <label className="text-sm text-slate-600">From</label>
             <input
@@ -1596,7 +1599,7 @@ function SessionsTab({ adminId }: { adminId: Id<"tutorAccounts"> }) {
           <h3 className="font-semibold text-slate-900">All Sessions</h3>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[900px]">
             <thead>
               <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
                 <th className="px-6 py-3 font-medium">Date</th>
@@ -1941,10 +1944,6 @@ function AddStudentModal({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!assignedTutorId) {
-      setError("Please select a tutor");
-      return;
-    }
     if (selectedSubjects.length === 0) {
       setError("Please select at least one subject");
       return;
@@ -1959,7 +1958,9 @@ function AddStudentModal({
         name,
         yearLevel,
         subjects: selectedSubjects,
-        assignedTutorId: assignedTutorId as Id<"tutorAccounts">,
+        assignedTutorId: assignedTutorId
+          ? (assignedTutorId as Id<"tutorAccounts">)
+          : null,
         parentName: parentName || undefined,
         parentEmail: parentEmail || undefined,
         parentPhone: parentPhone || undefined,
@@ -2044,9 +2045,8 @@ function AddStudentModal({
               value={assignedTutorId}
               onChange={(e) => setAssignedTutorId(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-              required
             >
-              <option value="">Select tutor</option>
+              <option value="">Unassigned</option>
               {activeTutors.map((t) => (
                 <option key={t._id} value={t._id}>{t.name}</option>
               ))}

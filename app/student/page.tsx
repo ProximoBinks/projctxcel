@@ -41,19 +41,19 @@ export default function StudentDashboardPage() {
     <div className="min-h-screen bg-slate-50">
       {/* Header */}
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="flex items-center gap-3">
             <Link href="/">
               <img
                 src="/images/simple-text-black.svg"
                 alt="Simple Tuition"
-                className="h-8"
+                className="h-8 sm:h-10"
               />
             </Link>
             <span className="text-slate-300">|</span>
             <span className="text-sm font-medium text-slate-600">Student Portal</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
             <span className="text-sm text-slate-600">Hi, {session.name}</span>
             <button
               onClick={() => {
@@ -70,13 +70,13 @@ export default function StudentDashboardPage() {
 
       {/* Tabs */}
       <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-6">
-          <nav className="flex gap-6">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <nav className="flex gap-4 overflow-x-auto sm:gap-6">
             {(["overview", "timetable", "resources"] as Tab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`border-b-2 px-1 py-4 text-sm font-medium capitalize transition ${
+                className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium capitalize transition ${
                   activeTab === tab
                     ? "border-blue-600 text-blue-600"
                     : "border-transparent text-slate-500 hover:text-slate-700"
@@ -90,7 +90,7 @@ export default function StudentDashboardPage() {
       </div>
 
       {/* Content */}
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {activeTab === "overview" && <OverviewTab studentId={studentId} />}
         {activeTab === "timetable" && <TimetableTab studentId={studentId} />}
         {activeTab === "resources" && <ResourcesTab studentId={studentId} />}
@@ -118,11 +118,11 @@ function OverviewTab({ studentId }: { studentId: Id<"students"> }) {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 lg:grid-cols-2">
         {/* Your Tutors */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <h2 className="text-lg font-semibold text-slate-900">Your Tutors</h2>
-          <div className="mt-4 space-y-4">
+          <div className="mt-4 space-y-3">
             {overview.tutors.length > 0 ? (
               overview.tutors.map((tutor) => (
                 <div

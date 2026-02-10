@@ -276,8 +276,10 @@ export const getOverview = query({
       tutorName: string;
     }> = [];
 
-    // Also add the primary assigned tutor
-    tutorIds.add(student.assignedTutorId);
+    // Also add the primary assigned tutor if present
+    if (student.assignedTutorId) {
+      tutorIds.add(student.assignedTutorId);
+    }
 
     for (const enrollment of classEnrollments) {
       const cls = await ctx.db.get(enrollment.classId);
@@ -533,22 +535,13 @@ export const signupStudent = mutation({
       return { success: false, error: "Email already in use" };
     }
 
-    // Find a default tutor to assign (first admin or first active tutor)
-    const tutors = await ctx.db.query("tutorAccounts").collect();
-    const adminTutor = tutors.find((t) => t.roles?.includes("admin") && t.active);
-    const defaultTutor = adminTutor || tutors.find((t) => t.active);
-
-    if (!defaultTutor) {
-      return { success: false, error: "System error: No tutors available" };
-    }
-
     // Create the student record
     const studentId = await ctx.db.insert("students", {
       name: name.trim(),
       email: normalizedEmail,
       yearLevel: "Not Set",
       subjects: [],
-      assignedTutorId: defaultTutor._id,
+      assignedTutorId: null,
       active: true,
       createdAt: Date.now(),
     });

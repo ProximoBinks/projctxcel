@@ -71,22 +71,22 @@ function TutorDashboard({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen overflow-y-auto bg-slate-50">
       {/* Header */}
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
+        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="flex items-center gap-3">
             <Link href="/">
               <img
                 src="/images/simple-text-black.svg"
                 alt="Simple Tuition"
-                className="h-[50px]"
+                className="h-10 sm:h-[50px]"
               />
             </Link>
             <span className="text-sm text-slate-400">|</span>
             <span className="text-sm font-medium text-slate-600">Tutor Dashboard</span>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
             <span className="text-sm text-slate-600">Hi, {tutorName}</span>
             <button
               onClick={handleLogout}
@@ -100,12 +100,12 @@ function TutorDashboard({
 
       {/* Tabs */}
       <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl gap-6 px-6">
+        <div className="mx-auto flex max-w-6xl gap-4 overflow-x-auto px-4 sm:gap-6 sm:px-6">
           {(["overview", "sessions", "students", "timetable"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`border-b-2 px-1 py-3 text-sm font-medium transition ${
+              className={`whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition ${
                 activeTab === tab
                   ? "border-blue-600 text-blue-600"
                   : "border-transparent text-slate-600 hover:text-slate-900"
@@ -118,7 +118,7 @@ function TutorDashboard({
       </div>
 
       {/* Content */}
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
         {activeTab === "overview" && (
           <OverviewTab
             earnings={earnings}
@@ -187,17 +187,17 @@ function OverviewTab({
   return (
     <div className="space-y-8">
       {/* Quick Actions */}
-      <div className="flex gap-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
         <button
           onClick={onLogSession}
-          className="rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700"
+          className="w-full rounded-xl bg-blue-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto"
         >
           + Log Session
         </button>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <div className="rounded-2xl border border-slate-200 bg-white p-6">
           <p className="text-sm text-slate-500">This Week</p>
           <p className="mt-2 text-3xl font-semibold text-slate-900">
@@ -369,7 +369,7 @@ function TimetableTab({
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-7">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
         {grouped.map((group) => (
           <div
             key={group.day}
@@ -445,12 +445,12 @@ function SessionsTab({
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="space-y-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-slate-900">All Sessions</h2>
         <button
           onClick={onLogSession}
-          className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+            className="w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700 sm:w-auto"
         >
           + Log Session
         </button>
@@ -458,7 +458,7 @@ function SessionsTab({
 
       <div className="rounded-2xl border border-slate-200 bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[820px]">
             <thead>
               <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
                 <th className="px-6 py-3 font-medium">Date</th>
@@ -544,7 +544,7 @@ function StudentsTab({
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-slate-900">My Students</h2>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2">
         {students && students.length > 0 ? (
           students.map((student: StudentRow) => (
             <div
