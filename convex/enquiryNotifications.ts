@@ -59,7 +59,8 @@ export const sendNotification = action({
       const info = await transporter.sendMail({
         from: fromEmail,
         to: toEmail,
-      subject: `New Simple Tuition enquiry - ${args.name}`,
+        replyTo: `"${args.name}" <${args.email}>`,
+        subject: `New Simple Tuition enquiry - ${args.name}`,
         text: lines.join("\n"),
       });
       console.log("Postmark SMTP sent", {

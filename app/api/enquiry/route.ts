@@ -193,6 +193,7 @@ export async function POST(request: Request) {
   await transporter.sendMail({
     from: `"Simple Tuition" <${fromEmail}>`,
     to: toEmail,
+    replyTo: `"${name}" <${email}>`,
     subject: `New Simple Tuition enquiry - ${name}`,
     text: adminLines.join("\n"),
     attachments: type === "tutor" && cvAttachment ? [cvAttachment] : [],

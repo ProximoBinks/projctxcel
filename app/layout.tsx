@@ -10,7 +10,7 @@ const BASE_URL =
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
   title: {
-    default: "Adelaide Tutors & Tuition | Top 1% ATAR Tutors | Simple Tuition",
+    default: "Simple Tuition | Top 1% ATAR & UCAT Tutors in Adelaide",
     template: "%s | Simple Tuition",
   },
   description:
@@ -27,13 +27,14 @@ export const metadata: Metadata = {
     { rel: "icon", url: "/favicon.ico" },
     { rel: "icon", url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
     { rel: "icon", url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
-    { rel: "apple-touch-icon", url: "/apple-touch-icon.png" },
+    { rel: "apple-touch-icon", url: "/apple-touch-icon.png", sizes: "180x180" },
   ],
+  manifest: "/site.webmanifest",
   openGraph: {
     type: "website",
     locale: "en_AU",
     siteName: "Simple Tuition",
-    title: "Adelaide Tutors & Tuition | Top 1% ATAR Tutors | Simple Tuition",
+    title: "Simple Tuition | Top 1% ATAR & UCAT Tutors in Adelaide",
     description:
       "Private tuition in Adelaide from top 1% ATAR achievers. SACE, UCAT, and medicine prep for Year 4-12 students.",
     url: BASE_URL,
@@ -48,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Adelaide Tutors & Tuition | Top 1% ATAR Tutors | Simple Tuition",
+    title: "Simple Tuition | Top 1% ATAR & UCAT Tutors in Adelaide",
     description:
       "Private tuition in Adelaide from top 1% ATAR achievers. SACE, UCAT, and medicine prep for Year 4-12 students.",
     images: ["/images/banner.webp"],
@@ -60,6 +61,14 @@ export const metadata: Metadata = {
     index: true,
     follow: true,
   },
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Simple Tuition",
+  alternateName: "Simple Tuition Adelaide",
+  url: BASE_URL,
 };
 
 const organizationSchema = {
@@ -92,6 +101,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
+        <JsonLd data={websiteSchema} />
         <JsonLd data={organizationSchema} />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-J81WF7WXDD"
