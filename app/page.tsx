@@ -89,6 +89,29 @@ export default function HomePage() {
     signals: string[];
     tutorSlugs: string[];
   }>;
+
+  const allMatchTutorImages = useMemo(() => {
+    const slugs = new Set(focusAreas.flatMap((area) => area.tutorSlugs));
+    const tutorBySlug = new Map(
+      tutorsData.filter((t) => t.active).map((t) => [t.slug, t]),
+    );
+    const urls: string[] = [];
+    for (const slug of slugs) {
+      const tutor = tutorBySlug.get(slug);
+      if (tutor?.photoFile) {
+        urls.push(`/images/tutors/${tutor.photoFile}`);
+      }
+    }
+    return urls;
+  }, [focusAreas]);
+
+  useEffect(() => {
+    allMatchTutorImages.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, [allMatchTutorImages]);
+
   const [activeFocus, setActiveFocus] = useState<FocusKey>(
     focusAreas[0]?.key ?? "sace",
   );
@@ -288,7 +311,8 @@ export default function HomePage() {
                                 }
                                 alt={activeTutor.name}
                                 className="h-full w-full object-cover"
-                                loading="lazy"
+                                loading="eager"
+                                decoding="async"
                                 onError={(event) => {
                                   if (
                                     event.currentTarget.src.includes("/images/tutors/default.webp")
