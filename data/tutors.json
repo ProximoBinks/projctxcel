@@ -45,6 +45,21 @@
     "sortOrder": 3
   },
   {
+    "name": "Joey Fitzgerald",
+    "slug": "joey-fitzgerald",
+    "photoFile": "joey-fitzgerald.jpg",
+    "headline": "Tutor",
+    "bioShort": "Joey achieved an exceptional ATAR as well as a 2620 UCAT score. He is now a medical student at the University of Adelaide.",
+    "subjects": ["Maths Methods","Chemistry","Physics","English","UCAT", "Interview Prep"],
+    "stats": [
+      { "label": "ATAR", "value": "99.85" },
+      { "label": "percentile UCAT", "value": "99th" },
+      { "label": "Med Student", "value": "1st Year" }
+    ],
+    "active": true,
+    "sortOrder": 4
+  },
+  {
     "name": "Evan Cox",
     "slug": "evan-cox",
     "photoFile": "evan-cox.jpg",
@@ -57,7 +72,7 @@
       { "label": "Engineering Student", "value": "1st Year" }
     ],
     "active": true,
-    "sortOrder": 4
+    "sortOrder": 5
   },
   {
     "name": "Lachie Wang",
@@ -72,7 +87,7 @@
       { "label": "All Subjects", "value": "A+" }
     ],
     "active": true,
-    "sortOrder": 5
+    "sortOrder": 6
   },
   {
     "name": "Andrew Xu",
@@ -87,7 +102,7 @@
       { "label": "All Subjects", "value": "A+" }
     ],
     "active": true,
-    "sortOrder": 6
+    "sortOrder": 7
   },
   {
     "name": "Yousif Shibeeb",
@@ -102,7 +117,7 @@
       { "label": "Med Student", "value": "1st Year" }
     ],
     "active": true,
-    "sortOrder": 7
+    "sortOrder": 8
   },
   {
     "name": "Bal Gilhotra",
@@ -117,7 +132,7 @@
       { "label": "Med Student", "value": "1st Year" }
     ],
     "active": true,
-    "sortOrder": 8
+    "sortOrder": 9
   },
   {
     "name": "Ansen Li",
@@ -131,7 +146,7 @@
       { "label": "SACE Merit", "value": "Physics" },
       { "label": "All Subjects", "value": "A+" }
     ],
-    "active": true,
-    "sortOrder": 9
+    "active": false,
+    "sortOrder": 10
   }
 ]
