@@ -56,7 +56,7 @@ function AdminDashboard({
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
-    "tutors" | "students" | "sessions" | "classes"
+    "tutors" | "students" | "sessions" | "classes" | "billing"
   >("tutors");
   const [showAddTutor, setShowAddTutor] = useState(false);
   const [showAddStudent, setShowAddStudent] = useState(false);
@@ -107,7 +107,7 @@ function AdminDashboard({
       {/* Tabs */}
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl gap-4 overflow-x-auto px-4 sm:gap-6 sm:px-6">
-          {(["tutors", "students", "sessions", "classes"] as const).map((tab) => (
+          {(["tutors", "students", "sessions", "classes", "billing"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -136,7 +136,6 @@ function AdminDashboard({
           <StudentsTab
             adminId={adminId}
             students={students}
-            tutors={tutors}
             onAddStudent={() => setShowAddStudent(true)}
           />
         )}
@@ -148,14 +147,16 @@ function AdminDashboard({
             onAddClass={() => setShowAddClass(true)}
           />
         )}
+        {activeTab === "billing" && (
+          <BillingTab adminId={adminId} students={students} />
+        )}
       </main>
 
       {/* Modals */}
       {showAddTutor && <AddTutorModal onClose={() => setShowAddTutor(false)} />}
-      {showAddStudent && tutors && adminId && (
+      {showAddStudent && adminId && (
         <AddStudentModal
           adminId={adminId}
-          tutors={tutors}
           onClose={() => setShowAddStudent(false)}
         />
       )}
@@ -369,12 +370,10 @@ function TutorsTab({
 function StudentsTab({
   adminId,
   students,
-  tutors,
   onAddStudent,
 }: {
   adminId: Id<"tutorAccounts">;
   students: ReturnType<typeof useQuery<typeof api.admin.listStudents>>;
-  tutors: ReturnType<typeof useQuery<typeof api.admin.listTutorAccounts>>;
   onAddStudent: () => void;
 }) {
   type StudentList = NonNullable<
@@ -393,7 +392,6 @@ function StudentsTab({
     name: string;
     yearLevel: string;
     subjects: string[];
-    assignedTutorId: Id<"tutorAccounts"> | null;
     parentName?: string;
     parentEmail?: string;
     parentPhone?: string;
@@ -442,7 +440,7 @@ function StudentsTab({
                 <th className="px-6 py-3 font-medium">Name</th>
                 <th className="px-6 py-3 font-medium">Year Level</th>
                 <th className="px-6 py-3 font-medium">Subjects</th>
-                <th className="px-6 py-3 font-medium">Assigned Tutor</th>
+                <th className="px-6 py-3 font-medium">Tutors</th>
                 <th className="px-6 py-3 font-medium">Status</th>
                 <th className="px-6 py-3 font-medium"></th>
               </tr>
@@ -473,7 +471,9 @@ function StudentsTab({
                       </div>
                     </td>
                     <td className="px-6 py-4 text-slate-600">
-                      {student.assignedTutorName}
+                      {student.assignedTutorNames.length > 0
+                        ? student.assignedTutorNames.join(", ")
+                        : "Unassigned"}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -537,7 +537,6 @@ function StudentsTab({
       {editingStudent && (
         <EditStudentModal
           adminId={adminId}
-          tutors={tutors}
           initialStudent={editingStudent}
           onClose={() => setEditingStudent(null)}
         />
@@ -1269,18 +1268,15 @@ function ManageStudentClassesModal({
 
 function EditStudentModal({
   adminId,
-  tutors,
   initialStudent,
   onClose,
 }: {
   adminId: Id<"tutorAccounts">;
-  tutors: ReturnType<typeof useQuery<typeof api.admin.listTutorAccounts>>;
   initialStudent: {
     _id: Id<"students">;
     name: string;
     yearLevel: string;
     subjects: string[];
-    assignedTutorId: Id<"tutorAccounts"> | null;
     parentName?: string;
     parentEmail?: string;
     parentPhone?: string;
@@ -1298,15 +1294,10 @@ function EditStudentModal({
   const [selectedSubjects, setSelectedSubjects] = useState<Array<string>>(
     initialStudent.subjects ?? []
   );
-  const [assignedTutorId, setAssignedTutorId] = useState<
-    Id<"tutorAccounts"> | null
-  >(initialStudent.assignedTutorId ?? null);
   const [parentName, setParentName] = useState(initialStudent.parentName ?? "");
   const [parentEmail, setParentEmail] = useState(initialStudent.parentEmail ?? "");
   const [parentPhone, setParentPhone] = useState(initialStudent.parentPhone ?? "");
   const [active, setActive] = useState(initialStudent.active);
-
-  const activeTutors = (tutors ?? []).filter((t) => t.active);
 
   const yearLevels = [
     "Year 4", "Year 5", "Year 6", "Year 7", "Year 8",
@@ -1324,7 +1315,6 @@ function EditStudentModal({
         name,
         yearLevel,
         subjects: selectedSubjects,
-        assignedTutorId,
         parentName: parentName || undefined,
         parentEmail: parentEmail || undefined,
         parentPhone: parentPhone || undefined,
@@ -1402,28 +1392,6 @@ function EditStudentModal({
                 </label>
               ))}
             </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Assign to Tutor
-            </label>
-            <select
-              value={assignedTutorId ?? ""}
-              onChange={(e) =>
-                setAssignedTutorId(
-                  e.target.value ? (e.target.value as Id<"tutorAccounts">) : null
-                )
-              }
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-            >
-              <option value="">Unassigned</option>
-              {activeTutors.map((t) => (
-                <option key={t._id} value={t._id}>
-                  {t.name}
-                </option>
-              ))}
-            </select>
           </div>
 
           <div className="border-t border-slate-100 pt-4">
@@ -1915,11 +1883,9 @@ function EditTutorModal({
 
 function AddStudentModal({
   adminId,
-  tutors,
   onClose,
 }: {
   adminId: Id<"tutorAccounts">;
-  tutors: Array<{ _id: Id<"tutorAccounts">; name: string; active: boolean }>;
   onClose: () => void;
 }) {
   const createStudent = useMutation(api.admin.createStudent);
@@ -1930,12 +1896,9 @@ function AddStudentModal({
   const [name, setName] = useState("");
   const [yearLevel, setYearLevel] = useState("");
   const [selectedSubjects, setSelectedSubjects] = useState<Array<string>>([]);
-  const [assignedTutorId, setAssignedTutorId] = useState("");
   const [parentName, setParentName] = useState("");
   const [parentEmail, setParentEmail] = useState("");
   const [parentPhone, setParentPhone] = useState("");
-
-  const activeTutors = tutors.filter((t) => t.active);
 
   const yearLevels = [
     "Year 4", "Year 5", "Year 6", "Year 7", "Year 8",
@@ -1958,9 +1921,6 @@ function AddStudentModal({
         name,
         yearLevel,
         subjects: selectedSubjects,
-        assignedTutorId: assignedTutorId
-          ? (assignedTutorId as Id<"tutorAccounts">)
-          : null,
         parentName: parentName || undefined,
         parentEmail: parentEmail || undefined,
         parentPhone: parentPhone || undefined,
@@ -2037,22 +1997,6 @@ function AddStudentModal({
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Assign to Tutor
-            </label>
-            <select
-              value={assignedTutorId}
-              onChange={(e) => setAssignedTutorId(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-            >
-              <option value="">Unassigned</option>
-              {activeTutors.map((t) => (
-                <option key={t._id} value={t._id}>{t.name}</option>
-              ))}
-            </select>
-          </div>
-
           <div className="border-t border-slate-100 pt-4">
             <p className="text-sm font-medium text-slate-700">Parent/Guardian (optional)</p>
           </div>
@@ -2109,6 +2053,709 @@ function AddStudentModal({
               className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
             >
               {loading ? "Creating..." : "Create Student"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function BillingTab({
+  adminId,
+  students,
+}: {
+  adminId: Id<"tutorAccounts">;
+  students: ReturnType<typeof useQuery<typeof api.admin.listStudents>>;
+}) {
+  const billingProfiles = useQuery(api.billing.listAllBillingProfiles, { adminId });
+  const pauseRequests = useQuery(api.billing.listPauseRequests, { adminId });
+  const createBillingProfile = useMutation(api.billing.createBillingProfile);
+  const reviewPause = useMutation(api.billing.reviewPauseRequest);
+  const adminUnpause = useMutation(api.billing.adminUnpause);
+  const addCredit = useMutation(api.billing.addCredit);
+  const updatePaymentType = useMutation(api.billing.updatePaymentType);
+  const deleteBillingProfile = useMutation(api.billing.deleteBillingProfile);
+  const updateBillingStatus = useMutation(api.billing.updateBillingStatus);
+  const [showSetup, setShowSetup] = useState(false);
+  const [viewingHistory, setViewingHistory] = useState<{
+    studentId: Id<"students">;
+    studentName: string;
+  } | null>(null);
+  const [addingCredit, setAddingCredit] = useState<{
+    studentId: Id<"students">;
+    studentName: string;
+  } | null>(null);
+  const [billingSubTab, setBillingSubTab] = useState<"profiles" | "pauses">("profiles");
+
+  const formatCurrency = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+
+  const studentsWithoutBilling = (students ?? []).filter(
+    (s) => !billingProfiles?.some((bp) => bp.studentId === s._id),
+  );
+
+  const totalActive = billingProfiles?.filter((p) => p.status === "active").length ?? 0;
+  const pendingPauses = pauseRequests?.filter((r) => r.status === "pending").length ?? 0;
+  const totalWeeklyRevenue =
+    billingProfiles
+      ?.filter((p) => p.status === "active")
+      .reduce((sum, p) => sum + p.weeklyRateCents, 0) ?? 0;
+
+  const handleSetup = async (studentId: Id<"students">, paymentType: string) => {
+    await createBillingProfile({ adminId, studentId, paymentType });
+    setShowSetup(false);
+  };
+
+  const chargeStatusLabel = (status: string) => {
+    switch (status) {
+      case "succeeded": return "Paid";
+      case "cash": return "Cash";
+      case "credit_applied": return "Credit";
+      default: return "Failed";
+    }
+  };
+
+  const chargeStatusClass = (status: string) => {
+    switch (status) {
+      case "succeeded": return "bg-green-100 text-green-700";
+      case "cash": return "bg-amber-100 text-amber-700";
+      case "credit_applied": return "bg-blue-100 text-blue-700";
+      default: return "bg-red-100 text-red-700";
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-xl font-semibold text-slate-900">Billing</h2>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowSetup(true)}
+            disabled={studentsWithoutBilling.length === 0}
+            className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+            title={studentsWithoutBilling.length === 0 ? "All students already have billing profiles" : ""}
+          >
+            + Set Up Billing
+          </button>
+        </div>
+      </div>
+
+      {/* Summary cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <p className="text-sm text-slate-500">Active Profiles</p>
+          <p className="mt-1 text-2xl font-semibold text-slate-900">{totalActive}</p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <p className="text-sm text-slate-500">Pending Pause Requests</p>
+          <p className={`mt-1 text-2xl font-semibold ${pendingPauses > 0 ? "text-yellow-600" : "text-slate-900"}`}>
+            {pendingPauses}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <p className="text-sm text-slate-500">Est. Weekly Revenue</p>
+          <p className="mt-1 text-2xl font-semibold text-slate-900">
+            {formatCurrency(totalWeeklyRevenue)}
+          </p>
+        </div>
+      </div>
+
+      {/* Sub-tabs */}
+      <div className="flex gap-2 border-b border-slate-200">
+        <button
+          onClick={() => setBillingSubTab("profiles")}
+          className={`border-b-2 px-4 py-2 text-sm font-medium transition ${
+            billingSubTab === "profiles"
+              ? "border-slate-900 text-slate-900"
+              : "border-transparent text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          Billing Profiles
+        </button>
+        <button
+          onClick={() => setBillingSubTab("pauses")}
+          className={`border-b-2 px-4 py-2 text-sm font-medium transition ${
+            billingSubTab === "pauses"
+              ? "border-slate-900 text-slate-900"
+              : "border-transparent text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          Pause Requests
+          {pendingPauses > 0 && (
+            <span className="ml-2 rounded-full bg-yellow-100 px-2 py-0.5 text-xs font-medium text-yellow-700">
+              {pendingPauses}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {billingSubTab === "profiles" && (
+        <div className="rounded-2xl border border-slate-200 bg-white">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[840px]">
+              <thead>
+                <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
+                  <th className="px-6 py-3 font-medium">Student</th>
+                  <th className="px-6 py-3 font-medium">Payment Type</th>
+                  <th className="px-6 py-3 font-medium">Weekly Rate</th>
+                  <th className="px-6 py-3 font-medium">Credit</th>
+                  <th className="px-6 py-3 font-medium">Status</th>
+                  <th className="px-6 py-3 font-medium"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {billingProfiles && billingProfiles.length > 0 ? (
+                  billingProfiles.map((profile) => (
+                    <tr key={profile._id} className="text-sm">
+                      <td className="px-6 py-4 font-medium text-slate-900">
+                        {profile.studentName}
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`rounded-full px-2 py-1 text-xs font-medium ${
+                              profile.paymentType === "card"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-amber-100 text-amber-700"
+                            }`}
+                          >
+                            {profile.paymentType === "card"
+                              ? profile.cardLast4
+                                ? `Card •••• ${profile.cardLast4}`
+                                : "Card (no card yet)"
+                              : "Cash"}
+                          </span>
+                          <button
+                            onClick={() =>
+                              updatePaymentType({
+                                adminId,
+                                studentId: profile.studentId,
+                                paymentType: profile.paymentType === "card" ? "cash" : "card",
+                              })
+                            }
+                            className="text-xs text-slate-500 hover:text-slate-700"
+                            title={`Switch to ${profile.paymentType === "card" ? "cash" : "card"}`}
+                          >
+                            Switch
+                          </button>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 text-slate-900">
+                        {formatCurrency(profile.weeklyRateCents)}/wk
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={`text-sm font-medium ${profile.creditBalanceCents > 0 ? "text-blue-700" : "text-slate-400"}`}>
+                          {formatCurrency(profile.creditBalanceCents)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`rounded-full px-2 py-1 text-xs font-medium ${
+                              profile.status === "active"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {profile.status === "active" ? "Active" : "Paused"}
+                          </span>
+                          {profile.status !== "active" && (
+                            <button
+                              onClick={() =>
+                                updateBillingStatus({
+                                  adminId,
+                                  billingProfileId: profile._id,
+                                  status: "active",
+                                })
+                              }
+                              className="text-xs text-blue-600 hover:text-blue-700"
+                            >
+                              Unpause
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => setAddingCredit({ studentId: profile.studentId, studentName: profile.studentName })}
+                            className="text-sm text-green-600 hover:text-green-700"
+                          >
+                            Credit
+                          </button>
+                          <button
+                            onClick={() =>
+                              setViewingHistory({
+                                studentId: profile.studentId,
+                                studentName: profile.studentName,
+                              })
+                            }
+                            className="text-sm text-blue-600 hover:text-blue-700"
+                          >
+                            History
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm(`Delete billing profile for ${profile.studentName}? This cannot be undone.`)) {
+                                deleteBillingProfile({ adminId, billingProfileId: profile._id });
+                              }
+                            }}
+                            className="text-sm text-red-500 hover:text-red-600"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                      No billing profiles yet
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {billingSubTab === "pauses" && (
+        <div className="rounded-2xl border border-slate-200 bg-white">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[840px]">
+              <thead>
+                <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
+                  <th className="px-6 py-3 font-medium">Student</th>
+                  <th className="px-6 py-3 font-medium">Class</th>
+                  <th className="px-6 py-3 font-medium">Reason</th>
+                  <th className="px-6 py-3 font-medium">Dates</th>
+                  <th className="px-6 py-3 font-medium">Status</th>
+                  <th className="px-6 py-3 font-medium"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {pauseRequests && pauseRequests.length > 0 ? (
+                  pauseRequests.map((req) => (
+                    <tr key={req._id} className="text-sm">
+                      <td className="px-6 py-4 font-medium text-slate-900">
+                        {req.studentName}
+                      </td>
+                      <td className="px-6 py-4 text-slate-600">{req.className}</td>
+                      <td className="px-6 py-4 text-slate-600 max-w-[200px] truncate">
+                        {req.reason}
+                      </td>
+                      <td className="px-6 py-4 text-slate-600">
+                        {req.startDate}
+                        {req.endDate ? ` — ${req.endDate}` : " — Indefinite"}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`rounded-full px-2 py-1 text-xs font-medium ${
+                            req.status === "pending"
+                              ? "bg-yellow-100 text-yellow-700"
+                              : req.status === "approved"
+                                ? "bg-green-100 text-green-700"
+                                : req.status === "rejected"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-slate-100 text-slate-600"
+                          }`}
+                        >
+                          {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {req.status === "pending" && (
+                          <>
+                            <button
+                              onClick={() => reviewPause({ adminId, requestId: req._id, decision: "approved" })}
+                              className="text-sm text-green-600 hover:text-green-700"
+                            >
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => {
+                                const note = prompt("Rejection reason (optional):");
+                                reviewPause({ adminId, requestId: req._id, decision: "rejected", reviewNote: note || undefined });
+                              }}
+                              className="ml-3 text-sm text-red-600 hover:text-red-700"
+                            >
+                              Reject
+                            </button>
+                          </>
+                        )}
+                        {req.status === "approved" && (
+                          <button
+                            onClick={() => adminUnpause({ adminId, requestId: req._id })}
+                            className="text-sm text-blue-600 hover:text-blue-700"
+                          >
+                            Unpause
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                      No pause requests
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* Setup modal */}
+      {showSetup && (
+        <SetupBillingModal
+          students={studentsWithoutBilling}
+          onSetup={handleSetup}
+          onClose={() => setShowSetup(false)}
+        />
+      )}
+
+      {/* Charge history modal */}
+      {viewingHistory && (
+        <ChargeHistoryModal
+          adminId={adminId}
+          studentId={viewingHistory.studentId}
+          studentName={viewingHistory.studentName}
+          onClose={() => setViewingHistory(null)}
+        />
+      )}
+
+      {/* Add credit modal */}
+      {addingCredit && (
+        <AddCreditModal
+          adminId={adminId}
+          studentId={addingCredit.studentId}
+          studentName={addingCredit.studentName}
+          onClose={() => setAddingCredit(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function SetupBillingModal({
+  students,
+  onSetup,
+  onClose,
+}: {
+  students: Array<{ _id: Id<"students">; name: string }>;
+  onSetup: (studentId: Id<"students">, paymentType: string) => Promise<void>;
+  onClose: () => void;
+}) {
+  const [selectedStudent, setSelectedStudent] = useState("");
+  const [paymentType, setPaymentType] = useState<"card" | "cash">("card");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedStudent) return;
+    setLoading(true);
+    try {
+      await onSetup(selectedStudent as Id<"students">, paymentType);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6">
+        <h2 className="text-lg font-semibold text-slate-900">Set Up Billing</h2>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Student</label>
+            <select
+              value={selectedStudent}
+              onChange={(e) => setSelectedStudent(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              required
+            >
+              <option value="">Select student</option>
+              {students.map((s) => (
+                <option key={s._id} value={s._id}>
+                  {s.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Payment Type
+            </label>
+            <div className="mt-2 flex gap-3">
+              <button
+                type="button"
+                onClick={() => setPaymentType("card")}
+                className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition ${
+                  paymentType === "card"
+                    ? "border-blue-500 bg-blue-50 text-blue-700"
+                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                Card
+              </button>
+              <button
+                type="button"
+                onClick={() => setPaymentType("cash")}
+                className={`flex-1 rounded-xl border px-4 py-3 text-sm font-medium transition ${
+                  paymentType === "cash"
+                    ? "border-amber-500 bg-amber-50 text-amber-700"
+                    : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                Cash
+              </button>
+            </div>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading || !selectedStudent}
+              className="flex-1 rounded-xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
+            >
+              {loading ? "Setting up..." : "Create Profile"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function ChargeHistoryModal({
+  adminId,
+  studentId,
+  studentName,
+  onClose,
+}: {
+  adminId: Id<"tutorAccounts">;
+  studentId: Id<"students">;
+  studentName: string;
+  onClose: () => void;
+}) {
+  const charges = useQuery(api.billing.getChargeHistoryAdmin, { adminId, studentId });
+  const credits = useQuery(api.billing.getCreditHistoryAdmin, { adminId, studentId });
+  const formatCurrency = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+  const [viewTab, setViewTab] = useState<"charges" | "credits">("charges");
+
+  const chargeStatusLabel = (status: string) => {
+    switch (status) {
+      case "succeeded": return "Paid";
+      case "cash": return "Cash";
+      case "credit_applied": return "Credit";
+      default: return "Failed";
+    }
+  };
+
+  const chargeStatusClass = (status: string) => {
+    switch (status) {
+      case "succeeded": return "bg-green-100 text-green-700";
+      case "cash": return "bg-amber-100 text-amber-700";
+      case "credit_applied": return "bg-blue-100 text-blue-700";
+      default: return "bg-red-100 text-red-700";
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white p-6">
+        <h2 className="text-lg font-semibold text-slate-900">
+          History — {studentName}
+        </h2>
+
+        <div className="mt-3 flex gap-2 border-b border-slate-200">
+          <button
+            onClick={() => setViewTab("charges")}
+            className={`border-b-2 px-3 py-2 text-sm font-medium ${
+              viewTab === "charges" ? "border-slate-900 text-slate-900" : "border-transparent text-slate-500"
+            }`}
+          >
+            Charges
+          </button>
+          <button
+            onClick={() => setViewTab("credits")}
+            className={`border-b-2 px-3 py-2 text-sm font-medium ${
+              viewTab === "credits" ? "border-slate-900 text-slate-900" : "border-transparent text-slate-500"
+            }`}
+          >
+            Credits
+          </button>
+        </div>
+
+        {viewTab === "charges" && (
+          <div className="mt-4 space-y-2">
+            {charges && charges.length > 0 ? (
+              charges.map((charge) => (
+                <div
+                  key={charge._id}
+                  className="flex items-center justify-between rounded-lg border border-slate-100 px-4 py-3 text-sm"
+                >
+                  <div>
+                    <div className="font-medium text-slate-900">
+                      {formatCurrency(charge.amountCents)}
+                    </div>
+                    <div className="text-xs text-slate-500">
+                      {charge.weekStartDate}
+                    </div>
+                  </div>
+                  <span className={`rounded-full px-2 py-1 text-xs font-medium ${chargeStatusClass(charge.status)}`}>
+                    {chargeStatusLabel(charge.status)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-500">No charges yet.</p>
+            )}
+          </div>
+        )}
+
+        {viewTab === "credits" && (
+          <div className="mt-4 space-y-2">
+            {credits && credits.length > 0 ? (
+              credits.map((entry) => (
+                <div
+                  key={entry._id}
+                  className="flex items-center justify-between rounded-lg border border-slate-100 px-4 py-3 text-sm"
+                >
+                  <div>
+                    <div className="font-medium text-slate-900">{entry.description}</div>
+                    <div className="text-xs text-slate-500">
+                      {new Date(entry.createdAt).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <span className={`font-medium ${entry.amountCents >= 0 ? "text-green-700" : "text-red-600"}`}>
+                    {entry.amountCents >= 0 ? "+" : ""}{formatCurrency(entry.amountCents)}
+                  </span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-500">No credit history.</p>
+            )}
+          </div>
+        )}
+
+        <div className="mt-6 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AddCreditModal({
+  adminId,
+  studentId,
+  studentName,
+  onClose,
+}: {
+  adminId: Id<"tutorAccounts">;
+  studentId: Id<"students">;
+  studentName: string;
+  onClose: () => void;
+}) {
+  const addCredit = useMutation(api.billing.addCredit);
+  const [amount, setAmount] = useState("");
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const cents = Math.round(parseFloat(amount) * 100);
+    if (isNaN(cents) || cents <= 0) {
+      setError("Please enter a valid amount");
+      return;
+    }
+    if (!description.trim()) {
+      setError("Please enter a description");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      await addCredit({ adminId, studentId, amountCents: cents, description: description.trim() });
+      onClose();
+    } catch (err: any) {
+      setError(err.message ?? "Failed to add credit");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6">
+        <h2 className="text-lg font-semibold text-slate-900">
+          Add Credit — {studentName}
+        </h2>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Amount ($)</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              step="0.01"
+              min="0.01"
+              placeholder="e.g. 50.00"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">Description</label>
+            <input
+              type="text"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              placeholder="e.g. Refund for cancelled class, Goodwill credit"
+              required
+            />
+          </div>
+
+          {error && <p className="text-sm text-red-600">{error}</p>}
+
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex-1 rounded-xl bg-green-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-50"
+            >
+              {loading ? "Adding..." : "Add Credit"}
             </button>
           </div>
         </form>

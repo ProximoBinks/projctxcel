@@ -83,6 +83,7 @@ export default defineSchema({
   }).index("by_email", ["email"]),
 
   // Students managed by tutors
+  // Legacy: assignedTutorId/assignedTutorIds allowed only for existing docs; run migrations.stripLegacyTutorFields then remove these two lines
   students: defineTable({
     name: v.string(),
     email: v.optional(v.string()),
@@ -92,12 +93,12 @@ export default defineSchema({
     parentPhone: v.optional(v.string()),
     yearLevel: v.string(),
     subjects: v.array(v.string()),
-    assignedTutorId: v.union(v.id("tutorAccounts"), v.null()),
+    assignedTutorId: v.optional(v.id("tutorAccounts")),
+    assignedTutorIds: v.optional(v.array(v.id("tutorAccounts"))),
     notes: v.optional(v.string()),
     active: v.boolean(),
     createdAt: v.number(),
   })
-    .index("by_assignedTutor", ["assignedTutorId"])
     .index("by_active", ["active"]),
 
   // Session logs
@@ -170,6 +171,65 @@ export default defineSchema({
   })
     .index("by_active", ["active"])
     .index("by_name", ["name"]),
+
+  billingProfiles: defineTable({
+    studentId: v.id("students"),
+    paymentType: v.string(), // "card" | "cash"
+    stripeCustomerId: v.optional(v.string()),
+    stripePaymentMethodId: v.optional(v.string()),
+    cardLast4: v.optional(v.string()),
+    cardBrand: v.optional(v.string()),
+    status: v.string(), // "active" | "paused"
+    pausedAt: v.optional(v.number()),
+    pausedBy: v.optional(v.string()), // "student" | "admin"
+    pauseReason: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_studentId", ["studentId"])
+    .index("by_status", ["status"]),
+
+  billingCharges: defineTable({
+    studentId: v.id("students"),
+    billingProfileId: v.id("billingProfiles"),
+    amountCents: v.number(),
+    stripePaymentIntentId: v.optional(v.string()),
+    status: v.string(), // "succeeded" | "failed" | "cash" | "credit_applied"
+    weekStartDate: v.string(), // YYYY-MM-DD charge date (daily billing)
+    failureReason: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_student", ["studentId"])
+    .index("by_weekStartDate", ["weekStartDate"])
+    .index("by_billingProfile_and_week", ["billingProfileId", "weekStartDate"]),
+
+  // Per-class pause requests (student requests, admin approves)
+  pauseRequests: defineTable({
+    studentId: v.id("students"),
+    classId: v.id("classes"),
+    reason: v.string(),
+    startDate: v.string(),
+    endDate: v.optional(v.string()),
+    status: v.string(), // "pending" | "approved" | "rejected" | "expired"
+    requestedAt: v.number(),
+    reviewedBy: v.optional(v.id("tutorAccounts")),
+    reviewedAt: v.optional(v.number()),
+    reviewNote: v.optional(v.string()),
+  })
+    .index("by_student", ["studentId"])
+    .index("by_status", ["status"])
+    .index("by_class_and_status", ["classId", "status"]),
+
+  // Credit ledger (positive = credit added, negative = credit applied)
+  billingCredits: defineTable({
+    studentId: v.id("students"),
+    amountCents: v.number(),
+    reason: v.string(), // "admin_manual" | "class_cancelled" | "pause_refund" | "applied_to_charge"
+    description: v.string(),
+    billingChargeId: v.optional(v.id("billingCharges")),
+    createdBy: v.optional(v.id("tutorAccounts")),
+    createdAt: v.number(),
+  })
+    .index("by_student", ["studentId"]),
 
   // Student accounts for student dashboard login
   studentAccounts: defineTable({

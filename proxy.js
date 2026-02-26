@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { verifyAuthToken } from "./lib/auth";
 
-export async function middleware(request) {
+export async function proxy(request) {
   const response = NextResponse.next();
 
   applySecurityHeaders(response);
@@ -84,3 +84,4 @@ export const config = {
     "/((?!_next/static|_next/image|favicon.ico|images|.*\\.svg|.*\\.png|.*\\.jpg).*)",
   ],
 };
+

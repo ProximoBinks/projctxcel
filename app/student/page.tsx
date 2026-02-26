@@ -2,15 +2,21 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation, useQuery, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAuth } from "../../contexts/AuthContext";
 import type { Id } from "../../convex/_generated/dataModel";
+import { loadStripe } from "@stripe/stripe-js";
+import { Elements, CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
 
-type Tab = "overview" | "timetable" | "resources";
+const stripePromise = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+  ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
+  : null;
+
+type Tab = "overview" | "timetable" | "resources" | "billing";
 
 export default function StudentDashboardPage() {
   const router = useRouter();
@@ -82,7 +88,7 @@ export default function StudentDashboardPage() {
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <nav className="flex gap-4 overflow-x-auto sm:gap-6">
-            {(["overview", "timetable", "resources"] as Tab[]).map((tab) => (
+            {(["overview", "timetable", "resources", "billing"] as Tab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -110,6 +116,7 @@ export default function StudentDashboardPage() {
         )}
         {activeTab === "timetable" && <TimetableTab studentId={studentId} />}
         {activeTab === "resources" && <ResourcesTab studentId={studentId} />}
+        {activeTab === "billing" && <StudentBillingTab studentId={studentId} />}
       </main>
     </div>
   );
@@ -704,6 +711,556 @@ function ResourcesTab({ studentId }: { studentId: Id<"students"> }) {
           </p>
         </div>
       )}
+    </div>
+  );
+}
+
+function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
+  const profile = useQuery(api.billing.getBillingProfile, { studentId });
+  const charges = useQuery(api.billing.getChargeHistory, { studentId });
+  const pauseRequests = useQuery(api.billing.getMyPauseRequests, { studentId });
+  const creditHistory = useQuery(api.billing.getCreditHistory, { studentId });
+  const requestPause = useMutation(api.billing.requestClassPause);
+  const cancelPause = useMutation(api.billing.cancelPauseRequest);
+  const [showAddCard, setShowAddCard] = useState(false);
+  const [pausingClassId, setPausingClassId] = useState<Id<"classes"> | null>(null);
+  const [pauseReason, setPauseReason] = useState("");
+  const [pauseStartDate, setPauseStartDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [pauseEndDate, setPauseEndDate] = useState("");
+  const [pauseLoading, setPauseLoading] = useState(false);
+
+  const formatCurrency = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+
+  if (profile === undefined) {
+    return <div className="text-slate-500">Loading...</div>;
+  }
+
+  if (profile === null) {
+    return (
+      <div className="space-y-6">
+        <h2 className="text-xl font-semibold text-slate-900">Billing</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-8 text-center">
+          <p className="text-slate-500">
+            Billing has not been set up for your account yet. Please contact your tutor or
+            admin.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const handleRequestPause = async () => {
+    if (!pausingClassId || !pauseReason.trim()) return;
+    setPauseLoading(true);
+    try {
+      await requestPause({
+        studentId,
+        classId: pausingClassId,
+        reason: pauseReason.trim(),
+        startDate: pauseStartDate,
+        endDate: pauseEndDate || undefined,
+      });
+      setPausingClassId(null);
+      setPauseReason("");
+      setPauseEndDate("");
+    } catch (err: any) {
+      alert(err.message ?? "Failed to submit pause request");
+    } finally {
+      setPauseLoading(false);
+    }
+  };
+
+  const getPauseStatusForClass = (classId: Id<"classes">) => {
+    if (!pauseRequests) return null;
+    return pauseRequests.find(
+      (r) => r.classId === classId && (r.status === "pending" || r.status === "approved"),
+    ) ?? null;
+  };
+
+  const chargeStatusLabel = (status: string) => {
+    switch (status) {
+      case "succeeded": return "Paid";
+      case "cash": return "Cash";
+      case "credit_applied": return "Credit";
+      default: return "Failed";
+    }
+  };
+
+  const chargeStatusClass = (status: string) => {
+    switch (status) {
+      case "succeeded": return "bg-green-100 text-green-700";
+      case "cash": return "bg-amber-100 text-amber-700";
+      case "credit_applied": return "bg-blue-100 text-blue-700";
+      default: return "bg-red-100 text-red-700";
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold text-slate-900">Billing</h2>
+
+      {/* Summary cards */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-2xl border border-green-200 bg-green-50 p-5">
+          <p className="text-sm text-green-700">Weekly Total</p>
+          <p className="mt-1 text-2xl font-semibold text-green-900">
+            {formatCurrency(profile.weeklyRate.totalCents)}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
+          <p className="text-sm text-blue-700">Credit Balance</p>
+          <p className="mt-1 text-2xl font-semibold text-blue-900">
+            {formatCurrency(profile.creditBalanceCents)}
+          </p>
+        </div>
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <p className="text-sm text-slate-500">Payment Method</p>
+          <p className="mt-1 text-lg font-semibold text-slate-900">
+            {profile.paymentType === "cash"
+              ? "Cash"
+              : profile.cardLast4
+                ? `•••• ${profile.cardLast4}`
+                : "No card"}
+          </p>
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Weekly rate breakdown grouped by day */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+          <h3 className="text-lg font-semibold text-slate-900">
+            Weekly Rate Breakdown
+          </h3>
+          <p className="mt-1 text-xs text-slate-500">
+            Billed daily at 9am for that day&apos;s sessions
+          </p>
+          {profile.weeklyRate.breakdown.length > 0 ? (
+            <div className="mt-4 space-y-4">
+              {(() => {
+                const dayOrder = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+                const grouped = dayOrder
+                  .map((day) => ({
+                    day,
+                    lines: profile.weeklyRate.breakdown.filter((l) => l.dayOfWeek === day),
+                  }))
+                  .filter((g) => g.lines.length > 0);
+
+                return grouped.map(({ day, lines }) => {
+                  const dayTotal = lines.reduce((s, l) => s + l.lineTotalCents, 0);
+                  return (
+                    <div key={day}>
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-semibold text-slate-700">{day}</span>
+                        <span className="text-sm font-medium text-slate-600">{formatCurrency(dayTotal)}</span>
+                      </div>
+                      <div className="space-y-2">
+                        {lines.map((line) => {
+                          const pauseStatus = getPauseStatusForClass(line.classId);
+                          return (
+                            <div
+                              key={line.classId}
+                              className={`rounded-xl border px-4 py-3 ${
+                                line.paused
+                                  ? "border-yellow-200 bg-yellow-50"
+                                  : "border-slate-100 bg-white"
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <div className={line.paused ? "opacity-60" : ""}>
+                                  <div className="font-medium text-slate-900">
+                                    {line.className}
+                                    {line.paused && (
+                                      <span className="ml-2 rounded-full bg-yellow-200 px-2 py-0.5 text-xs font-medium text-yellow-800">
+                                        Paused
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="text-xs text-slate-500">
+                                    {line.subject} &middot; {line.tutorName} &middot;{" "}
+                                    {line.startTime}–{line.endTime} ({line.durationMinutes}min) &middot;{" "}
+                                    {formatCurrency(line.rateCents)}/hr
+                                  </div>
+                                </div>
+                                <div className="text-right">
+                                  <div className={`font-medium ${line.paused ? "text-slate-400 line-through" : "text-slate-900"}`}>
+                                    {formatCurrency(line.paused ? Math.round((line.durationMinutes / 60) * line.rateCents) : line.lineTotalCents)}
+                                  </div>
+                                  {line.paused && (
+                                    <div className="text-xs font-medium text-yellow-700">$0.00</div>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="mt-2">
+                                {pauseStatus ? (
+                                  <div className="flex items-center justify-between">
+                                    <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                                      pauseStatus.status === "pending"
+                                        ? "bg-blue-100 text-blue-700"
+                                        : "bg-yellow-100 text-yellow-700"
+                                    }`}>
+                                      {pauseStatus.status === "pending" ? "Pause Pending" : "Paused"}
+                                      {pauseStatus.endDate ? ` until ${pauseStatus.endDate}` : ""}
+                                    </span>
+                                    <button
+                                      onClick={() => cancelPause({ studentId, requestId: pauseStatus._id })}
+                                      className="text-xs text-red-600 hover:text-red-700"
+                                    >
+                                      Cancel
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => setPausingClassId(line.classId)}
+                                    className="text-xs text-yellow-700 hover:text-yellow-800"
+                                  >
+                                    Request pause
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+              <div className="flex items-center justify-between border-t border-slate-200 pt-3">
+                <span className="font-semibold text-slate-900">Weekly Total</span>
+                <span className="text-lg font-semibold text-slate-900">
+                  {formatCurrency(profile.weeklyRate.totalCents)}
+                </span>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-slate-500">
+              No classes enrolled — weekly rate is $0.00
+            </p>
+          )}
+        </div>
+
+        {/* Card on file */}
+        <div className="rounded-2xl border border-slate-200 bg-white p-6">
+          <h3 className="text-lg font-semibold text-slate-900">Payment Method</h3>
+          {profile.paymentType === "cash" ? (
+            <div className="mt-4">
+              <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-700">
+                Cash payments
+              </span>
+              <p className="mt-3 text-sm text-slate-500">
+                Your billing is set to cash. Contact your tutor to switch to card payments.
+              </p>
+            </div>
+          ) : profile.cardLast4 ? (
+            <div className="mt-4 space-y-3">
+              <div className="flex items-center gap-3 rounded-xl border border-slate-100 bg-slate-50 p-4">
+                <div className="flex h-10 w-14 items-center justify-center rounded-lg bg-slate-200 text-xs font-bold uppercase text-slate-600">
+                  {profile.cardBrand ?? "Card"}
+                </div>
+                <div>
+                  <p className="font-medium text-slate-900">
+                    &bull;&bull;&bull;&bull; {profile.cardLast4}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowAddCard(true)}
+                className="text-sm text-blue-600 hover:text-blue-700"
+              >
+                Update card
+              </button>
+            </div>
+          ) : (
+            <div className="mt-4 space-y-3">
+              <p className="text-sm text-slate-500">No card on file.</p>
+              <button
+                onClick={() => setShowAddCard(true)}
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-700"
+              >
+                Add Card
+              </button>
+            </div>
+          )}
+
+          {/* Credit history summary */}
+          {creditHistory && creditHistory.length > 0 && (
+            <div className="mt-6 border-t border-slate-100 pt-4">
+              <h4 className="text-sm font-semibold text-slate-900">Recent Credits</h4>
+              <div className="mt-2 space-y-1">
+                {creditHistory.slice(0, 5).map((entry) => (
+                  <div key={entry._id} className="flex items-center justify-between text-xs">
+                    <span className="text-slate-600">{entry.description}</span>
+                    <span className={entry.amountCents >= 0 ? "font-medium text-green-700" : "font-medium text-red-600"}>
+                      {entry.amountCents >= 0 ? "+" : ""}{formatCurrency(entry.amountCents)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Charge history */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-6">
+        <h3 className="text-lg font-semibold text-slate-900">Charge History</h3>
+        <div className="mt-4 space-y-2">
+          {charges && charges.length > 0 ? (
+            charges.map((charge) => (
+              <div
+                key={charge._id}
+                className="flex items-center justify-between rounded-lg border border-slate-100 px-4 py-3 text-sm"
+              >
+                <div>
+                  <p className="font-medium text-slate-900">
+                    {formatCurrency(charge.amountCents)}
+                  </p>
+                  <p className="text-xs text-slate-500">
+                    {charge.weekStartDate}
+                  </p>
+                  {charge.failureReason && (
+                    <p className="text-xs text-red-500">{charge.failureReason}</p>
+                  )}
+                </div>
+                <span className={`rounded-full px-2 py-1 text-xs font-medium ${chargeStatusClass(charge.status)}`}>
+                  {chargeStatusLabel(charge.status)}
+                </span>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-slate-500">No charges yet.</p>
+          )}
+        </div>
+      </div>
+
+      {/* Pause request modal */}
+      {pausingClassId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6">
+            <h2 className="text-lg font-semibold text-slate-900">Request Class Pause</h2>
+            <div className="mt-4 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-slate-700">Reason</label>
+                <textarea
+                  value={pauseReason}
+                  onChange={(e) => setPauseReason(e.target.value)}
+                  placeholder="e.g. Family holiday, exam period..."
+                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                  rows={3}
+                  required
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">Start Date</label>
+                  <input
+                    type="date"
+                    value={pauseStartDate}
+                    onChange={(e) => setPauseStartDate(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700">
+                    End Date <span className="font-normal text-slate-400">(optional)</span>
+                  </label>
+                  <input
+                    type="date"
+                    value={pauseEndDate}
+                    onChange={(e) => setPauseEndDate(e.target.value)}
+                    className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                  />
+                </div>
+              </div>
+              <p className="text-xs text-slate-500">
+                Leave end date empty for an indefinite pause. Your request will be reviewed by an admin.
+              </p>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => { setPausingClassId(null); setPauseReason(""); setPauseEndDate(""); }}
+                  className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRequestPause}
+                  disabled={pauseLoading || !pauseReason.trim()}
+                  className="flex-1 rounded-xl bg-yellow-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-yellow-700 disabled:opacity-50"
+                >
+                  {pauseLoading ? "Submitting..." : "Submit Request"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Add card modal */}
+      {showAddCard && stripePromise && (
+        <Elements stripe={stripePromise}>
+          <AddCardModal
+            studentId={studentId}
+            onClose={() => setShowAddCard(false)}
+          />
+        </Elements>
+      )}
+      {showAddCard && !stripePromise && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6">
+            <p className="text-sm text-red-600">
+              Stripe is not configured. Please set NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY.
+            </p>
+            <button
+              onClick={() => setShowAddCard(false)}
+              className="mt-4 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function AddCardModal({
+  studentId,
+  onClose,
+}: {
+  studentId: Id<"students">;
+  onClose: () => void;
+}) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const createSetupIntent = useAction(api.stripeActions.createSetupIntent);
+  const savePaymentMethod = useAction(api.stripeActions.savePaymentMethod);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+
+  const initSetup = useCallback(async () => {
+    try {
+      const result = await createSetupIntent({ studentId });
+      setClientSecret(result.clientSecret);
+    } catch (err: any) {
+      setError(err.message ?? "Failed to initialize card setup");
+    }
+  }, [createSetupIntent, studentId]);
+
+  useEffect(() => {
+    initSetup();
+  }, [initSetup]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements || !clientSecret) return;
+
+    setLoading(true);
+    setError("");
+
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      setError("Card element not found");
+      setLoading(false);
+      return;
+    }
+
+    const { error: stripeError, setupIntent } = await stripe.confirmCardSetup(
+      clientSecret,
+      {
+        payment_method: { card: cardElement },
+      },
+    );
+
+    if (stripeError) {
+      setError(stripeError.message ?? "Card setup failed");
+      setLoading(false);
+      return;
+    }
+
+    if (setupIntent?.payment_method) {
+      const pmId =
+        typeof setupIntent.payment_method === "string"
+          ? setupIntent.payment_method
+          : setupIntent.payment_method.id;
+      try {
+        await savePaymentMethod({
+          studentId,
+          stripePaymentMethodId: pmId,
+        });
+        onClose();
+      } catch (err: any) {
+        setError(err.message ?? "Failed to save payment method");
+      }
+    }
+
+    setLoading(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6">
+        <h2 className="text-lg font-semibold text-slate-900">
+          {clientSecret ? "Add Your Card" : "Setting up..."}
+        </h2>
+
+        {!clientSecret && !error && (
+          <p className="mt-4 text-sm text-slate-500">
+            Preparing secure card form...
+          </p>
+        )}
+
+        {clientSecret && (
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div className="rounded-xl border border-slate-200 p-4">
+              <CardElement
+                options={{
+                  style: {
+                    base: {
+                      fontSize: "16px",
+                      color: "#1e293b",
+                      "::placeholder": { color: "#94a3b8" },
+                    },
+                  },
+                }}
+              />
+            </div>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading || !stripe}
+                className="flex-1 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loading ? "Saving..." : "Save Card"}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {error && !clientSecret && (
+          <div className="mt-4">
+            <p className="text-sm text-red-600">{error}</p>
+            <button
+              onClick={onClose}
+              className="mt-4 rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+            >
+              Close
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

@@ -147,7 +147,6 @@ function TutorDashboard({
       {showLogSession && (
         <LogSessionModal
           tutorId={tutorId}
-          students={students ?? []}
           onClose={() => setShowLogSession(false)}
         />
       )}
@@ -893,35 +892,56 @@ function StudentClasses({
 
 function LogSessionModal({
   tutorId,
-  students,
   onClose,
 }: {
   tutorId: Id<"tutorAccounts">;
-  students: Array<{
-    _id: Id<"students">;
-    name: string;
-    subjects: string[];
-    active: boolean;
-  }>;
   onClose: () => void;
 }) {
+  const classesWithStudents = useQuery(api.dashboard.getMyClassesWithStudents, { tutorId });
   const logSession = useMutation(api.dashboard.logSession);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const [studentId, setStudentId] = useState("");
+  const [classId, setClassId] = useState("");
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
   const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [durationMinutes, setDurationMinutes] = useState(60);
   const [subject, setSubject] = useState("");
   const [notes, setNotes] = useState("");
 
-  const selectedStudent = students.find((s) => s._id === studentId);
-  const activeStudents = students.filter((s) => s.active);
+  const selectedClass = classesWithStudents?.find((c) => c._id === classId);
+
+  const handleClassChange = (newClassId: string) => {
+    setClassId(newClassId);
+    setSelectedStudentIds([]);
+    const cls = classesWithStudents?.find((c) => c._id === newClassId);
+    if (cls) {
+      setSubject(cls.subject);
+      setDurationMinutes(cls.durationMinutes);
+    } else {
+      setSubject("");
+      setDurationMinutes(60);
+    }
+  };
+
+  const toggleStudent = (id: string) => {
+    setSelectedStudentIds((prev) =>
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
+    );
+  };
+
+  const toggleAll = () => {
+    if (!selectedClass) return;
+    const allIds = selectedClass.students.map((s) => s._id);
+    setSelectedStudentIds((prev) =>
+      prev.length === allIds.length ? [] : allIds,
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!studentId || !subject) {
-      setError("Please select a student and subject");
+    if (selectedStudentIds.length === 0 || !subject) {
+      setError("Please select a class and at least one student");
       return;
     }
 
@@ -929,14 +949,16 @@ function LogSessionModal({
     setError("");
 
     try {
-      await logSession({
-        tutorId,
-        studentId: studentId as Id<"students">,
-        date,
-        durationMinutes,
-        subject,
-        notes: notes || undefined,
-      });
+      for (const sid of selectedStudentIds) {
+        await logSession({
+          tutorId,
+          studentId: sid as Id<"students">,
+          date,
+          durationMinutes,
+          subject,
+          notes: notes || undefined,
+        });
+      }
       onClose();
     } catch (err) {
       setError("Failed to log session. Please try again.");
@@ -950,109 +972,163 @@ function LogSessionModal({
       <div className="w-full max-w-md rounded-2xl bg-white p-6">
         <h2 className="text-lg font-semibold text-slate-900">Log Session</h2>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Student
-            </label>
-            <select
-              value={studentId}
-              onChange={(e) => {
-                setStudentId(e.target.value);
-                setSubject("");
-              }}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-              required
-            >
-              <option value="">Select student</option>
-              {activeStudents.map((s) => (
-                <option key={s._id} value={s._id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        {classesWithStudents === undefined ? (
+          <p className="mt-4 text-sm text-slate-500">Loading classes...</p>
+        ) : (
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Class
+              </label>
+              <select
+                value={classId}
+                onChange={(e) => handleClassChange(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                required
+              >
+                <option value="">Select class</option>
+                {classesWithStudents.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name} — {c.subject} ({c.dayOfWeek} {c.startTime}–{c.endTime})
+                  </option>
+                ))}
+              </select>
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Subject
-            </label>
-            <select
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-              required
-              disabled={!selectedStudent}
-            >
-              <option value="">Select subject</option>
-              {selectedStudent?.subjects.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-          </div>
+            <div>
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-slate-700">
+                  Students
+                </label>
+                {selectedClass && selectedClass.students.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={toggleAll}
+                    className="text-xs text-blue-600 hover:text-blue-700"
+                  >
+                    {selectedStudentIds.length === selectedClass.students.length
+                      ? "Deselect all"
+                      : "Select all"}
+                  </button>
+                )}
+              </div>
+              {!selectedClass ? (
+                <p className="mt-1 text-sm text-slate-400">Select a class first</p>
+              ) : selectedClass.students.length === 0 ? (
+                <p className="mt-1 text-sm text-slate-400">No students in this class</p>
+              ) : (
+                <div className="mt-1 max-h-40 space-y-1 overflow-y-auto rounded-xl border border-slate-200 p-2">
+                  {selectedClass.students.map((s) => (
+                    <label
+                      key={s._id}
+                      className={`flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm transition ${
+                        selectedStudentIds.includes(s._id)
+                          ? "bg-blue-50 text-blue-900"
+                          : "text-slate-700 hover:bg-slate-50"
+                      }`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={selectedStudentIds.includes(s._id)}
+                        onChange={() => toggleStudent(s._id)}
+                        className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      />
+                      {s.name}
+                    </label>
+                  ))}
+                </div>
+              )}
+              {selectedStudentIds.length > 0 && (
+                <p className="mt-1 text-xs text-slate-500">
+                  {selectedStudentIds.length} student{selectedStudentIds.length > 1 ? "s" : ""} selected
+                </p>
+              )}
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Date
-            </label>
-            <input
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-              required
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Subject
+              </label>
+              <input
+                type="text"
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                required
+                readOnly={!!selectedClass}
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Duration (minutes)
-            </label>
-            <input
-              type="number"
-              value={durationMinutes}
-              onChange={(e) => setDurationMinutes(parseInt(e.target.value) || 0)}
-              min={15}
-              step={15}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-              required
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Date
+              </label>
+              <input
+                type="date"
+                value={date}
+                onChange={(e) => setDate(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                required
+              />
+            </div>
 
-          <div>
-            <label className="block text-sm font-medium text-slate-700">
-              Notes (optional)
-            </label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-              rows={3}
-              placeholder="What did you cover? Any homework assigned?"
-            />
-          </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Duration (minutes)
+              </label>
+              <input
+                type="number"
+                value={durationMinutes}
+                onChange={(e) => setDurationMinutes(parseInt(e.target.value) || 0)}
+                min={15}
+                step={15}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                required
+              />
+              {selectedClass && (
+                <p className="mt-1 text-xs text-slate-400">
+                  Prefilled from class schedule ({selectedClass.startTime}–{selectedClass.endTime})
+                </p>
+              )}
+            </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+            <div>
+              <label className="block text-sm font-medium text-slate-700">
+                Notes (optional)
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                rows={3}
+                placeholder="What did you cover? Any homework assigned?"
+              />
+            </div>
 
-          <div className="flex gap-3 pt-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex-1 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
-            >
-              {loading ? "Logging..." : "Log Session"}
-            </button>
-          </div>
-        </form>
+            {error && <p className="text-sm text-red-600">{error}</p>}
+
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={onClose}
+                className="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={loading}
+                className="flex-1 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+              >
+                {loading
+                ? "Logging..."
+                : selectedStudentIds.length > 1
+                  ? `Log ${selectedStudentIds.length} Sessions`
+                  : "Log Session"}
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );
