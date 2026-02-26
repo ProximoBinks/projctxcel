@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import tutorsData from "../data/tutors.json";
-import blogPosts from "../data/guides-posts.json";
+import blogPosts from "../data/blog-posts.json";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
 
