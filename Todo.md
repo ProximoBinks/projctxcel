@@ -6,7 +6,7 @@
 - [x] Decide accent color
 - [x] Business email (for Postmark)
 
-## Build
+## Build — Website
 - [x] Repo scaffold (Next.js + Tailwind + Framer Motion)
 - [x] Landing sections
 - [x] Tutor grid (3x3) linking to `/tutors/[slug]` (no slug for now)
@@ -23,6 +23,27 @@
 - [ ] Signup page (basic, define what signup means)
 - [x] Postmark integration
 - [x] Deploy (Netlify)
+
+## Build — Student Database / Platform
+- [x] **Student profiles** — name, phone, email, parent/guardian details, year level, subjects
+  - [ ] Add UCAT/ATAR goals fields to student profile
+- [x] **Tutor access controls** — tutors see only their assigned students, admin sees everything
+- [x] **Session tracking** — log each session with date, duration, attending tutor, notes
+  - [x] Class-based session logging (select class → students → duration prefilled)
+  - [x] Multi-student session logging (select multiple students at once)
+- [ ] **Attendance tracking** — mark sessions as completed, cancelled, or rescheduled with history per student
+- [ ] **Progress tracking** — record student progress over time (mock UCAT scores, practice exam results, tutor observations)
+- [x] **Recurring billing via Stripe** — card-on-file, automatic daily charges at 9am Adelaide time
+  - [x] Stripe SetupIntent for card collection
+  - [x] Daily cron billing per-class
+  - [x] Cash payment option
+  - [x] Per-class pause requests (student requests, admin approves)
+  - [x] Credit system (admin can add credits, auto-applied at billing time)
+  - [x] Admin billing management (add/edit/delete profiles, switch card/cash, unpause)
+  - [x] Weekly rate breakdown (grouped by day, linked to enrolled classes)
+- [ ] **Automated invoices/receipts** — generate and email automatically after each charge
+- [ ] **SMS + email reminders** — automated session reminders sent to student and/or parent ahead of each booking
+- [x] **Tutor-to-student matching** — class-based assignment system (tutors assigned to classes, students enrolled in classes)
 
 ## SEO — Done
 - [x] Add sitewide meta tags (title/description/Open Graph/Twitter)
@@ -116,4 +137,4 @@
   - [ ] Respect reduced-motion setting
   - [ ] Keep durations 0.35–0.6s, easeOut
   - [ ] Avoid scroll-jank / heavy parallax
-- [ ] Simple admin later
+- [x] Simple admin later (full admin dashboard built)
