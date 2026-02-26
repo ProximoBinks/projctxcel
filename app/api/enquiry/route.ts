@@ -199,6 +199,13 @@ export async function POST(request: Request) {
     attachments: type === "tutor" && cvAttachment ? [cvAttachment] : [],
   });
 
+  const rawFirst =
+    name.trim().split(/\s+/)[0] || name.trim() || "there";
+  const firstName =
+    rawFirst === "there"
+      ? rawFirst
+      : rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
+
   const replySubject =
     type === "tutor"
       ? "Thanks for your application"
@@ -244,6 +251,8 @@ export async function POST(request: Request) {
     to: email,
     subject: replySubject,
     text: [
+      `Hi ${firstName},`,
+      "",
       replyHeadline,
       "",
       replyIntroLine,
@@ -256,23 +265,35 @@ export async function POST(request: Request) {
       "Simple Tuition",
     ].join("\n"),
     html: [
-      '<div style="font-family: Arial, Helvetica, sans-serif; color: #0f172a; line-height: 1.6;">',
-      `<p style="font-size: 16px; margin: 0 0 16px;">${replyHeadline.replace(
+      '<div style="font-family: -apple-system, BlinkMacSystemFont, \'Inter\', \'Segoe UI\', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.65; max-width: 640px; margin: 0 auto; padding: 24px 20px; background-color: #f5f5f7;">',
+      '<div style="background-color: #ffffff; border-radius: 24px; border: 1px solid #e5e7eb; padding: 28px 24px 24px;">',
+      '<div style="margin-bottom: 24px; text-align: center;">',
+      '<img src="https://simpletuition.com.au/images/simple-text-black.jpg" alt="Simple Tuition" width="140" style="display: block; margin: 0 auto 8px; height: auto;" />',
+      '<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #9ca3af;">Simple Tuition</div>',
+      "</div>",
+      `<p style="font-size: 18px; margin: 0 0 18px; font-weight: 600; color: #0f172a;">Hi ${firstName},</p>`,
+      `<p style="font-size: 16px; margin: 0 0 10px; color: #334155;">${replyHeadline.replace(
         "Simple Tuition",
-        "<strong>Simple Tuition</strong>"
+        '<strong style=\'color: #0f172a;\'>Simple Tuition</strong>'
       )}</p>`,
-      `<p style="font-size: 15px; margin: 0 0 16px;">${replyIntroLine.replace(
+      `<p style="font-size: 15px; margin: 0 0 22px; color: #475569;">${replyIntroLine.replace(
         "1 business day",
-        "<strong>1 business day</strong>"
+        '<strong style=\'color: #1e293b;\'>1 business day</strong>'
       )}</p>`,
-      '<div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin: 0 0 16px;">',
-      `<p style="margin: 0 0 8px; font-weight: 600; color: #1e293b;">${replyNextStepsTitle}</p>`,
-      '<ul style="padding-left: 20px; margin: 0;">',
-      ...replyNextSteps.map((step) => `<li>${step}</li>`),
+      '<div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px 20px 16px; margin: 0 0 24px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);">',
+      `<p style="margin: 0 0 12px; font-size: 14px; font-weight: 600; color: #0f172a; letter-spacing: 0.01em;">${replyNextStepsTitle}</p>`,
+      '<ul style="padding-left: 20px; margin: 0; font-size: 15px; color: #0f172a; line-height: 1.7;">',
+      ...replyNextSteps.map(
+        (step) =>
+          `<li style="margin-bottom: 6px;">${step}</li>`
+      ),
       "</ul>",
       "</div>",
-      '<p style="font-size: 14px; margin: 0 0 4px;">If you need to add or update any details, simply reply to this email.</p>',
-      '<p style="font-size: 14px; margin: 0;">Simple Tuition</p>',
+      '<p style="font-size: 14px; margin: 0 0 24px; color: #64748b;">If you need to add or update any details, simply reply to this email.</p>',
+      '<div style="padding-top: 20px; border-top: 1px solid #e2e8f0;">',
+      '<p style="font-size: 13px; margin: 0; color: #94a3b8; font-weight: 500;">Simple Tuition</p>',
+      "</div>",
+      "</div>",
       "</div>",
     ].join(""),
   });
