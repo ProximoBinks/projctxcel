@@ -279,11 +279,6 @@ export const getOverview = query({
       tutorName: string;
     }> = [];
 
-    // Also add the primary assigned tutor if present
-    if (student.assignedTutorId) {
-      tutorIds.add(student.assignedTutorId);
-    }
-
     for (const enrollment of classEnrollments) {
       const cls = await ctx.db.get(enrollment.classId);
       if (!cls || !cls.active) continue;
@@ -547,7 +542,6 @@ export const signupStudent = mutation({
       email: normalizedEmail,
       yearLevel: "Not Set",
       subjects: [],
-      assignedTutorId: null,
       active: true,
       createdAt: Date.now(),
     });

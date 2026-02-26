@@ -82,7 +82,7 @@ export const updateTutorAccount = mutation({
   },
 });
 
-// List all students
+// List all students (tutor names derived from class assignments)
 export const listStudents = query({
   args: { adminId: v.id("tutorAccounts") },
   returns: v.array(
@@ -96,8 +96,7 @@ export const listStudents = query({
       parentPhone: v.optional(v.string()),
       yearLevel: v.string(),
       subjects: v.array(v.string()),
-      assignedTutorId: v.union(v.id("tutorAccounts"), v.null()),
-      assignedTutorName: v.string(),
+      assignedTutorNames: v.array(v.string()),
       notes: v.optional(v.string()),
       active: v.boolean(),
       createdAt: v.number(),
@@ -109,9 +108,26 @@ export const listStudents = query({
 
     return Promise.all(
       students.map(async (s) => {
-        const tutor = s.assignedTutorId
-          ? await ctx.db.get(s.assignedTutorId)
-          : null;
+        // Derive tutors from class enrollments
+        const enrollments = await ctx.db
+          .query("classStudents")
+          .withIndex("by_student", (q) => q.eq("studentId", s._id))
+          .filter((q) => q.eq(q.field("active"), true))
+          .collect();
+
+        const tutorNames = new Map<string, string>();
+        for (const enrollment of enrollments) {
+          const assignment = await ctx.db
+            .query("classAssignments")
+            .withIndex("by_class", (q) => q.eq("classId", enrollment.classId))
+            .filter((q) => q.eq(q.field("active"), true))
+            .first();
+          if (assignment && !tutorNames.has(assignment.tutorId)) {
+            const tutor = await ctx.db.get(assignment.tutorId);
+            if (tutor) tutorNames.set(assignment.tutorId, tutor.name);
+          }
+        }
+
         return {
           _id: s._id,
           name: s.name,
@@ -122,8 +138,7 @@ export const listStudents = query({
           parentPhone: s.parentPhone,
           yearLevel: s.yearLevel,
           subjects: s.subjects,
-          assignedTutorId: s.assignedTutorId,
-          assignedTutorName: tutor?.name ?? "Unassigned",
+          assignedTutorNames: Array.from(tutorNames.values()),
           notes: s.notes,
           active: s.active,
           createdAt: s.createdAt,
@@ -145,7 +160,6 @@ export const createStudent = mutation({
     parentPhone: v.optional(v.string()),
     yearLevel: v.string(),
     subjects: v.array(v.string()),
-    assignedTutorId: v.optional(v.union(v.id("tutorAccounts"), v.null())),
     notes: v.optional(v.string()),
   },
   returns: v.id("students"),
@@ -153,7 +167,6 @@ export const createStudent = mutation({
     await assertAdmin(ctx, adminId);
     return await ctx.db.insert("students", {
       ...args,
-      assignedTutorId: args.assignedTutorId ?? null,
       active: true,
       createdAt: Date.now(),
     });
@@ -173,7 +186,6 @@ export const updateStudent = mutation({
     parentPhone: v.optional(v.string()),
     yearLevel: v.optional(v.string()),
     subjects: v.optional(v.array(v.string())),
-    assignedTutorId: v.optional(v.union(v.id("tutorAccounts"), v.null())),
     notes: v.optional(v.string()),
     active: v.optional(v.boolean()),
   },
@@ -306,10 +318,6 @@ export const deleteTutorAccount = mutation({
     for (const rate of subjectRates) {
       await ctx.db.delete(rate._id);
     }
-
-    // Reassign students to a different tutor or just leave them (they'll show as orphaned)
-    // For now, we'll just delete the tutor and leave students assigned to the deleted tutor ID
-    // Admin should reassign students before deleting
 
     // Finally delete the tutor
     await ctx.db.delete(tutorId);

@@ -10,14 +10,22 @@ export type AuthSession = {
   studentId?: string; // Only for student sessions
 };
 
-const secret = process.env.AUTH_JWT_SECRET;
-if (!secret) {
-  throw new Error("AUTH_JWT_SECRET is not set.");
+let cachedSecretKey: Uint8Array | null = null;
+
+function getSecretKey(): Uint8Array {
+  if (cachedSecretKey) return cachedSecretKey;
+
+  const secret = process.env.AUTH_JWT_SECRET;
+  if (!secret) {
+    throw new Error("AUTH_JWT_SECRET is not set.");
+  }
+
+  cachedSecretKey = new TextEncoder().encode(secret);
+  return cachedSecretKey;
 }
 
-const secretKey = new TextEncoder().encode(secret);
-
 export async function signAuthToken(session: AuthSession): Promise<string> {
+  const secretKey = getSecretKey();
   return new SignJWT({
     type: session.type,
     name: session.name,
@@ -34,6 +42,7 @@ export async function signAuthToken(session: AuthSession): Promise<string> {
 
 export async function verifyAuthToken(token: string): Promise<AuthSession | null> {
   try {
+    const secretKey = getSecretKey();
     const { payload } = await jwtVerify(token, secretKey);
     if (typeof payload.sub !== "string") return null;
     if (payload.type !== "admin" && payload.type !== "tutor" && payload.type !== "student") return null;

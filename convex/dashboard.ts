@@ -1,7 +1,35 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 
-// Get students assigned to a tutor
+async function tutorTeachesStudent(
+  ctx: { db: any },
+  tutorId: Id<"tutorAccounts">,
+  studentId: Id<"students">,
+): Promise<boolean> {
+  const enrollments = await ctx.db
+    .query("classStudents")
+    .withIndex("by_student", (q: any) => q.eq("studentId", studentId))
+    .filter((q: any) => q.eq(q.field("active"), true))
+    .collect();
+
+  for (const enrollment of enrollments) {
+    const assignment = await ctx.db
+      .query("classAssignments")
+      .withIndex("by_class", (q: any) => q.eq("classId", enrollment.classId))
+      .filter((q: any) =>
+        q.and(
+          q.eq(q.field("active"), true),
+          q.eq(q.field("tutorId"), tutorId),
+        ),
+      )
+      .first();
+    if (assignment) return true;
+  }
+  return false;
+}
+
+// Get students assigned to a tutor (derived from class assignments)
 export const getMyStudents = query({
   args: { tutorId: v.id("tutorAccounts") },
   returns: v.array(
@@ -20,24 +48,46 @@ export const getMyStudents = query({
     })
   ),
   handler: async (ctx, { tutorId }) => {
-    const students = await ctx.db
-      .query("students")
-      .withIndex("by_assignedTutor", (q) => q.eq("assignedTutorId", tutorId))
+    // Find all classes this tutor is assigned to
+    const assignments = await ctx.db
+      .query("classAssignments")
+      .withIndex("by_tutor", (q) => q.eq("tutorId", tutorId))
+      .filter((q) => q.eq(q.field("active"), true))
       .collect();
 
-    return students.map((s) => ({
-      _id: s._id,
-      name: s.name,
-      email: s.email,
-      phone: s.phone,
-      parentName: s.parentName,
-      parentEmail: s.parentEmail,
-      parentPhone: s.parentPhone,
-      yearLevel: s.yearLevel,
-      subjects: s.subjects,
-      notes: s.notes,
-      active: s.active,
-    }));
+    // Collect unique student IDs from those classes
+    const studentIds = new Set<string>();
+    for (const assignment of assignments) {
+      const classStudents = await ctx.db
+        .query("classStudents")
+        .withIndex("by_class", (q) => q.eq("classId", assignment.classId))
+        .filter((q) => q.eq(q.field("active"), true))
+        .collect();
+      for (const cs of classStudents) {
+        studentIds.add(cs.studentId);
+      }
+    }
+
+    // Fetch each unique student
+    const students = await Promise.all(
+      Array.from(studentIds).map((id) => ctx.db.get(id as Id<"students">))
+    );
+
+    return students
+      .filter((s): s is NonNullable<typeof s> => s !== null)
+      .map((s) => ({
+        _id: s._id,
+        name: s.name,
+        email: s.email,
+        phone: s.phone,
+        parentName: s.parentName,
+        parentEmail: s.parentEmail,
+        parentPhone: s.parentPhone,
+        yearLevel: s.yearLevel,
+        subjects: s.subjects,
+        notes: s.notes,
+        active: s.active,
+      }));
   },
 });
 
@@ -256,9 +306,10 @@ export const updateStudentNotes = mutation({
   returns: v.boolean(),
   handler: async (ctx, { tutorId, studentId, notes }) => {
     const student = await ctx.db.get(studentId);
-    if (!student || student.assignedTutorId !== tutorId) {
-      return false;
-    }
+    if (!student) return false;
+
+    const isTutorForStudent = await tutorTeachesStudent(ctx, tutorId, studentId);
+    if (!isTutorForStudent) return false;
 
     await ctx.db.patch(studentId, { notes });
     return true;
@@ -300,9 +351,10 @@ export const getStudentClasses = query({
   ),
   handler: async (ctx, { tutorId, studentId }) => {
     const student = await ctx.db.get(studentId);
-    if (!student || student.assignedTutorId !== tutorId) {
-      return [];
-    }
+    if (!student) return [];
+
+    const isTutorForStudent = await tutorTeachesStudent(ctx, tutorId, studentId);
+    if (!isTutorForStudent) return [];
 
     const links = await ctx.db
       .query("classStudents")
