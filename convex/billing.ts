@@ -360,6 +360,44 @@ export const updatePaymentType = mutation({
   },
 });
 
+export const deleteBillingProfile = mutation({
+  args: {
+    adminId: v.id("tutorAccounts"),
+    billingProfileId: v.id("billingProfiles"),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, { adminId, billingProfileId }) => {
+    await assertAdmin(ctx, adminId);
+    const profile = await ctx.db.get(billingProfileId);
+    if (!profile) return false;
+    await ctx.db.delete(billingProfileId);
+    return true;
+  },
+});
+
+export const updateBillingStatus = mutation({
+  args: {
+    adminId: v.id("tutorAccounts"),
+    billingProfileId: v.id("billingProfiles"),
+    status: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, { adminId, billingProfileId, status }) => {
+    await assertAdmin(ctx, adminId);
+    const profile = await ctx.db.get(billingProfileId);
+    if (!profile) return false;
+
+    const patch: Record<string, unknown> = { status };
+    if (status === "active") {
+      patch.pausedAt = undefined;
+      patch.pausedBy = undefined;
+      patch.pauseReason = undefined;
+    }
+    await ctx.db.patch(billingProfileId, patch);
+    return true;
+  },
+});
+
 // ---------------------------------------------------------------------------
 // Charge history
 // ---------------------------------------------------------------------------
@@ -514,6 +552,27 @@ export const cancelPauseRequest = mutation({
     if (request.status !== "pending" && request.status !== "approved") return false;
 
     await ctx.db.patch(requestId, { status: "expired" });
+    return true;
+  },
+});
+
+export const adminUnpause = mutation({
+  args: {
+    adminId: v.id("tutorAccounts"),
+    requestId: v.id("pauseRequests"),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, { adminId, requestId }) => {
+    await assertAdmin(ctx, adminId);
+    const request = await ctx.db.get(requestId);
+    if (!request || request.status !== "approved") return false;
+
+    await ctx.db.patch(requestId, {
+      status: "expired",
+      reviewedBy: adminId,
+      reviewedAt: Date.now(),
+      reviewNote: "Unpaused by admin",
+    });
     return true;
   },
 });

@@ -190,6 +190,75 @@ export const getMySessions = query({
   },
 });
 
+// Get tutor's classes with enrolled students (for session logging)
+export const getMyClassesWithStudents = query({
+  args: { tutorId: v.id("tutorAccounts") },
+  returns: v.array(
+    v.object({
+      _id: v.id("classes"),
+      name: v.string(),
+      subject: v.string(),
+      dayOfWeek: v.string(),
+      startTime: v.string(),
+      endTime: v.string(),
+      durationMinutes: v.number(),
+      students: v.array(
+        v.object({
+          _id: v.id("students"),
+          name: v.string(),
+        })
+      ),
+    })
+  ),
+  handler: async (ctx, { tutorId }) => {
+    const assignments = await ctx.db
+      .query("classAssignments")
+      .withIndex("by_tutor", (q) => q.eq("tutorId", tutorId))
+      .filter((q) => q.eq(q.field("active"), true))
+      .collect();
+
+    const results = await Promise.all(
+      assignments.map(async (assignment) => {
+        const cls = await ctx.db.get(assignment.classId);
+        if (!cls || !cls.active) return null;
+
+        const [startH, startM] = cls.startTime.split(":").map(Number);
+        const [endH, endM] = cls.endTime.split(":").map(Number);
+        let durationMinutes = (endH * 60 + endM) - (startH * 60 + startM);
+        if (durationMinutes <= 0) durationMinutes += 24 * 60;
+
+        const enrollments = await ctx.db
+          .query("classStudents")
+          .withIndex("by_class", (q) => q.eq("classId", cls._id))
+          .filter((q) => q.eq(q.field("active"), true))
+          .collect();
+
+        const students = (
+          await Promise.all(
+            enrollments.map(async (e) => {
+              const s = await ctx.db.get(e.studentId);
+              return s ? { _id: s._id, name: s.name } : null;
+            })
+          )
+        ).filter((s): s is NonNullable<typeof s> => s !== null);
+
+        return {
+          _id: cls._id,
+          name: cls.name,
+          subject: cls.subject,
+          dayOfWeek: cls.dayOfWeek,
+          startTime: cls.startTime,
+          endTime: cls.endTime,
+          durationMinutes,
+          students,
+        };
+      })
+    );
+
+    return results.filter((r): r is NonNullable<typeof r> => r !== null);
+  },
+});
+
 // Get weekly class timetable for a tutor
 export const getMyWeeklyClasses = query({
   args: { tutorId: v.id("tutorAccounts") },

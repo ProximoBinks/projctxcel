@@ -2072,7 +2072,11 @@ function BillingTab({
   const pauseRequests = useQuery(api.billing.listPauseRequests, { adminId });
   const createBillingProfile = useMutation(api.billing.createBillingProfile);
   const reviewPause = useMutation(api.billing.reviewPauseRequest);
+  const adminUnpause = useMutation(api.billing.adminUnpause);
   const addCredit = useMutation(api.billing.addCredit);
+  const updatePaymentType = useMutation(api.billing.updatePaymentType);
+  const deleteBillingProfile = useMutation(api.billing.deleteBillingProfile);
+  const updateBillingStatus = useMutation(api.billing.updateBillingStatus);
   const [showSetup, setShowSetup] = useState(false);
   const [viewingHistory, setViewingHistory] = useState<{
     studentId: Id<"students">;
@@ -2125,14 +2129,14 @@ function BillingTab({
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-slate-900">Billing</h2>
         <div className="flex gap-2">
-          {studentsWithoutBilling.length > 0 && (
-            <button
-              onClick={() => setShowSetup(true)}
-              className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
-            >
-              + Set Up Billing
-            </button>
-          )}
+          <button
+            onClick={() => setShowSetup(true)}
+            disabled={studentsWithoutBilling.length === 0}
+            className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+            title={studentsWithoutBilling.length === 0 ? "All students already have billing profiles" : ""}
+          >
+            + Set Up Billing
+          </button>
         </div>
       </div>
 
@@ -2207,19 +2211,34 @@ function BillingTab({
                         {profile.studentName}
                       </td>
                       <td className="px-6 py-4">
-                        <span
-                          className={`rounded-full px-2 py-1 text-xs font-medium ${
-                            profile.paymentType === "card"
-                              ? "bg-blue-100 text-blue-700"
-                              : "bg-amber-100 text-amber-700"
-                          }`}
-                        >
-                          {profile.paymentType === "card"
-                            ? profile.cardLast4
-                              ? `Card •••• ${profile.cardLast4}`
-                              : "Card (no card yet)"
-                            : "Cash"}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`rounded-full px-2 py-1 text-xs font-medium ${
+                              profile.paymentType === "card"
+                                ? "bg-blue-100 text-blue-700"
+                                : "bg-amber-100 text-amber-700"
+                            }`}
+                          >
+                            {profile.paymentType === "card"
+                              ? profile.cardLast4
+                                ? `Card •••• ${profile.cardLast4}`
+                                : "Card (no card yet)"
+                              : "Cash"}
+                          </span>
+                          <button
+                            onClick={() =>
+                              updatePaymentType({
+                                adminId,
+                                studentId: profile.studentId,
+                                paymentType: profile.paymentType === "card" ? "cash" : "card",
+                              })
+                            }
+                            className="text-xs text-slate-500 hover:text-slate-700"
+                            title={`Switch to ${profile.paymentType === "card" ? "cash" : "card"}`}
+                          >
+                            Switch
+                          </button>
+                        </div>
                       </td>
                       <td className="px-6 py-4 text-slate-900">
                         {formatCurrency(profile.weeklyRateCents)}/wk
@@ -2230,34 +2249,62 @@ function BillingTab({
                         </span>
                       </td>
                       <td className="px-6 py-4">
-                        <span
-                          className={`rounded-full px-2 py-1 text-xs font-medium ${
-                            profile.status === "active"
-                              ? "bg-green-100 text-green-700"
-                              : "bg-yellow-100 text-yellow-700"
-                          }`}
-                        >
-                          {profile.status === "active" ? "Active" : "Paused"}
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`rounded-full px-2 py-1 text-xs font-medium ${
+                              profile.status === "active"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}
+                          >
+                            {profile.status === "active" ? "Active" : "Paused"}
+                          </span>
+                          {profile.status !== "active" && (
+                            <button
+                              onClick={() =>
+                                updateBillingStatus({
+                                  adminId,
+                                  billingProfileId: profile._id,
+                                  status: "active",
+                                })
+                              }
+                              className="text-xs text-blue-600 hover:text-blue-700"
+                            >
+                              Unpause
+                            </button>
+                          )}
+                        </div>
                       </td>
                       <td className="px-6 py-4">
-                        <button
-                          onClick={() => setAddingCredit({ studentId: profile.studentId, studentName: profile.studentName })}
-                          className="text-sm text-green-600 hover:text-green-700"
-                        >
-                          Add Credit
-                        </button>
-                        <button
-                          onClick={() =>
-                            setViewingHistory({
-                              studentId: profile.studentId,
-                              studentName: profile.studentName,
-                            })
-                          }
-                          className="ml-3 text-sm text-blue-600 hover:text-blue-700"
-                        >
-                          History
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            onClick={() => setAddingCredit({ studentId: profile.studentId, studentName: profile.studentName })}
+                            className="text-sm text-green-600 hover:text-green-700"
+                          >
+                            Credit
+                          </button>
+                          <button
+                            onClick={() =>
+                              setViewingHistory({
+                                studentId: profile.studentId,
+                                studentName: profile.studentName,
+                              })
+                            }
+                            className="text-sm text-blue-600 hover:text-blue-700"
+                          >
+                            History
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (confirm(`Delete billing profile for ${profile.studentName}? This cannot be undone.`)) {
+                                deleteBillingProfile({ adminId, billingProfileId: profile._id });
+                              }
+                            }}
+                            className="text-sm text-red-500 hover:text-red-600"
+                          >
+                            Delete
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -2337,6 +2384,14 @@ function BillingTab({
                               Reject
                             </button>
                           </>
+                        )}
+                        {req.status === "approved" && (
+                          <button
+                            onClick={() => adminUnpause({ adminId, requestId: req._id })}
+                            className="text-sm text-blue-600 hover:text-blue-700"
+                          >
+                            Unpause
+                          </button>
                         )}
                       </td>
                     </tr>
