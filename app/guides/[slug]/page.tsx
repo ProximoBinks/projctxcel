@@ -45,12 +45,12 @@ export async function generateMetadata({
     title: post.title,
     description: post.excerpt,
     alternates: {
-      canonical: `/blog/${post.slug}`,
+      canonical: `/guides/${post.slug}`,
     },
     openGraph: {
       title: `${post.title} | Simple Tuition`,
       description: post.excerpt,
-      url: `${BASE_URL}/blog/${post.slug}`,
+      url: `${BASE_URL}/guides/${post.slug}`,
       type: "article",
       images: [
         {
@@ -91,14 +91,14 @@ export default async function BlogArticlePage({ params }: PageProps) {
       {
         "@type": "ListItem",
         position: 2,
-        name: "Blog",
-        item: `${BASE_URL}/blog`,
+        name: "Guides",
+        item: `${BASE_URL}/guides`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: post.title,
-        item: `${BASE_URL}/blog/${post.slug}`,
+        item: `${BASE_URL}/guides/${post.slug}`,
       },
     ],
   };
@@ -145,8 +145,8 @@ export default async function BlogArticlePage({ params }: PageProps) {
             </li>
             <li aria-hidden="true">/</li>
             <li>
-              <Link href="/blog" className="hover:text-blue-600">
-                Blog
+              <Link href="/guides" className="hover:text-blue-600">
+                Guides
               </Link>
             </li>
             <li aria-hidden="true">/</li>

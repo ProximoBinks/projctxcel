@@ -10,30 +10,30 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
 
 export const metadata: Metadata = {
-  title: "Blog — Insights & Guides for Students and Parents",
+  title: "Guides — Insights & Guides for Students and Parents",
   description:
     "Expert guides on ATAR, UCAT, medicine pathways, and study tips from Adelaide's top tutors. Free resources for students and parents.",
   alternates: {
-    canonical: "/blog",
+    canonical: "/guides",
   },
   openGraph: {
-    title: "Blog — Insights & Guides | Simple Tuition",
+    title: "Guides — Insights & Guides | Simple Tuition",
     description:
       "Expert guides on ATAR, UCAT, medicine pathways, and study tips from Adelaide's top tutors.",
-    url: `${BASE_URL}/blog`,
+    url: `${BASE_URL}/guides`,
     type: "website",
     images: [
       {
         url: "/images/banner.webp",
         width: 1200,
         height: 630,
-        alt: "Simple Tuition Blog",
+        alt: "Simple Tuition Guides",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Blog — Insights & Guides | Simple Tuition",
+    title: "Guides — Insights & Guides | Simple Tuition",
     description:
       "Expert guides on ATAR, UCAT, medicine pathways, and study tips from Adelaide's top tutors.",
     images: ["/images/banner.webp"],
@@ -53,8 +53,8 @@ const breadcrumbSchema = {
     {
       "@type": "ListItem",
       position: 2,
-      name: "Blog",
-      item: `${BASE_URL}/blog`,
+      name: "Guides",
+      item: `${BASE_URL}/guides`,
     },
   ],
 };
@@ -82,14 +82,14 @@ export default function BlogIndexPage() {
               </Link>
             </li>
             <li aria-hidden="true">/</li>
-            <li className="font-semibold text-slate-700">Blog</li>
+            <li className="font-semibold text-slate-700">Guides</li>
           </ol>
         </nav>
 
         <main className="mx-auto w-full max-w-[1200px] px-6 sm:px-10">
           <section className="py-16 sm:py-20">
             <p className="text-xs uppercase tracking-[0.3em] text-blue-500">
-              Blog
+              Guides
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
               Insights &amp; Guides

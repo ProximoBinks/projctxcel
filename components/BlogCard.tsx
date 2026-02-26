@@ -19,7 +19,7 @@ export default function BlogCard({
 }: BlogCardProps) {
   return (
     <Link
-      href={`/blog/${slug}`}
+      href={`/guides/${slug}`}
       className="group rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm transition hover:shadow-md"
     >
       <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">

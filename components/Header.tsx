@@ -73,7 +73,10 @@ export default function Header() {
           >
             {t("nav.howItWorks")}
           </Link>
-          <Link href="/blog">
+          <Link
+            href="/guides"
+            className="relative after:absolute after:bottom-[-2px] after:left-0 after:h-[1.5px] after:w-0 after:bg-slate-900 after:transition-all after:duration-300 hover:after:w-full"
+          >
             {t("nav.blog")}
           </Link>
           <button
@@ -83,9 +86,15 @@ export default function Header() {
           >
             {lang === "en" ? "中文" : "EN"}
           </button>
+          <a
+            href="https://simpletuition.com.au/student/login"
+            className="rounded-full border border-slate-200 px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
+          >
+            Login
+          </a>
           <Link
             href={getNavHref("enquire")}
-            className="btn"
+            className="btn px-6"
             onClick={isHomePage ? createScrollHandler("enquire") : undefined}
           >
             {t("nav.enquire")}
@@ -155,7 +164,7 @@ export default function Header() {
               {t("nav.howItWorks")}
             </Link>
             <Link
-              href="/blog"
+              href="/guides"
               onClick={() => setMenuOpen(false)}
             >
               {t("nav.blog")}
@@ -167,6 +176,13 @@ export default function Header() {
             >
               {lang === "en" ? "中" : "EN"}
             </button>
+            <a
+              href="https://simpletuition.com.au/student/login"
+              className="w-fit rounded-full border border-slate-200 px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
+              onClick={() => setMenuOpen(false)}
+            >
+              Login
+            </a>
             <Link
               href={getNavHref("enquire")}
               className="btn w-full justify-center"
