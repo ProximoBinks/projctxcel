@@ -1,9 +1,15 @@
 import type { MetadataRoute } from "next";
 import tutorsData from "../data/tutors.json";
+import blogPosts from "../data/blog-posts.json";
 
 const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
 
 type TutorRecord = {
+  slug: string;
+  active: boolean;
+};
+
+type BlogPostRecord = {
   slug: string;
   active: boolean;
 };
@@ -16,6 +22,15 @@ type TutorRecord = {
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date().toISOString();
+  const blogPages = (blogPosts as BlogPostRecord[])
+    .filter((post) => post.active)
+    .map((post) => ({
+      url: `${BASE_URL}/blog/${post.slug}`,
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    }));
+
   const tutorPages = (tutorsData as TutorRecord[])
     .filter((tutor) => tutor.active)
     .map((tutor) => ({
@@ -81,6 +96,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly",
       priority: 0.9,
     },
+    {
+      url: `${BASE_URL}/blog`,
+      lastModified: now,
+      changeFrequency: "weekly",
+      priority: 0.8,
+    },
+    ...blogPages,
     ...tutorPages,
   ];
 }

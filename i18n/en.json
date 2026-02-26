@@ -4,7 +4,8 @@
     "testimonials": "Testimonials",
     "howItWorks": "How it works",
     "enquire": "Enquire",
-    "backToSite": "Back to site"
+    "backToSite": "Back to site",
+    "blog": "Blog"
   },
   "hero": {
     "eyebrow": "Private tutoring for Years 4-12",
@@ -37,7 +38,7 @@
         "copy": "Targeted support for Year 11–12 students across all SACE subjects, focused on maximising ATAR results."
       },
       {
-        "title": "Medicine Pathway",
+        "title": "Meducate",
         "copy": "Specialist preparation for UCAT and interview prep, guided by tutors who've earned medical offers themselves."
       }
     ],
@@ -49,7 +50,7 @@
         "copy": "Intensive group sessions targeting specific SACE subjects. Designed to rapidly build understanding and exam readiness in a short timeframe."
       },
       {
-        "title": "UCAT Program",
+        "title": "Meducate UCAT Program",
         "copy": "A structured group program covering all UCAT sections with timed practice, strategy workshops, and performance tracking to maximise your score."
       }
     ]

@@ -73,6 +73,9 @@ export default function Header() {
           >
             {t("nav.howItWorks")}
           </Link>
+          <Link href="/blog">
+            {t("nav.blog")}
+          </Link>
           <button
             type="button"
             onClick={toggleLang}
@@ -150,6 +153,12 @@ export default function Header() {
               }}
             >
               {t("nav.howItWorks")}
+            </Link>
+            <Link
+              href="/blog"
+              onClick={() => setMenuOpen(false)}
+            >
+              {t("nav.blog")}
             </Link>
             <button
               type="button"

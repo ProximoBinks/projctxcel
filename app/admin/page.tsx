@@ -558,31 +558,21 @@ function ClassesTab({
     ReturnType<typeof useQuery<typeof api.classes.listClasses>>
   >;
   type ClassRow = ClassList[number];
-  type TutorList = NonNullable<
-    ReturnType<typeof useQuery<typeof api.admin.listTutorAccounts>>
-  >;
-  type TutorRow = TutorList[number];
 
   const classes = useQuery(
     api.classes.listClasses,
     { adminId }
   );
-  const assignTutor = useMutation(api.classes.assignTutorToClass);
-  const unassignTutor = useMutation(api.classes.unassignTutorFromClass);
   const archiveClass = useMutation(api.classes.archiveClass);
+  const deleteClass = useMutation(api.classes.deleteClass);
   const [editingClass, setEditingClass] = useState<ClassRow | null>(null);
   const [managingStudents, setManagingStudents] = useState<ClassRow | null>(null);
+  const [managingTutors, setManagingTutors] = useState<ClassRow | null>(null);
+  const [deletingClassId, setDeletingClassId] = useState<Id<"classes"> | null>(null);
 
-  const handleAssign = async (classId: Id<"classes">, tutorId: string) => {
-    if (!tutorId) {
-      await unassignTutor({ adminId, classId });
-      return;
-    }
-    await assignTutor({
-      adminId,
-      classId,
-      tutorId: tutorId as Id<"tutorAccounts">,
-    });
+  const handleDelete = async (classId: Id<"classes">) => {
+    await deleteClass({ adminId, classId });
+    setDeletingClassId(null);
   };
 
   return (
@@ -624,18 +614,20 @@ function ClassesTab({
                       {cls.location ? ` • ${cls.location}` : ""}
                     </td>
                     <td className="px-6 py-4">
-                      <select
-                        value={cls.tutorId ?? ""}
-                        onChange={(e) => handleAssign(cls._id, e.target.value)}
-                        className="rounded border border-slate-200 px-2 py-1 text-sm"
-                      >
-                        <option value="">Unassigned</option>
-                        {tutors?.map((tutor: TutorRow) => (
-                          <option key={tutor._id} value={tutor._id}>
-                            {tutor.name}
-                          </option>
-                        ))}
-                      </select>
+                      {cls.tutors.length > 0 ? (
+                        <div className="flex flex-wrap gap-1">
+                          {cls.tutors.map((t) => (
+                            <span
+                              key={t.tutorId}
+                              className="rounded-full bg-slate-100 px-2 py-0.5 text-xs text-slate-700"
+                            >
+                              {t.tutorName}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-slate-400 text-sm">Unassigned</span>
+                      )}
                     </td>
                     <td className="px-6 py-4">
                       <span
@@ -649,24 +641,55 @@ function ClassesTab({
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <button
-                        onClick={() => setEditingClass(cls)}
-                        className="text-sm text-slate-500 hover:text-slate-700"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={() => setManagingStudents(cls)}
-                        className="ml-3 text-sm text-blue-600 hover:text-blue-700"
-                      >
-                        Students
-                      </button>
-                      <button
-                        onClick={() => archiveClass({ adminId, classId: cls._id })}
-                        className="ml-3 text-sm text-red-600 hover:text-red-700"
-                      >
-                        Archive
-                      </button>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <button
+                          onClick={() => setEditingClass(cls)}
+                          className="text-sm text-slate-500 hover:text-slate-700"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => setManagingTutors(cls)}
+                          className="text-sm text-purple-600 hover:text-purple-700"
+                        >
+                          Tutors
+                        </button>
+                        <button
+                          onClick={() => setManagingStudents(cls)}
+                          className="text-sm text-blue-600 hover:text-blue-700"
+                        >
+                          Students
+                        </button>
+                        <button
+                          onClick={() => archiveClass({ adminId, classId: cls._id })}
+                          className="text-sm text-red-600 hover:text-red-700"
+                        >
+                          Archive
+                        </button>
+                        {deletingClassId === cls._id ? (
+                          <span className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleDelete(cls._id)}
+                              className="text-sm font-medium text-red-700 hover:text-red-800"
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              onClick={() => setDeletingClassId(null)}
+                              className="text-sm text-slate-400 hover:text-slate-600"
+                            >
+                              Cancel
+                            </button>
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => setDeletingClassId(cls._id)}
+                            className="text-sm text-slate-400 hover:text-red-600"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -687,6 +710,15 @@ function ClassesTab({
           adminId={adminId}
           initialClass={editingClass}
           onClose={() => setEditingClass(null)}
+        />
+      )}
+      {managingTutors && (
+        <ManageClassTutorsModal
+          adminId={adminId}
+          classId={managingTutors._id}
+          className={managingTutors.name}
+          tutors={tutors ?? []}
+          onClose={() => setManagingTutors(null)}
         />
       )}
       {managingStudents && (
@@ -1181,6 +1213,113 @@ function ManageClassStudentsModal({
             Done
           </button>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function ManageClassTutorsModal({
+  adminId,
+  classId,
+  className,
+  tutors,
+  onClose,
+}: {
+  adminId: Id<"tutorAccounts">;
+  classId: Id<"classes">;
+  className: string;
+  tutors: Array<{ _id: Id<"tutorAccounts">; name: string }>;
+  onClose: () => void;
+}) {
+  const currentTutors = useQuery(api.classes.listClassTutors, {
+    adminId,
+    classId,
+  });
+  const assignTutor = useMutation(api.classes.assignTutorToClass);
+  const unassignTutor = useMutation(api.classes.unassignTutorFromClass);
+  const [selectedTutorId, setSelectedTutorId] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const assignedIds = new Set((currentTutors ?? []).map((t) => t.tutorId));
+  const availableTutors = tutors.filter((t) => !assignedIds.has(t._id));
+
+  const handleAdd = async () => {
+    if (!selectedTutorId) return;
+    setLoading(true);
+    try {
+      await assignTutor({
+        adminId,
+        classId,
+        tutorId: selectedTutorId as Id<"tutorAccounts">,
+      });
+      setSelectedTutorId("");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl bg-white p-6">
+        <h2 className="text-lg font-semibold text-slate-900">
+          Tutors for {className}
+        </h2>
+
+        <div className="mt-4 space-y-2">
+          {currentTutors && currentTutors.length > 0 ? (
+            currentTutors.map((t) => (
+              <div
+                key={t.tutorId}
+                className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2"
+              >
+                <span className="text-sm font-medium text-slate-700">
+                  {t.tutorName}
+                </span>
+                <button
+                  onClick={() =>
+                    unassignTutor({ adminId, classId, tutorId: t.tutorId })
+                  }
+                  className="text-sm text-red-500 hover:text-red-700"
+                >
+                  Remove
+                </button>
+              </div>
+            ))
+          ) : (
+            <p className="text-sm text-slate-400">No tutors assigned.</p>
+          )}
+        </div>
+
+        {availableTutors.length > 0 && (
+          <div className="mt-4 flex gap-2">
+            <select
+              value={selectedTutorId}
+              onChange={(e) => setSelectedTutorId(e.target.value)}
+              className="flex-1 rounded-xl border border-slate-200 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+            >
+              <option value="">Add tutor...</option>
+              {availableTutors.map((tutor) => (
+                <option key={tutor._id} value={tutor._id}>
+                  {tutor.name}
+                </option>
+              ))}
+            </select>
+            <button
+              onClick={handleAdd}
+              disabled={!selectedTutorId || loading}
+              className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-50"
+            >
+              Add
+            </button>
+          </div>
+        )}
+
+        <button
+          onClick={onClose}
+          className="mt-4 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50"
+        >
+          Done
+        </button>
       </div>
     </div>
   );

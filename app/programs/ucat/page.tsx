@@ -139,10 +139,22 @@ const faqSchema = {
 /* ── UCAT Subtests ──────────────────────────────────────────── */
 
 const UCAT_SUBTESTS = [
-  { name: "Verbal Reasoning", description: ["Reading comprehension", "Critical analysis", "Inference skills"] },
-  { name: "Decision Making", description: ["Logical puzzles", "Data interpretation", "Probabilistic reasoning"] },
-  { name: "Quantitative Reasoning", description: ["Mental arithmetic", "Data analysis", "Problem-solving"] },
-  { name: "Situational Judgement", description: ["Ethical scenarios", "Professional behaviour", "Decision prioritisation"] },
+  {
+    name: "Verbal Reasoning",
+    tagline: "Evaluates ability to critically assess information presented in written form.",
+  },
+  {
+    name: "Decision Making",
+    tagline: "Assesses ability to apply logic to reach the best decision from complex information.",
+  },
+  {
+    name: "Quantitative Reasoning",
+    tagline: "Tests ability to use numerical skills to solve problems under time pressure.",
+  },
+  {
+    name: "Situational Judgement",
+    tagline: "Measures capacity to understand real-world situations and identify appropriate responses.",
+  },
 ];
 
 /* ── Page Component ────────────────────────────────────────── */
@@ -185,12 +197,12 @@ export default function UCATPage() {
               Our services
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
-              UCAT Preparation Program
+              Meducate UCAT Program
             </h1>
             <p className="mt-6 text-lg leading-relaxed text-slate-600">
-              The UCAT is a critical component of medical school admission. Our program
+              The UCAT is a critical component of medical school admission in Australia. Our program
               equips you with proven strategies, extensive practice, and personalised
-              coaching from tutors who achieved top scores themselves.
+              coaching from 99th percentile scorers.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link href="/enquire" className="btn">
@@ -226,7 +238,7 @@ export default function UCATPage() {
                   key={item.title}
                   className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
                 >
-                  <h3 className="text-lg font-semibold text-slate-950">
+                  <h3 className="text-lg font-semibold tracking-normal text-slate-950">
                     {item.title}
                   </h3>
                   <p className="mt-3 text-sm leading-relaxed text-slate-600">{item.copy}</p>
@@ -241,7 +253,7 @@ export default function UCATPage() {
               What we cover
             </h2>
             <p className="mt-4 text-base text-slate-600">
-              Comprehensive preparation for all four UCAT subtests.
+              Comprehensive preparation for all four UCAT sections.
             </p>
             <div className="mt-8 grid gap-6 grid-cols-2 lg:grid-cols-4">
               {UCAT_SUBTESTS.map((subtest) => (
@@ -249,14 +261,8 @@ export default function UCATPage() {
                   key={subtest.name}
                   className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
                 >
-                  <span className="inline-block rounded-full border border-pink-200 bg-pink-100 px-3 py-1 text-sm font-semibold text-pink-700">
-                    {subtest.name}
-                  </span>
-                  <div className="mt-3 space-y-1 text-sm text-slate-600">
-                    {subtest.description.map((line, i) => (
-                      <p key={i}>{line}</p>
-                    ))}
-                  </div>
+                  <h3 className="text-base font-semibold tracking-normal text-slate-900">{subtest.name}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-500">{subtest.tagline}</p>
                 </div>
               ))}
             </div>
@@ -269,7 +275,7 @@ export default function UCATPage() {
             </h2>
             <div className="mt-8 grid gap-6 lg:grid-cols-2">
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-950">
+                <h3 className="text-lg font-semibold tracking-normal text-slate-950">
                   Diagnostic assessment
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
@@ -278,7 +284,7 @@ export default function UCATPage() {
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-950">
+                <h3 className="text-lg font-semibold tracking-normal text-slate-950">
                   Strategy-focused sessions
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
@@ -287,7 +293,7 @@ export default function UCATPage() {
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-950">
+                <h3 className="text-lg font-semibold tracking-normal text-slate-950">
                   Regular mock tests
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
@@ -296,7 +302,7 @@ export default function UCATPage() {
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
-                <h3 className="text-lg font-semibold text-slate-950">
+                <h3 className="text-lg font-semibold tracking-normal text-slate-950">
                   Flexible scheduling
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">

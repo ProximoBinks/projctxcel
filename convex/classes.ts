@@ -12,8 +12,12 @@ const classWithTutorValidator = v.object({
   endTime: v.string(),
   location: v.optional(v.string()),
   active: v.boolean(),
-  tutorId: v.optional(v.id("tutorAccounts")),
-  tutorName: v.optional(v.string()),
+  tutors: v.array(
+    v.object({
+      tutorId: v.id("tutorAccounts"),
+      tutorName: v.string(),
+    })
+  ),
 });
 
 async function assertAdmin(ctx: { db: any }, adminId: Id<"tutorAccounts">) {
@@ -35,10 +39,18 @@ export const listClasses = query({
           .query("classAssignments")
           .withIndex("by_class", (q) => q.eq("classId", cls._id))
           .collect();
-        const assignment = assignments.find((a) => a.active);
-        const tutor = assignment
-          ? await ctx.db.get(assignment.tutorId)
-          : null;
+        const activeTutors = (
+          await Promise.all(
+            assignments
+              .filter((a) => a.active)
+              .map(async (a) => {
+                const tutor = await ctx.db.get(a.tutorId);
+                return tutor
+                  ? { tutorId: tutor._id, tutorName: tutor.name }
+                  : null;
+              })
+          )
+        ).filter((t): t is NonNullable<typeof t> => Boolean(t));
         return {
           _id: cls._id,
           name: cls.name,
@@ -49,8 +61,7 @@ export const listClasses = query({
           endTime: cls.endTime,
           location: cls.location,
           active: cls.active,
-          tutorId: tutor?._id,
-          tutorName: tutor?.name,
+          tutors: activeTutors,
         };
       })
     );
@@ -71,6 +82,20 @@ export const getClassesForTutor = query({
       activeAssignments.map(async (assignment) => {
         const cls = await ctx.db.get(assignment.classId);
         if (!cls) return null;
+        const allAssignments = await ctx.db
+          .query("classAssignments")
+          .withIndex("by_class", (q) => q.eq("classId", cls._id))
+          .collect();
+        const classTutors = (
+          await Promise.all(
+            allAssignments
+              .filter((a) => a.active)
+              .map(async (a) => {
+                const t = await ctx.db.get(a.tutorId);
+                return t ? { tutorId: t._id, tutorName: t.name } : null;
+              })
+          )
+        ).filter((t): t is NonNullable<typeof t> => Boolean(t));
         return {
           _id: cls._id,
           name: cls.name,
@@ -81,8 +106,7 @@ export const getClassesForTutor = query({
           endTime: cls.endTime,
           location: cls.location,
           active: cls.active,
-          tutorId,
-          tutorName: undefined,
+          tutors: classTutors,
         };
       })
     );
@@ -169,10 +193,10 @@ export const assignTutorToClass = mutation({
       .query("classAssignments")
       .withIndex("by_class", (q) => q.eq("classId", classId))
       .collect();
-    const activeAssignment = existingAssignments.find((a) => a.active);
-    if (activeAssignment) {
-      await ctx.db.patch(activeAssignment._id, { active: false });
-    }
+    const alreadyAssigned = existingAssignments.find(
+      (a) => a.active && a.tutorId === tutorId
+    );
+    if (alreadyAssigned) return true;
 
     await ctx.db.insert("classAssignments", {
       classId,
@@ -185,17 +209,71 @@ export const assignTutorToClass = mutation({
 });
 
 export const unassignTutorFromClass = mutation({
-  args: { adminId: v.id("tutorAccounts"), classId: v.id("classes") },
+  args: {
+    adminId: v.id("tutorAccounts"),
+    classId: v.id("classes"),
+    tutorId: v.id("tutorAccounts"),
+  },
   returns: v.boolean(),
+  handler: async (ctx, { adminId, classId, tutorId }) => {
+    await assertAdmin(ctx, adminId);
+    const assignments = await ctx.db
+      .query("classAssignments")
+      .withIndex("by_class", (q) => q.eq("classId", classId))
+      .collect();
+    const activeAssignment = assignments.find(
+      (a) => a.active && a.tutorId === tutorId
+    );
+    if (!activeAssignment) return false;
+    await ctx.db.patch(activeAssignment._id, { active: false });
+    return true;
+  },
+});
+
+export const listClassTutors = query({
+  args: { adminId: v.id("tutorAccounts"), classId: v.id("classes") },
+  returns: v.array(
+    v.object({
+      tutorId: v.id("tutorAccounts"),
+      tutorName: v.string(),
+    })
+  ),
   handler: async (ctx, { adminId, classId }) => {
     await assertAdmin(ctx, adminId);
     const assignments = await ctx.db
       .query("classAssignments")
       .withIndex("by_class", (q) => q.eq("classId", classId))
       .collect();
-    const activeAssignment = assignments.find((a) => a.active);
-    if (!activeAssignment) return false;
-    await ctx.db.patch(activeAssignment._id, { active: false });
+    const tutors = await Promise.all(
+      assignments
+        .filter((a) => a.active)
+        .map(async (a) => {
+          const tutor = await ctx.db.get(a.tutorId);
+          return tutor ? { tutorId: tutor._id, tutorName: tutor.name } : null;
+        })
+    );
+    return tutors.filter((t): t is NonNullable<typeof t> => Boolean(t));
+  },
+});
+
+export const deleteClass = mutation({
+  args: { adminId: v.id("tutorAccounts"), classId: v.id("classes") },
+  returns: v.boolean(),
+  handler: async (ctx, { adminId, classId }) => {
+    await assertAdmin(ctx, adminId);
+    const cls = await ctx.db.get(classId);
+    if (!cls) return false;
+    const assignments = await ctx.db
+      .query("classAssignments")
+      .withIndex("by_class", (q) => q.eq("classId", classId))
+      .collect();
+    await Promise.all(assignments.map((a) => ctx.db.delete(a._id)));
+    const enrollments = await ctx.db
+      .query("classStudents")
+      .withIndex("by_class", (q) => q.eq("classId", classId))
+      .collect();
+    await Promise.all(enrollments.map((e) => ctx.db.delete(e._id)));
+    await ctx.db.delete(classId);
     return true;
   },
 });
