@@ -2,18 +2,25 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "../../../contexts/AuthContext";
 
 export default function StudentLoginPage() {
   const router = useRouter();
-  const { loginStudent } = useAuth();
+  const { loginStudent, session, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // If already logged in as a student, redirect straight to dashboard
+  useEffect(() => {
+    if (!isLoading && session && session.type === "student") {
+      router.replace("/student");
+    }
+  }, [session, isLoading, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -193,7 +193,7 @@ function OverviewTab({
     <div className="space-y-8">
       {(profileNeedsUpdate || forceEditProfile) && (
         <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur">
-          <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
+          <div className="w-full max-w-lg max-h-[calc(100vh-3rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
             <h2 className="text-lg font-semibold text-slate-900">
               Complete your profile
             </h2>
@@ -537,12 +537,12 @@ function TimetableTab({ studentId }: { studentId: Id<"students"> }) {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <div className="min-w-[140px] text-center">
+          <div className="flex min-w-[140px] flex-col items-center text-center sm:flex-row sm:items-baseline sm:justify-center sm:gap-2">
             <span className="text-sm font-medium text-slate-700">
               {formatDate(monday)} – {formatDate(sunday)}
             </span>
             {isCurrentWeek && (
-              <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+              <span className="mt-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 sm:mt-0">
                 This week
               </span>
             )}

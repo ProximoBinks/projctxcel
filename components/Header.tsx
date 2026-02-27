@@ -86,12 +86,12 @@ export default function Header() {
           >
             {lang === "en" ? "中文" : "EN"}
           </button>
-          <a
-            href="https://simpletuition.com.au/student/login"
+          <Link
+            href="/student/login"
             className="rounded-full border border-slate-200 px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
           >
             Login
-          </a>
+          </Link>
           <Link
             href={getNavHref("enquire")}
             className="btn px-6"
@@ -109,12 +109,12 @@ export default function Header() {
           >
             {lang === "en" ? "中文" : "EN"}
           </button>
-          <a
-            href="https://simpletuition.com.au/student/login"
+          <Link
+            href="/student/login"
             className="rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-xs font-semibold text-slate-600 shadow-sm transition hover:border-blue-300 hover:text-blue-600"
           >
             Login
-          </a>
+          </Link>
           <button
             type="button"
             className="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white/80 p-2 text-slate-600 shadow-sm transition hover:text-slate-900"
@@ -182,13 +182,13 @@ export default function Header() {
             >
               {lang === "en" ? "中" : "EN"}
             </button>
-            <a
-              href="https://simpletuition.com.au/student/login"
+            <Link
+              href="/student/login"
               className="w-fit rounded-full border border-slate-200 px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
               onClick={() => setMenuOpen(false)}
             >
               Login
-            </a>
+            </Link>
             <Link
               href={getNavHref("enquire")}
               className="btn w-full justify-center"
