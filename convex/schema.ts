@@ -237,10 +237,27 @@ export default defineSchema({
     email: v.string(),
     passwordHash: v.string(),
     active: v.boolean(),
+    emailVerified: v.optional(v.boolean()),
     createdAt: v.number(),
   })
     .index("by_email", ["email"])
     .index("by_studentId", ["studentId"]),
+
+  // Password reset tokens for student accounts
+  passwordResetTokens: defineTable({
+    email: v.string(),
+    tokenHash: v.string(),
+    expiresAt: v.number(),
+    used: v.boolean(),
+  }).index("by_tokenHash", ["tokenHash"]),
+
+  // Email verification tokens for student accounts
+  emailVerificationTokens: defineTable({
+    email: v.string(),
+    tokenHash: v.string(),
+    expiresAt: v.number(),
+    used: v.boolean(),
+  }).index("by_tokenHash", ["tokenHash"]),
 
   // Invite codes for student signup
   studentInviteCodes: defineTable({

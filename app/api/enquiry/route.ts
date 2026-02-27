@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import nodemailer from "nodemailer";
 import { api } from "../../../convex/_generated/api";
 import { convex } from "../../../lib/convexServer";
+import { getTransporter, getFromEmail } from "../../../lib/email";
 
 export const runtime = "nodejs";
 
@@ -136,23 +136,17 @@ export async function POST(request: Request) {
   });
 
   const toEmail = process.env.CONTACT_TO_EMAIL;
-  const fromEmail = process.env.POSTMARK_FROM_EMAIL;
-  const smtpUser = process.env.POSTMARK_SMTP_USER;
-  const smtpPass = process.env.POSTMARK_SMTP_PASS;
-
-  if (!toEmail || !fromEmail || !smtpUser || !smtpPass) {
+  let fromEmail: string;
+  let transporter: ReturnType<typeof getTransporter>;
+  try {
+    fromEmail = getFromEmail();
+    transporter = getTransporter();
+  } catch {
     return NextResponse.json({ message: "Enquiry stored." });
   }
-
-  const transporter = nodemailer.createTransport({
-    host: "smtp.postmarkapp.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: smtpUser,
-      pass: smtpPass,
-    },
-  });
+  if (!toEmail) {
+    return NextResponse.json({ message: "Enquiry stored." });
+  }
 
   const baseLines = [
     `Type: ${type}`,

@@ -14,6 +14,9 @@ export default function StudentLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [unverified, setUnverified] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSent, setResendSent] = useState(false);
 
   // If already logged in as a student, redirect straight to dashboard
   useEffect(() => {
@@ -25,6 +28,8 @@ export default function StudentLoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setUnverified(false);
+    setResendSent(false);
     setLoading(true);
 
     try {
@@ -39,11 +44,28 @@ export default function StudentLoginPage() {
         router.push("/student");
       } else {
         setError(result.error || "Invalid email or password");
+        if (result.unverified) setUnverified(true);
       }
-    } catch (err) {
+    } catch {
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    setResendLoading(true);
+    try {
+      await fetch("/api/auth/verify-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email }),
+      });
+      setResendSent(true);
+    } catch {
+      // Silently fail to prevent email enumeration
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -82,9 +104,17 @@ export default function StudentLoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">
-                Password
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-slate-700">
+                  Password
+                </label>
+                <Link
+                  href="/student/forgot-password"
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 type="password"
                 value={password}
@@ -94,7 +124,26 @@ export default function StudentLoginPage() {
               />
             </div>
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && (
+              <div className="space-y-2">
+                <p className="text-sm text-red-600">{error}</p>
+                {unverified && !resendSent && (
+                  <button
+                    type="button"
+                    onClick={handleResendVerification}
+                    disabled={resendLoading}
+                    className="text-sm font-medium text-blue-600 hover:underline disabled:opacity-50"
+                  >
+                    {resendLoading ? "Sending..." : "Resend verification email"}
+                  </button>
+                )}
+                {resendSent && (
+                  <p className="text-sm text-green-600">
+                    Verification email sent. Check your inbox.
+                  </p>
+                )}
+              </div>
+            )}
 
             <button
               type="submit"
