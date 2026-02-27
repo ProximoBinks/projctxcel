@@ -185,6 +185,7 @@ export const login = mutation({
     studentId: v.optional(v.id("students")),
     name: v.optional(v.string()),
     error: v.optional(v.string()),
+    unverified: v.optional(v.boolean()),
   }),
   handler: async (ctx, { email, password }) => {
     const account = await ctx.db
@@ -203,6 +204,14 @@ export const login = mutation({
     const passwordHash = await hashPassword(password);
     if (account.passwordHash !== passwordHash) {
       return { success: false, error: "Invalid email or password" };
+    }
+
+    if (account.emailVerified === false) {
+      return {
+        success: false,
+        error: "Please verify your email before logging in. Check your inbox for a verification link.",
+        unverified: true,
+      };
     }
 
     const student = await ctx.db.get(account.studentId);
@@ -546,13 +555,14 @@ export const signupStudent = mutation({
       createdAt: Date.now(),
     });
 
-    // Create student account
+    // Create student account (unverified until email confirmed)
     const passwordHash = await hashPassword(password);
     await ctx.db.insert("studentAccounts", {
       studentId,
       email: normalizedEmail,
       passwordHash,
       active: true,
+      emailVerified: false,
       createdAt: Date.now(),
     });
 
@@ -594,6 +604,136 @@ export const listInviteCodes = query({
         };
       })
     );
+  },
+});
+
+// --- Password Reset ---
+
+export const createPasswordResetToken = mutation({
+  args: { email: v.string(), tokenHash: v.string() },
+  returns: v.object({ created: v.boolean(), name: v.optional(v.string()) }),
+  handler: async (ctx, { email, tokenHash }) => {
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const account = await ctx.db
+      .query("studentAccounts")
+      .withIndex("by_email", (q) => q.eq("email", normalizedEmail))
+      .first();
+
+    if (!account || !account.active) {
+      return { created: false };
+    }
+
+    const student = await ctx.db.get(account.studentId);
+
+    await ctx.db.insert("passwordResetTokens", {
+      email: normalizedEmail,
+      tokenHash,
+      expiresAt: Date.now() + 2 * 60 * 60 * 1000, // 2 hours
+      used: false,
+    });
+
+    return { created: true, name: student?.name };
+  },
+});
+
+export const resetPassword = mutation({
+  args: { tokenHash: v.string(), newPasswordHash: v.string() },
+  returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
+  handler: async (ctx, { tokenHash, newPasswordHash }) => {
+    const token = await ctx.db
+      .query("passwordResetTokens")
+      .withIndex("by_tokenHash", (q) => q.eq("tokenHash", tokenHash))
+      .first();
+
+    if (!token) {
+      return { success: false, error: "Invalid or expired reset link." };
+    }
+    if (token.used) {
+      return { success: false, error: "This reset link has already been used." };
+    }
+    if (token.expiresAt < Date.now()) {
+      return { success: false, error: "This reset link has expired. Please request a new one." };
+    }
+
+    const account = await ctx.db
+      .query("studentAccounts")
+      .withIndex("by_email", (q) => q.eq("email", token.email))
+      .first();
+
+    if (!account) {
+      return { success: false, error: "Account not found." };
+    }
+
+    await ctx.db.patch(account._id, { passwordHash: newPasswordHash });
+    await ctx.db.patch(token._id, { used: true });
+
+    return { success: true };
+  },
+});
+
+// --- Email Verification ---
+
+export const createEmailVerificationToken = mutation({
+  args: { email: v.string(), tokenHash: v.string() },
+  returns: v.object({ created: v.boolean(), name: v.optional(v.string()) }),
+  handler: async (ctx, { email, tokenHash }) => {
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const account = await ctx.db
+      .query("studentAccounts")
+      .withIndex("by_email", (q) => q.eq("email", normalizedEmail))
+      .first();
+
+    if (!account) {
+      return { created: false };
+    }
+
+    const student = await ctx.db.get(account.studentId);
+
+    await ctx.db.insert("emailVerificationTokens", {
+      email: normalizedEmail,
+      tokenHash,
+      expiresAt: Date.now() + 24 * 60 * 60 * 1000, // 24 hours
+      used: false,
+    });
+
+    return { created: true, name: student?.name };
+  },
+});
+
+export const verifyEmail = mutation({
+  args: { tokenHash: v.string() },
+  returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
+  handler: async (ctx, { tokenHash }) => {
+    const token = await ctx.db
+      .query("emailVerificationTokens")
+      .withIndex("by_tokenHash", (q) => q.eq("tokenHash", tokenHash))
+      .first();
+
+    if (!token) {
+      return { success: false, error: "Invalid verification link." };
+    }
+    if (token.used) {
+      return { success: false, error: "This email has already been verified." };
+    }
+    if (token.expiresAt < Date.now()) {
+      return { success: false, error: "This verification link has expired. Please request a new one." };
+    }
+
+    const account = await ctx.db
+      .query("studentAccounts")
+      .withIndex("by_email", (q) => q.eq("email", token.email))
+      .first();
+
+    if (!account) {
+      return { success: false, error: "Account not found." };
+    }
+
+    await ctx.db.patch(account._id, { emailVerified: true });
+    await ctx.db.patch(token._id, { used: true });
+
+    return { success: true };
   },
 });
 

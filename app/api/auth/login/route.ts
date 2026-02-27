@@ -86,7 +86,11 @@ export async function POST(req: Request) {
     });
     if (!studentResult.success) {
       return NextResponse.json(
-        { error: studentResult.error || "Invalid email or password." },
+        {
+          error: studentResult.error || "Invalid email or password.",
+          unverified: studentResult.unverified ?? false,
+          email: studentResult.unverified ? email : undefined,
+        },
         { status: 401 }
       );
     }
