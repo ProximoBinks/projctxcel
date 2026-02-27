@@ -45,7 +45,7 @@ export default function StudentDashboardPage() {
   const studentId = session.studentId as Id<"students">;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="flex min-h-dvh flex-col bg-slate-50">
       {/* Header */}
       <header className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
@@ -106,7 +106,7 @@ export default function StudentDashboardPage() {
       </div>
 
       {/* Content */}
-      <main className="mx-auto max-w-6xl px-4 py-6 sm:px-6 sm:py-8">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 sm:py-8">
         {activeTab === "overview" && (
           <OverviewTab
             studentId={studentId}
@@ -192,8 +192,8 @@ function OverviewTab({
   return (
     <div className="space-y-8">
       {(profileNeedsUpdate || forceEditProfile) && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-slate-900/40 p-4 backdrop-blur">
-          <div className="w-full max-w-lg max-h-[calc(100vh-3rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
+        <div className="fixed inset-0 z-40 flex h-dvh items-center justify-center bg-slate-900/40 p-4 backdrop-blur">
+          <div className="w-full max-w-lg max-h-[calc(100dvh-3rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
             <h2 className="text-lg font-semibold text-slate-900">
               Complete your profile
             </h2>
@@ -232,7 +232,8 @@ function OverviewTab({
             >
               <div>
                 <label className="block text-sm font-medium text-slate-700">
-                  Year Level
+                  Year Level{" "}
+                  <span className="text-[#DE0000]">*</span>
                 </label>
                 <select
                   value={yearLevel}
@@ -261,7 +262,8 @@ function OverviewTab({
 
               <div>
                 <label className="block text-sm font-medium text-slate-700">
-                  Subjects
+                  Subjects{" "}
+                  <span className="text-[#DE0000]">*</span>
                 </label>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   {subjects?.map((subject) => (
@@ -289,13 +291,15 @@ function OverviewTab({
 
               <div className="border-t border-slate-100 pt-4">
                 <p className="text-sm font-medium text-slate-700">
-                  Parent/Guardian Contact
+                  Parent/Guardian Contact{" "}
+                  {/* <span className="text-[#DE0000]">*</span> */}
                 </p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700">
-                  Parent Name
+                  Parent Name{" "}
+                  <span className="text-[#DE0000]">*</span>
                 </label>
                 <input
                   type="text"
@@ -308,7 +312,8 @@ function OverviewTab({
 
               <div>
                 <label className="block text-sm font-medium text-slate-700">
-                  Parent Email
+                  Parent Email{" "}
+                  <span className="text-[#DE0000]">*</span>
                 </label>
                 <input
                   type="email"
@@ -321,7 +326,8 @@ function OverviewTab({
 
               <div>
                 <label className="block text-sm font-medium text-slate-700">
-                  Parent Phone
+                  Parent Phone{" "}
+                  <span className="text-[#DE0000]">*</span>
                 </label>
                 <input
                   type="tel"
