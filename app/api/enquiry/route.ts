@@ -260,11 +260,9 @@ export async function POST(request: Request) {
     ].join("\n"),
     html: [
       '<div style="font-family: -apple-system, BlinkMacSystemFont, \'Inter\', \'Segoe UI\', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.65; max-width: 640px; margin: 0 auto; padding: 24px 20px; background-color: #f5f5f7;">',
-      '<div style="background-color: #ffffff; border-radius: 24px; border: 1px solid #e5e7eb; padding: 28px 24px 24px;">',
-      '<div style="margin-bottom: 24px; text-align: center;">',
-      '<img src="https://simpletuition.com.au/images/simple-text-black.jpg" alt="Simple Tuition" width="140" style="display: block; margin: 0 auto 8px; height: auto;" />',
-      '<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: #9ca3af;">Simple Tuition</div>',
-      "</div>",
+      '<div style="background-color: #ffffff; border-radius: 24px; border: 1px solid #e5e7eb; overflow: hidden;">',
+      '<img src="https://simpletuition.com.au/images/email-banner-centred.png" alt="Simple Tuition" style="display: block; width: 100%; height: auto;" />',
+      '<div style="padding: 28px 24px 24px;">',
       `<p style="font-size: 18px; margin: 0 0 18px; font-weight: 600; color: #0f172a;">Hi ${firstName},</p>`,
       `<p style="font-size: 16px; margin: 0 0 10px; color: #334155;">${replyHeadline.replace(
         "Simple Tuition",
@@ -286,6 +284,7 @@ export async function POST(request: Request) {
       '<p style="font-size: 14px; margin: 0 0 24px; color: #64748b;">If you need to add or update any details, simply reply to this email.</p>',
       '<div style="padding-top: 20px; border-top: 1px solid #e2e8f0;">',
       '<p style="font-size: 13px; margin: 0; color: #94a3b8; font-weight: 500;">Simple Tuition</p>',
+      "</div>",
       "</div>",
       "</div>",
       "</div>",
