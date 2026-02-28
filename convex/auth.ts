@@ -264,6 +264,69 @@ export const createAdminAccount = mutation({
   },
 });
 
+// --- Tutor Password Reset ---
+
+export const createTutorPasswordResetToken = mutation({
+  args: { email: v.string(), tokenHash: v.string() },
+  returns: v.object({ created: v.boolean(), name: v.optional(v.string()) }),
+  handler: async (ctx, { email, tokenHash }) => {
+    const normalizedEmail = email.toLowerCase().trim();
+
+    const account = await ctx.db
+      .query("tutorAccounts")
+      .withIndex("by_email", (q) => q.eq("email", normalizedEmail))
+      .first();
+
+    if (!account || !account.active) {
+      return { created: false };
+    }
+
+    await ctx.db.insert("passwordResetTokens", {
+      email: normalizedEmail,
+      tokenHash,
+      expiresAt: Date.now() + 2 * 60 * 60 * 1000,
+      used: false,
+    });
+
+    return { created: true, name: account.name };
+  },
+});
+
+export const resetTutorPassword = mutation({
+  args: { tokenHash: v.string(), newPasswordHash: v.string() },
+  returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
+  handler: async (ctx, { tokenHash, newPasswordHash }) => {
+    const token = await ctx.db
+      .query("passwordResetTokens")
+      .withIndex("by_tokenHash", (q) => q.eq("tokenHash", tokenHash))
+      .first();
+
+    if (!token) {
+      return { success: false, error: "Invalid or expired reset link." };
+    }
+    if (token.used) {
+      return { success: false, error: "This reset link has already been used." };
+    }
+    if (token.expiresAt < Date.now()) {
+      return { success: false, error: "This reset link has expired. Please request a new one." };
+    }
+
+    const account = await ctx.db
+      .query("tutorAccounts")
+      .withIndex("by_email", (q) => q.eq("email", token.email))
+      .first();
+
+    if (!account) {
+      return { success: false, error: "Account not found." };
+    }
+
+    await ctx.db.patch(account._id, { passwordHash: newPasswordHash });
+    await ctx.db.patch(token._id, { used: true });
+
+    return { success: true };
+  },
+});
+
 // Get tutor by ID (for session validation)
 export const getTutorAccount = query({
   args: { tutorId: v.id("tutorAccounts") },

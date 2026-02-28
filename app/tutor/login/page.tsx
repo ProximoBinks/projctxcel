@@ -75,9 +75,17 @@ export default function TutorLoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">
-                Password
-              </label>
+              <div className="flex items-center justify-between">
+                <label className="block text-sm font-medium text-slate-700">
+                  Password
+                </label>
+                <Link
+                  href="/tutor/forgot-password"
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <input
                 type="password"
                 value={password}

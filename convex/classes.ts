@@ -177,6 +177,18 @@ export const archiveClass = mutation({
   },
 });
 
+export const unarchiveClass = mutation({
+  args: { adminId: v.id("tutorAccounts"), classId: v.id("classes") },
+  returns: v.boolean(),
+  handler: async (ctx, { adminId, classId }) => {
+    await assertAdmin(ctx, adminId);
+    const cls = await ctx.db.get(classId);
+    if (!cls) return false;
+    await ctx.db.patch(classId, { active: true });
+    return true;
+  },
+});
+
 export const assignTutorToClass = mutation({
   args: {
     adminId: v.id("tutorAccounts"),

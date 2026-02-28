@@ -564,16 +564,22 @@ function ClassesTab({
     { adminId }
   );
   const archiveClass = useMutation(api.classes.archiveClass);
+  const unarchiveClass = useMutation(api.classes.unarchiveClass);
   const deleteClass = useMutation(api.classes.deleteClass);
   const [editingClass, setEditingClass] = useState<ClassRow | null>(null);
   const [managingStudents, setManagingStudents] = useState<ClassRow | null>(null);
   const [managingTutors, setManagingTutors] = useState<ClassRow | null>(null);
   const [deletingClassId, setDeletingClassId] = useState<Id<"classes"> | null>(null);
+  const [classView, setClassView] = useState<"active" | "archived">("active");
 
   const handleDelete = async (classId: Id<"classes">) => {
     await deleteClass({ adminId, classId });
     setDeletingClassId(null);
   };
+
+  const activeClasses = classes?.filter((c: ClassRow) => c.active) ?? [];
+  const archivedClasses = classes?.filter((c: ClassRow) => !c.active) ?? [];
+  const displayedClasses = classView === "active" ? activeClasses : archivedClasses;
 
   return (
     <div className="space-y-6">
@@ -587,6 +593,29 @@ function ClassesTab({
         </button>
       </div>
 
+      <div className="flex gap-1 rounded-xl bg-slate-100 p-1 w-fit">
+        <button
+          onClick={() => setClassView("active")}
+          className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${
+            classView === "active"
+              ? "bg-white text-slate-900 shadow-sm"
+              : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          Active{activeClasses.length > 0 && ` (${activeClasses.length})`}
+        </button>
+        <button
+          onClick={() => setClassView("archived")}
+          className={`rounded-lg px-4 py-1.5 text-sm font-medium transition ${
+            classView === "archived"
+              ? "bg-white text-slate-900 shadow-sm"
+              : "text-slate-500 hover:text-slate-700"
+          }`}
+        >
+          Archived{archivedClasses.length > 0 && ` (${archivedClasses.length})`}
+        </button>
+      </div>
+
       <div className="rounded-2xl border border-slate-200 bg-white">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px]">
@@ -595,13 +624,15 @@ function ClassesTab({
                 <th className="px-6 py-3 font-medium">Class</th>
                 <th className="px-6 py-3 font-medium">Schedule</th>
                 <th className="px-6 py-3 font-medium">Tutor</th>
-                <th className="px-6 py-3 font-medium">Status</th>
+                {classView === "active" && (
+                  <th className="px-6 py-3 font-medium">Status</th>
+                )}
                 <th className="px-6 py-3 font-medium"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {classes && classes.length > 0 ? (
-                classes.map((cls: ClassRow) => (
+              {displayedClasses.length > 0 ? (
+                displayedClasses.map((cls: ClassRow) => (
                   <tr key={cls._id} className="text-sm">
                     <td className="px-6 py-4">
                       <div className="font-medium text-slate-900">{cls.name}</div>
@@ -629,65 +660,74 @@ function ClassesTab({
                         <span className="text-slate-400 text-sm">Unassigned</span>
                       )}
                     </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`rounded-full px-2 py-1 text-xs font-medium ${
-                          cls.active
-                            ? "bg-green-100 text-green-700"
-                            : "bg-slate-100 text-slate-600"
-                        }`}
-                      >
-                        {cls.active ? "Active" : "Inactive"}
-                      </span>
-                    </td>
+                    {classView === "active" && (
+                      <td className="px-6 py-4">
+                        <span className="rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700">
+                          Active
+                        </span>
+                      </td>
+                    )}
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap items-center gap-3">
-                        <button
-                          onClick={() => setEditingClass(cls)}
-                          className="text-sm text-slate-500 hover:text-slate-700"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => setManagingTutors(cls)}
-                          className="text-sm text-purple-600 hover:text-purple-700"
-                        >
-                          Tutors
-                        </button>
-                        <button
-                          onClick={() => setManagingStudents(cls)}
-                          className="text-sm text-blue-600 hover:text-blue-700"
-                        >
-                          Students
-                        </button>
-                        <button
-                          onClick={() => archiveClass({ adminId, classId: cls._id })}
-                          className="text-sm text-red-600 hover:text-red-700"
-                        >
-                          Archive
-                        </button>
-                        {deletingClassId === cls._id ? (
-                          <span className="flex items-center gap-1">
+                        {classView === "active" ? (
+                          <>
                             <button
-                              onClick={() => handleDelete(cls._id)}
-                              className="text-sm font-medium text-red-700 hover:text-red-800"
+                              onClick={() => setEditingClass(cls)}
+                              className="text-sm text-slate-500 hover:text-slate-700"
                             >
-                              Confirm
+                              Edit
                             </button>
                             <button
-                              onClick={() => setDeletingClassId(null)}
-                              className="text-sm text-slate-400 hover:text-slate-600"
+                              onClick={() => setManagingTutors(cls)}
+                              className="text-sm text-purple-600 hover:text-purple-700"
                             >
-                              Cancel
+                              Tutors
                             </button>
-                          </span>
+                            <button
+                              onClick={() => setManagingStudents(cls)}
+                              className="text-sm text-blue-600 hover:text-blue-700"
+                            >
+                              Students
+                            </button>
+                            <button
+                              onClick={() => archiveClass({ adminId, classId: cls._id })}
+                              className="text-sm text-amber-600 hover:text-amber-700"
+                            >
+                              Archive
+                            </button>
+                          </>
                         ) : (
-                          <button
-                            onClick={() => setDeletingClassId(cls._id)}
-                            className="text-sm text-slate-400 hover:text-red-600"
-                          >
-                            Delete
-                          </button>
+                          <>
+                            <button
+                              onClick={() => unarchiveClass({ adminId, classId: cls._id })}
+                              className="text-sm text-green-600 hover:text-green-700"
+                            >
+                              Unarchive
+                            </button>
+                            {deletingClassId === cls._id ? (
+                              <span className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleDelete(cls._id)}
+                                  className="text-sm font-medium text-red-700 hover:text-red-800"
+                                >
+                                  Confirm
+                                </button>
+                                <button
+                                  onClick={() => setDeletingClassId(null)}
+                                  className="text-sm text-slate-400 hover:text-slate-600"
+                                >
+                                  Cancel
+                                </button>
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => setDeletingClassId(cls._id)}
+                                className="text-sm text-red-500 hover:text-red-600"
+                              >
+                                Delete
+                              </button>
+                            )}
+                          </>
                         )}
                       </div>
                     </td>
@@ -695,8 +735,8 @@ function ClassesTab({
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-slate-500">
-                    No classes yet
+                  <td colSpan={classView === "active" ? 5 : 4} className="px-6 py-8 text-center text-slate-500">
+                    {classView === "active" ? "No active classes" : "No archived classes"}
                   </td>
                 </tr>
               )}
