@@ -48,26 +48,26 @@ export default function StudentDashboardPage() {
     <div className="flex min-h-dvh flex-col bg-slate-50">
       {/* Header */}
       <header className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-4">
           <div className="flex items-center gap-3">
             <Link href="/">
               <img
                 src="/images/simple-text-black.svg"
                 alt="Simple Tuition"
-                className="h-8 sm:h-10"
+                className="h-7 sm:h-10"
               />
             </Link>
-            <span className="text-slate-300">|</span>
-            <span className="text-sm font-medium text-slate-600">Student Portal</span>
+            <span className="hidden text-slate-300 sm:inline">|</span>
+            <span className="hidden text-sm font-medium text-slate-600 sm:inline">Student Portal</span>
           </div>
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-            <span className="text-sm text-slate-600">Hi, {session.name}</span>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="hidden text-sm text-slate-600 sm:inline">Hi, {session.name}</span>
             <button
               onClick={() => {
                 setActiveTab("overview");
                 setForceEditProfile(true);
               }}
-              className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50"
+              className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 sm:text-sm"
             >
               Edit profile
             </button>
@@ -76,7 +76,7 @@ export default function StudentDashboardPage() {
                 logout();
                 router.push("/student/login");
               }}
-              className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 transition hover:bg-slate-50"
+              className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 sm:text-sm"
             >
               Sign out
             </button>
@@ -87,12 +87,12 @@ export default function StudentDashboardPage() {
       {/* Tabs */}
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <nav className="flex gap-4 overflow-x-auto sm:gap-6">
+          <nav className="-mb-px flex gap-1 overflow-x-auto scrollbar-hide sm:gap-2" style={{ WebkitOverflowScrolling: "touch" }}>
             {(["overview", "timetable", "resources", "billing"] as Tab[]).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`whitespace-nowrap border-b-2 px-1 py-4 text-sm font-medium capitalize transition ${
+                className={`whitespace-nowrap border-b-2 px-3 py-3 text-sm font-medium capitalize transition sm:px-4 sm:py-4 ${
                   activeTab === tab
                     ? "border-blue-600 text-blue-600"
                     : "border-transparent text-slate-500 hover:text-slate-700"
@@ -365,18 +365,18 @@ function OverviewTab({
 
       {/* Welcome */}
       <div>
-        <h1 className="text-2xl font-semibold text-slate-900">
+        <h1 className="text-xl font-semibold text-slate-900 sm:text-2xl">
           Welcome back, {overview.student.name}
         </h1>
         <p className="mt-1 text-sm text-slate-600">
-          {overview.student.yearLevel} • {overview.student.subjects.join(", ")}
+          {overview.student.yearLevel} &middot; {overview.student.subjects.join(", ")}
         </p>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Your Tutors */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
-          <h2 className="text-lg font-semibold text-slate-900">Your Tutors</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
+          <h2 className="text-base font-semibold text-slate-900 sm:text-lg">Your Tutors</h2>
           <div className="mt-4 space-y-3">
             {overview.tutors.length > 0 ? (
               overview.tutors.map((tutor) => (
@@ -409,28 +409,24 @@ function OverviewTab({
         </div>
 
         {/* Upcoming Classes */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
-          <h2 className="text-lg font-semibold text-slate-900">Upcoming Classes</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
+          <h2 className="text-base font-semibold text-slate-900 sm:text-lg">Upcoming Classes</h2>
           <div className="mt-4 space-y-3">
             {overview.upcomingSessions.length > 0 ? (
               overview.upcomingSessions.slice(0, 5).map((session, index) => (
                 <div
                   key={index}
-                  className="rounded-xl border border-slate-100 bg-slate-50 p-4"
+                  className="rounded-xl border border-slate-100 bg-slate-50 p-3 sm:p-4"
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <div className="font-medium text-slate-900">
-                        {session.className}
-                      </div>
-                      <div className="text-sm text-slate-500">
-                        {session.subject} • {session.tutorName}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="font-medium text-slate-900">{session.className}</div>
+                      <div className="text-xs text-slate-500 sm:text-sm">
+                        {session.subject} &middot; {session.tutorName}
                       </div>
                     </div>
-                    <div className="text-right text-sm">
-                      <div className="font-medium text-slate-700">
-                        {session.dayOfWeek}
-                      </div>
+                    <div className="shrink-0 text-right text-xs sm:text-sm">
+                      <div className="font-medium text-slate-700">{session.dayOfWeek}</div>
                       <div className="text-slate-500">
                         {session.startTime}–{session.endTime}
                       </div>
@@ -447,21 +443,21 @@ function OverviewTab({
 
       {/* Recent Resources */}
       {overview.recentResources.length > 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
-          <h2 className="text-lg font-semibold text-slate-900">Recent Resources</h2>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
+          <h2 className="text-base font-semibold text-slate-900 sm:text-lg">Recent Resources</h2>
           <div className="mt-4 space-y-3">
             {overview.recentResources.map((resource) => (
               <div
                 key={resource._id}
-                className="flex items-center justify-between rounded-xl border border-slate-100 bg-slate-50 p-4"
+                className="flex items-center justify-between gap-3 rounded-xl border border-slate-100 bg-slate-50 p-3 sm:p-4"
               >
-                <div>
+                <div className="min-w-0">
                   <div className="font-medium text-slate-900">{resource.title}</div>
                   {resource.subject && (
-                    <div className="text-sm text-slate-500">{resource.subject}</div>
+                    <div className="text-xs text-slate-500 sm:text-sm">{resource.subject}</div>
                   )}
                 </div>
-                <div className="text-xs text-slate-400">
+                <div className="shrink-0 text-xs text-slate-400">
                   {new Date(resource.createdAt).toLocaleDateString()}
                 </div>
               </div>
@@ -524,54 +520,41 @@ function TimetableTab({ studentId }: { studentId: Id<"students"> }) {
   const isCurrentWeek = weekOffset === 0;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
+    <div className="space-y-5">
+      {/* Title + week navigation */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-slate-900">Weekly Timetable</h2>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             onClick={() => setWeekOffset(weekOffset - 1)}
-            className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+            className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50 active:bg-slate-100"
             aria-label="Previous week"
           >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <div className="flex min-w-[140px] flex-col items-center text-center sm:flex-row sm:items-baseline sm:justify-center sm:gap-2">
+          <div className="flex flex-col items-center text-center">
             <span className="text-sm font-medium text-slate-700">
               {formatDate(monday)} – {formatDate(sunday)}
             </span>
             {isCurrentWeek && (
-              <span className="mt-1 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 sm:mt-0">
-                This week
-              </span>
+              <span className="mt-0.5 text-xs font-medium text-blue-600">This week</span>
             )}
           </div>
           <button
             onClick={() => setWeekOffset(weekOffset + 1)}
-            className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
+            className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:bg-slate-50 active:bg-slate-100"
             aria-label="Next week"
           >
-            <svg
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </button>
           {!isCurrentWeek && (
             <button
               onClick={() => setWeekOffset(0)}
-              className="rounded-lg border border-slate-200 px-3 py-1 text-xs font-medium text-slate-600 transition hover:bg-slate-50"
+              className="ml-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 active:bg-slate-100"
             >
               Today
             </button>
@@ -579,42 +562,45 @@ function TimetableTab({ studentId }: { studentId: Id<"students"> }) {
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-7">
-        {grouped.map((group) => (
-          <div
-            key={group.day}
-            className="rounded-2xl border border-slate-200 bg-white p-4"
-          >
-            <div className="mb-3">
-              <div className="text-sm font-semibold text-slate-700">{group.day}</div>
-              <div className="text-xs text-slate-400">{group.date}</div>
-            </div>
-            <div className="space-y-3">
-              {group.classes.length > 0 ? (
-                group.classes.map((cls) => (
-                  <div
-                    key={cls._id}
-                    className="rounded-xl border border-slate-100 bg-slate-50 p-3 text-xs text-slate-600"
-                  >
-                    <div className="text-sm font-semibold text-slate-900">
-                      {cls.name}
+      {/* Day cards -- list on mobile, 7-column grid on desktop */}
+      <div className="grid gap-3 sm:gap-4 md:grid-cols-7">
+        {grouped.map((group) => {
+          const hasClasses = group.classes.length > 0;
+          return (
+            <div
+              key={group.day}
+              className={`rounded-2xl border bg-white p-4 ${
+                hasClasses ? "border-blue-200" : "border-slate-200"
+              }`}
+            >
+              <div className="mb-2 flex items-baseline justify-between md:mb-3 md:block">
+                <div className="text-sm font-semibold text-slate-700">{group.day}</div>
+                <div className="text-xs text-slate-400">{group.date}</div>
+              </div>
+              {hasClasses ? (
+                <div className="space-y-2">
+                  {group.classes.map((cls) => (
+                    <div
+                      key={cls._id}
+                      className="rounded-xl border border-slate-100 bg-slate-50 p-3"
+                    >
+                      <div className="text-sm font-semibold text-slate-900">{cls.name}</div>
+                      <div className="mt-0.5 text-xs text-slate-600">
+                        {cls.subject} &middot; {cls.startTime}–{cls.endTime}
+                      </div>
+                      <div className="mt-1 text-xs text-slate-500">with {cls.tutorName}</div>
+                      {cls.location && (
+                        <div className="text-xs text-slate-400">{cls.location}</div>
+                      )}
                     </div>
-                    <div>{cls.subject}</div>
-                    <div>
-                      {cls.startTime}–{cls.endTime}
-                    </div>
-                    <div className="mt-1 text-slate-500">with {cls.tutorName}</div>
-                    {cls.location && (
-                      <div className="text-slate-400">{cls.location}</div>
-                    )}
-                  </div>
-                ))
+                  ))}
+                </div>
               ) : (
                 <div className="text-xs text-slate-400">No classes</div>
               )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -658,19 +644,19 @@ function ResourcesTab({ studentId }: { studentId: Id<"students"> }) {
                 {items.map((resource) => (
                   <div
                     key={resource._id}
-                    className="rounded-2xl border border-slate-200 bg-white p-5"
+                    className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5"
                   >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0 flex-1">
                         <h4 className="font-semibold text-slate-900">
                           {resource.title}
                         </h4>
                         {resource.description && (
-                          <p className="mt-2 text-sm text-slate-600">
+                          <p className="mt-1.5 text-sm text-slate-600">
                             {resource.description}
                           </p>
                         )}
-                        <div className="mt-3 flex items-center gap-4 text-xs text-slate-500">
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500">
                           <span>Added by {resource.createdByName}</span>
                           <span>
                             {new Date(resource.createdAt).toLocaleDateString()}
@@ -682,7 +668,7 @@ function ResourcesTab({ studentId }: { studentId: Id<"students"> }) {
                           href={resource.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="ml-4 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                          className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-blue-700 active:bg-blue-800 sm:w-auto sm:rounded-lg sm:py-2"
                         >
                           Open Link
                         </a>
@@ -806,22 +792,22 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
       <h2 className="text-xl font-semibold text-slate-900">Billing</h2>
 
       {/* Summary cards */}
-      <div className="grid gap-4 sm:grid-cols-3">
-        <div className="rounded-2xl border border-green-200 bg-green-50 p-5">
-          <p className="text-sm text-green-700">Weekly Total</p>
-          <p className="mt-1 text-2xl font-semibold text-green-900">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        <div className="col-span-2 rounded-2xl border border-green-200 bg-green-50 p-4 sm:col-span-1 sm:p-5">
+          <p className="text-xs font-medium text-green-700 sm:text-sm">Weekly Total</p>
+          <p className="mt-1 text-xl font-semibold text-green-900 sm:text-2xl">
             {formatCurrency(profile.weeklyRate.totalCents)}
           </p>
         </div>
-        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-5">
-          <p className="text-sm text-blue-700">Credit Balance</p>
-          <p className="mt-1 text-2xl font-semibold text-blue-900">
+        <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
+          <p className="text-xs font-medium text-blue-700 sm:text-sm">Credit Balance</p>
+          <p className="mt-1 text-xl font-semibold text-blue-900 sm:text-2xl">
             {formatCurrency(profile.creditBalanceCents)}
           </p>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white p-5">
-          <p className="text-sm text-slate-500">Payment Method</p>
-          <p className="mt-1 text-lg font-semibold text-slate-900">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
+          <p className="text-xs font-medium text-slate-500 sm:text-sm">Payment</p>
+          <p className="mt-1 text-base font-semibold text-slate-900 sm:text-lg">
             {profile.paymentType === "cash"
               ? "Cash"
               : profile.cardLast4
@@ -831,13 +817,13 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
         </div>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-5 lg:grid-cols-2 lg:gap-6">
         {/* Weekly rate breakdown grouped by day */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
-          <h3 className="text-lg font-semibold text-slate-900">
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
+          <h3 className="text-base font-semibold text-slate-900 sm:text-lg">
             Weekly Rate Breakdown
           </h3>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-0.5 text-xs text-slate-500">
             Billed daily at 9am for that day&apos;s sessions
           </p>
           {profile.weeklyRate.breakdown.length > 0 ? (
@@ -865,29 +851,31 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
                           return (
                             <div
                               key={line.classId}
-                              className={`rounded-xl border px-4 py-3 ${
+                              className={`rounded-xl border px-3 py-3 sm:px-4 ${
                                 line.paused
                                   ? "border-yellow-200 bg-yellow-50"
                                   : "border-slate-100 bg-white"
                               }`}
                             >
                               <div className="flex items-start justify-between gap-2">
-                                <div className={line.paused ? "opacity-60" : ""}>
+                                <div className={`min-w-0 flex-1 ${line.paused ? "opacity-60" : ""}`}>
                                   <div className="font-medium text-slate-900">
                                     {line.className}
                                     {line.paused && (
-                                      <span className="ml-2 rounded-full bg-yellow-200 px-2 py-0.5 text-xs font-medium text-yellow-800">
+                                      <span className="ml-1.5 rounded-full bg-yellow-200 px-2 py-0.5 text-xs font-medium text-yellow-800">
                                         Paused
                                       </span>
                                     )}
                                   </div>
-                                  <div className="text-xs text-slate-500">
-                                    {line.subject} &middot; {line.tutorName} &middot;{" "}
+                                  <div className="mt-0.5 text-xs leading-relaxed text-slate-500">
+                                    {line.subject} &middot; {line.tutorName}
+                                    <br className="sm:hidden" />
+                                    <span className="hidden sm:inline"> &middot; </span>
                                     {line.startTime}–{line.endTime} ({line.durationMinutes}min) &middot;{" "}
                                     {formatCurrency(line.rateCents)}/hr
                                   </div>
                                 </div>
-                                <div className="text-right">
+                                <div className="shrink-0 text-right">
                                   <div className={`font-medium ${line.paused ? "text-slate-400 line-through" : "text-slate-900"}`}>
                                     {formatCurrency(line.paused ? Math.round((line.durationMinutes / 60) * line.rateCents) : line.lineTotalCents)}
                                   </div>
@@ -898,7 +886,7 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
                               </div>
                               <div className="mt-2">
                                 {pauseStatus ? (
-                                  <div className="flex items-center justify-between">
+                                  <div className="flex flex-wrap items-center justify-between gap-2">
                                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                                       pauseStatus.status === "pending"
                                         ? "bg-blue-100 text-blue-700"
@@ -909,7 +897,7 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
                                     </span>
                                     <button
                                       onClick={() => cancelPause({ studentId, requestId: pauseStatus._id })}
-                                      className="text-xs text-red-600 hover:text-red-700"
+                                      className="rounded-lg px-2 py-1 text-xs text-red-600 transition hover:bg-red-50 active:bg-red-100"
                                     >
                                       Cancel
                                     </button>
@@ -917,7 +905,7 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
                                 ) : (
                                   <button
                                     onClick={() => setPausingClassId(line.classId)}
-                                    className="text-xs text-yellow-700 hover:text-yellow-800"
+                                    className="rounded-lg px-2 py-1 text-xs text-yellow-700 transition hover:bg-yellow-100 active:bg-yellow-200"
                                   >
                                     Request pause
                                   </button>
@@ -946,8 +934,8 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
         </div>
 
         {/* Card on file */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
-          <h3 className="text-lg font-semibold text-slate-900">Payment Method</h3>
+        <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
+          <h3 className="text-base font-semibold text-slate-900 sm:text-lg">Payment Method</h3>
           {profile.paymentType === "cash" ? (
             <div className="mt-4">
               <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-medium text-amber-700">
@@ -1008,14 +996,14 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
       </div>
 
       {/* Charge history */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6">
-        <h3 className="text-lg font-semibold text-slate-900">Charge History</h3>
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
+        <h3 className="text-base font-semibold text-slate-900 sm:text-lg">Charge History</h3>
         <div className="mt-4 space-y-2">
           {charges && charges.length > 0 ? (
             charges.map((charge) => (
               <div
                 key={charge._id}
-                className="flex items-center justify-between rounded-lg border border-slate-100 px-4 py-3 text-sm"
+                className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-3 text-sm sm:px-4"
               >
                 <div>
                   <p className="font-medium text-slate-900">
