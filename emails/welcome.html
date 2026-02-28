@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta charset="UTF-8" />
@@ -29,19 +29,14 @@
 
     /* ── Header bar ── */
     .header {
-      background: linear-gradient(135deg, #05086d 0%, #1232c3 48%, #3da5ff 100%);
-      padding: 36px 40px;
-      text-align: center;
+      line-height: 0;
+      font-size: 0;
     }
-    .header-logo {
-      font-size: 22px;
-      font-weight: 700;
-      color: #ffffff;
-      letter-spacing: -0.4px;
-    }
-    .header-logo span {
-      opacity: 0.75;
-      font-weight: 400;
+    .header img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 0;
     }
 
     /* ── Body ── */
@@ -165,7 +160,6 @@
     /* ── Responsive ── */
     @media (max-width: 600px) {
       .body { padding: 36px 28px 32px; }
-      .header { padding: 28px 28px; }
       .footer { padding: 20px 28px; }
       .heading { font-size: 22px; }
       .cta-btn { padding: 15px 32px; width: 100%; display: block; }
@@ -178,13 +172,18 @@
 
       <!-- Header -->
       <div class="header">
-        <div class="header-logo">simple tuition<span> ·</span></div>
+        <img
+          src="https://simpletuition.com.au/images/email-banner.jpg"
+          alt="Simple Tuition"
+          width="560"
+          style="display:block;width:100%;height:auto;border:0;"
+        />
       </div>
 
       <!-- Body -->
       <div class="body">
         <p class="eyebrow">Welcome aboard</p>
-        <h1 class="heading">Great to have you<br />with us.</h1>
+        <h1 class="heading">Great to have you with us.</h1>
         <div class="divider"></div>
 
         <p>
