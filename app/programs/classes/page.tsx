@@ -98,15 +98,7 @@ const faqSchema = {
       name: "What's the difference between classes and 1-on-1 tutoring?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Subject classes are small group sessions (4-8 students) following a structured curriculum, while 1-on-1 tutoring is fully personalised. Classes are more affordable and great for covering content systematically, while 1-on-1 is better for targeting specific weaknesses.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "How big are the class sizes?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "We keep classes small — typically 4-8 students — to ensure everyone gets attention and can ask questions. This strikes a balance between collaborative learning and personalised support.",
+        text: "Subject classes are small group sessions (max. 8 students) following a structured curriculum, while 1-on-1 tutoring is fully personalised. Classes are more affordable and great for covering content systematically, while 1-on-1 is better for targeting specific weaknesses.",
       },
     },
     {
@@ -247,7 +239,7 @@ export default function ClassesPage() {
                   Holiday Crash Courses
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Intensive multi-day courses during school holidays to cover key topics quickly — great for catching up or getting ahead before term resumes.
+                  Intensive multi-day courses during school holidays to cover key topics quickly. Use these to catch up or getting ahead before term resumes.
                 </p>
               </div>
 
@@ -263,7 +255,7 @@ export default function ClassesPage() {
                   Exam Revision Sessions
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Focused revision and timed practice in the weeks leading up to exams — consolidate content and sharpen exam technique under real conditions.
+                  Focused revision and timed practice in the weeks leading up to exams. Consolidate content and sharpen exam technique under real exam conditions.
                 </p>
               </div>
             </div>
@@ -280,17 +272,17 @@ export default function ClassesPage() {
                   Small groups only
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Classes are capped at 4-8 students to ensure everyone gets attention.
-                  You can ask questions and get feedback — it&apos;s not a lecture.
+                  Classes are capped at 8 students to ensure everyone gets attention.
+                  This enables students to interact and received personalised feedback.
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
                 <h3 className="text-lg font-semibold text-slate-950">
-                  Expert instructors
+                  Expert tutors
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Classes are led by the same top-achieving tutors who run our 1-on-1 sessions.
-                  You get quality instruction at a more accessible price point.
+                  Classes are led by the same top-achieving tutors.
+                  You get quality teaching at a more accessible price point.
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
@@ -298,7 +290,7 @@ export default function ClassesPage() {
                   Structured content
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Each class follows a planned curriculum aligned with SACE requirements.
+                  Each class follows a planned curriculum aligned with SACE.
                   You&apos;ll cover theory, worked examples, and practice problems.
                 </p>
               </div>
@@ -307,8 +299,7 @@ export default function ClassesPage() {
                   Resources included
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Students receive notes, practice questions, and worked solutions.
-                  Everything you need to consolidate what you learn in class.
+                  Students receive notes, practice questions, and exemplar assignments to help them secure that A+ throughout the year
                 </p>
               </div>
             </div>
