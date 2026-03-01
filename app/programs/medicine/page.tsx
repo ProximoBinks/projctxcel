@@ -136,14 +136,6 @@ const faqSchema = {
   ],
 };
 
-/* ── What We Offer ──────────────────────────────────────────── */
-
-const MEDICINE_SERVICES = [
-  { name: "UCAT Preparation", description: "Comprehensive preparation for all four UCAT subtests with strategies and practice." },
-  { name: "Interview Preparation", description: "In-person preparation with mock interviews and personalised feedback." },
-  { name: "Pathway Consultations", description: "Speak to an expert about maximising your chances of getting into medicine nationwide." },
-];
-
 /* ── Page Component ────────────────────────────────────────── */
 
 export default function MedicinePathwayPage() {
@@ -243,17 +235,53 @@ export default function MedicinePathwayPage() {
               Everything you need to maximise your chances for medical school admission.
             </p>
             <div className="mt-8 grid gap-6 md:grid-cols-3">
-              {MEDICINE_SERVICES.map((service) => (
-                <div
-                  key={service.name}
-                  className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
-                >
-                  <h3 className="text-lg font-semibold text-slate-950">
-                    {service.name}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{service.description}</p>
+              {/* UCAT Preparation */}
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-7 shadow-sm">
+                <div className="absolute right-5 top-5 text-6xl font-black leading-none text-slate-50 select-none">
+                  01
                 </div>
-              ))}
+                <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                  Test prep
+                </span>
+                <h3 className="mt-4 text-xl font-semibold text-slate-950">
+                  UCAT Preparation
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  Comprehensive preparation for all four UCAT subtests — Verbal Reasoning, Decision Making, Quantitative Reasoning, and Situational Judgement — with proven strategies and timed practice.
+                </p>
+              </div>
+
+              {/* Interview Preparation */}
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-7 shadow-sm">
+                <div className="absolute right-5 top-5 text-6xl font-black leading-none text-slate-50 select-none">
+                  02
+                </div>
+                <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                  Interview
+                </span>
+                <h3 className="mt-4 text-xl font-semibold text-slate-950">
+                  Interview Preparation
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  In-depth MMI preparation with mock interviews, scenario walkthroughs, and personalised feedback from tutors who have successfully sat the same interviews.
+                </p>
+              </div>
+
+              {/* Pathway Consultations */}
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-7 shadow-sm">
+                <div className="absolute right-5 top-5 text-6xl font-black leading-none text-slate-50 select-none">
+                  03
+                </div>
+                <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                  Strategy
+                </span>
+                <h3 className="mt-4 text-xl font-semibold text-slate-950">
+                  Pathway Consultations
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  Speak to an expert about structuring your application to maximise your chances — covering university selection, prerequisite subjects, and realistic timelines.
+                </p>
+              </div>
             </div>
           </section>
 
