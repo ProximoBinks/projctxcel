@@ -103,26 +103,10 @@ const faqSchema = {
     },
     {
       "@type": "Question",
-      name: "When do crash courses run?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Crash courses typically run during school holidays — particularly before exams in Terms 2 and 3. We also offer intensive revision sessions in the weeks leading up to final exams.",
-      },
-    },
-    {
-      "@type": "Question",
       name: "How big are the class sizes?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "We keep classes small — typically 4-8 students — to ensure everyone gets attention and can ask questions. This strikes a balance between collaborative learning and personalised support.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "What subjects do you offer classes in?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "We offer classes in high-demand SACE subjects including Maths Methods, Specialist Maths, Chemistry, Physics, and Biology. Check with us for current availability and schedules.",
       },
     },
     {
@@ -135,23 +119,6 @@ const faqSchema = {
     },
   ],
 };
-
-/* ── Class Types ────────────────────────────────────────────── */
-
-const CLASS_TYPES = [
-  {
-    name: "Weekly Subject Classes",
-    description: "Regular small-group sessions following the SACE curriculum throughout the term."
-  },
-  {
-    name: "Holiday Crash Courses",
-    description: "Intensive multi-day courses during school holidays to cover key topics quickly."
-  },
-  {
-    name: "Exam Revision Sessions",
-    description: "Focused revision and practice in the weeks leading up to exams."
-  },
-];
 
 /* ── Page Component ────────────────────────────────────────── */
 
@@ -227,7 +194,7 @@ export default function ClassesPage() {
                 },
                 {
                   title: "Structured curriculum",
-                  copy: "Classes follow a planned syllabus ensuring you cover all key topics systematically — nothing falls through the cracks.",
+                  copy: "Classes follow a planned syllabus ensuring every key topic and niche concept is covered systematically.",
                 },
               ].map((item) => (
                 <div
@@ -252,17 +219,53 @@ export default function ClassesPage() {
               Different formats to suit different needs throughout the year.
             </p>
             <div className="mt-8 grid gap-6 md:grid-cols-3">
-              {CLASS_TYPES.map((classType) => (
-                <div
-                  key={classType.name}
-                  className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
-                >
-                  <h3 className="text-lg font-semibold text-slate-950">
-                    {classType.name}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{classType.description}</p>
+              {/* Weekly Subject Classes */}
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-7 shadow-sm">
+                <div className="absolute right-5 top-5 text-6xl font-black leading-none text-slate-50 select-none">
+                  01
                 </div>
-              ))}
+                <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                  Ongoing
+                </span>
+                <h3 className="mt-4 text-xl font-semibold text-slate-950">
+                  Weekly Subject Classes
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  Regular small-group sessions following the SACE curriculum throughout the term — ideal for students who want consistent, structured support.
+                </p>
+              </div>
+
+              {/* Holiday Crash Courses */}
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-7 shadow-sm">
+                <div className="absolute right-5 top-5 text-6xl font-black leading-none text-slate-50 select-none">
+                  02
+                </div>
+                <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                  Intensive
+                </span>
+                <h3 className="mt-4 text-xl font-semibold text-slate-950">
+                  Holiday Crash Courses
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  Intensive multi-day courses during school holidays to cover key topics quickly — great for catching up or getting ahead before term resumes.
+                </p>
+              </div>
+
+              {/* Exam Revision Sessions */}
+              <div className="relative overflow-hidden rounded-2xl border border-slate-200/70 bg-white p-7 shadow-sm">
+                <div className="absolute right-5 top-5 text-6xl font-black leading-none text-slate-50 select-none">
+                  03
+                </div>
+                <span className="inline-block rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-600">
+                  Exam prep
+                </span>
+                <h3 className="mt-4 text-xl font-semibold text-slate-950">
+                  Exam Revision Sessions
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-slate-600">
+                  Focused revision and timed practice in the weeks leading up to exams — consolidate content and sharpen exam technique under real conditions.
+                </p>
+              </div>
             </div>
           </section>
 
