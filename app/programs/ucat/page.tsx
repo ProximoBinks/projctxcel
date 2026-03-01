@@ -95,10 +95,10 @@ const faqSchema = {
   mainEntity: [
     {
       "@type": "Question",
-      name: "When should I start UCAT preparation?",
+      name: "When should I start studying for the UCAT?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "We recommend starting 3-6 months before your test date. This gives you enough time to learn strategies, practice consistently, and sit multiple mock tests without feeling rushed.",
+        text: "We recommend starting 1 year to 6 months before your test date. This gives you enough time to learn strategies, practice consistently, and sit multiple mock tests without feeling rushed and overwhelmed.",
       },
     },
     {
@@ -114,23 +114,7 @@ const faqSchema = {
       name: "How is UCAT tutoring different from self-study?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "While self-study resources are valuable, tutoring provides personalised strategies for your weak areas, immediate feedback on your approach, and accountability to stay on track. Our tutors share techniques that aren't in textbooks.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Do you provide practice questions and mock tests?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Yes. We provide extensive practice materials and conduct timed mock tests under exam conditions. We also help you analyse your results to identify patterns and areas for improvement.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "What makes your UCAT tutors qualified?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "All our UCAT tutors scored in the top percentiles and have successfully gained admission to medical school. They understand the test inside out and can teach the strategies that actually work.",
+        text: "While self-study resources are easily accessible, tutoring provides personalised strategies for your weak areas, immediate feedback on your approach, and accountability to stay on track. Our tutors share techniques that aren't available online.",
       },
     },
   ],
@@ -316,7 +300,7 @@ export default function UCATPage() {
               Class schedule
             </h2>
             <p className="mt-4 text-base text-slate-600">
-              Group classes run every Sunday and are capped at a small cohort size to keep sessions focused and interactive.
+              Group classes run every Sunday and are capped at a 6 students to keep sessions focused and interactive.
             </p>
             <div className="mt-8 grid gap-6 sm:grid-cols-2">
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
@@ -338,7 +322,7 @@ export default function UCATPage() {
                   Sunday · 1:00 pm – 4:00 pm
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  An early start for Year 11 students looking to build a strong foundation before their UCAT year — covering core skills and test strategies.
+                  An early start for Year 11 students looking to build a strong foundation before their UCAT year. They will develop core skills and test strategies.
                 </p>
               </div>
             </div>
@@ -377,10 +361,6 @@ export default function UCATPage() {
             <h2 className="text-3xl font-semibold text-slate-950">
               Ready to boost your UCAT score?
             </h2>
-            <p className="mx-auto mt-4 max-w-lg text-base leading-relaxed text-slate-600">
-              Tell us your test date and current preparation level. We&apos;ll match you
-              with a tutor who can maximise your score.
-            </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
               <Link href="/enquire" className="btn btn-lg">
                 Enquire now
