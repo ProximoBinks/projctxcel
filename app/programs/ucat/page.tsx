@@ -136,27 +136,6 @@ const faqSchema = {
   ],
 };
 
-/* ── UCAT Subtests ──────────────────────────────────────────── */
-
-const UCAT_SUBTESTS = [
-  {
-    name: "Verbal Reasoning",
-    tagline: "Evaluates ability to critically assess information presented in written form.",
-  },
-  {
-    name: "Decision Making",
-    tagline: "Assesses ability to apply logic to reach the best decision from complex information.",
-  },
-  {
-    name: "Quantitative Reasoning",
-    tagline: "Tests ability to use numerical skills to solve problems under time pressure.",
-  },
-  {
-    name: "Situational Judgement",
-    tagline: "Measures capacity to understand real-world situations and identify appropriate responses.",
-  },
-];
-
 /* ── Page Component ────────────────────────────────────────── */
 
 export default function UCATPage() {
@@ -214,27 +193,6 @@ export default function UCATPage() {
             </div>
           </section>
 
-          {/* UCAT Subtests */}
-          <section className="border-t border-slate-100 py-16">
-            <h2 className="text-3xl font-semibold text-slate-950">
-              What we cover
-            </h2>
-            <p className="mt-4 text-base text-slate-600">
-              Comprehensive preparation for all four UCAT sections.
-            </p>
-            <div className="mt-8 grid gap-6 grid-cols-2 lg:grid-cols-4">
-              {UCAT_SUBTESTS.map((subtest) => (
-                <div
-                  key={subtest.name}
-                  className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
-                >
-                  <h3 className="text-base font-semibold tracking-normal text-slate-900">{subtest.name}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-500">{subtest.tagline}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
           {/* Tutors */}
           <section className="border-t border-slate-100 py-16">
             <h2 className="text-3xl font-semibold text-slate-950">
@@ -254,7 +212,7 @@ export default function UCATPage() {
                   />
                   <div>
                     <h3 className="text-lg font-semibold text-slate-950">Lochie Siow</h3>
-                    <p className="text-sm text-slate-500">Head Tutor · 2025 Dux of St Peter's College</p>
+                    <p className="text-sm text-slate-500">Head Tutor</p>
                   </div>
                 </div>
                 <div className="mt-5 flex gap-3">
@@ -263,8 +221,8 @@ export default function UCATPage() {
                     <p className="mt-0.5 text-xs text-slate-500">percentile UCAT</p>
                   </div>
                   <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
-                    <p className="text-xl font-bold text-slate-950">99.95</p>
-                    <p className="mt-0.5 text-xs text-slate-500">ATAR</p>
+                    <p className="text-xl font-bold text-slate-950">2540</p>
+                    <p className="mt-0.5 text-xs text-slate-500">UCAT score</p>
                   </div>
                   <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
                     <p className="text-xl font-bold text-slate-950">1st yr</p>
@@ -272,7 +230,7 @@ export default function UCATPage() {
                   </div>
                 </div>
                 <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                  2025 Dux of St Peter's College with a 99th percentile UCAT score. Lochie is now a first-year medical student and brings firsthand knowledge of what it takes to succeed in the UCAT and beyond.
+                  Lochie scored 2540 on the UCAT, placing him in the 99th percentile among the 16,950 candidates who took the UCAT in 2025. He is now a medical student at the University of Adelaide.
                 </p>
               </div>
 
@@ -286,7 +244,7 @@ export default function UCATPage() {
                   />
                   <div>
                     <h3 className="text-lg font-semibold text-slate-950">Joey Fitzgerald</h3>
-                    <p className="text-sm text-slate-500">Tutor · University of Adelaide Medicine</p>
+                    <p className="text-sm text-slate-500">Tutor</p>
                   </div>
                 </div>
                 <div className="mt-5 flex gap-3">
@@ -299,12 +257,12 @@ export default function UCATPage() {
                     <p className="mt-0.5 text-xs text-slate-500">UCAT score</p>
                   </div>
                   <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
-                    <p className="text-xl font-bold text-slate-950">99.85</p>
-                    <p className="mt-0.5 text-xs text-slate-500">ATAR</p>
+                    <p className="text-xl font-bold text-slate-950">1st yr</p>
+                    <p className="mt-0.5 text-xs text-slate-500">Med Student</p>
                   </div>
                 </div>
                 <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                  Joey achieved a 2620 UCAT score (99th percentile) and a 99.85 ATAR before securing a place in medicine at the University of Adelaide. He specialises in breaking down each UCAT subtest into manageable, learnable strategies.
+                  Joey scored 2620 out of 2700 on the UCAT, dropping just 80 points across the entire test and placing in the 99th percentile. He is now a medical student at the University of Adelaide.
                 </p>
               </div>
             </div>
