@@ -156,7 +156,7 @@ export default function StudentLoginPage() {
 
           <div className="mt-6 text-center text-sm text-slate-500">
             <p>
-              Have an invite code?{" "}
+              Need an account?{" "}
               <Link href="/student/signup" className="text-blue-600 hover:underline">
                 Create account
               </Link>
