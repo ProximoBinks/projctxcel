@@ -225,7 +225,7 @@ export default function SACEProgramPage() {
               around a student — and that&apos;s exactly where Simple Tuition comes in.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/enquire" className="btn">
+              <Link href="/enquire" className="btn btn-lg">
                 Enquire now
               </Link>
               <Link href="/#tutors" className="btn-ghost">
@@ -331,7 +331,7 @@ export default function SACEProgramPage() {
               Tell us your year level, subjects, and goals. We&apos;ll match a tutor with you within 1 business day.
             </p>
             <div className="mt-3 flex flex-wrap items-center justify-center gap-4">
-              <Link href="/enquire" className="btn">
+              <Link href="/enquire" className="btn btn-lg">
                 Enquire now
               </Link>
               <Link href="/#tutors" className="btn-ghost">

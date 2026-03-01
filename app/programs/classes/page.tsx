@@ -201,7 +201,7 @@ export default function ClassesPage() {
               support throughout the year or intensive revision before exams.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/enquire" className="btn">
+              <Link href="/enquire" className="btn btn-lg">
                 Enquire now
               </Link>
               <Link href="/#tutors" className="btn-ghost">
@@ -349,7 +349,7 @@ export default function ClassesPage() {
               current availability and upcoming class schedules.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-              <Link href="/enquire" className="btn">
+              <Link href="/enquire" className="btn btn-lg">
                 Enquire now
               </Link>
               <Link href="/#tutors" className="btn-ghost">

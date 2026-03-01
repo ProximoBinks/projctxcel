@@ -184,7 +184,7 @@ export default function UCATPage() {
               coaching from 99th percentile scorers.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/enquire" className="btn">
+              <Link href="/enquire" className="btn btn-lg">
                 Enquire now
               </Link>
               <Link href="/#tutors" className="btn-ghost">
@@ -198,9 +198,6 @@ export default function UCATPage() {
             <h2 className="text-3xl font-semibold text-slate-950">
               Meet your UCAT tutors
             </h2>
-            <p className="mt-4 text-base text-slate-600">
-              Both classes are led by tutors who scored in the 99th percentile and are now studying medicine at the University of Adelaide.
-            </p>
             <div className="mt-8 grid gap-6 sm:grid-cols-2">
               {/* Lochie Siow */}
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
@@ -385,7 +382,7 @@ export default function UCATPage() {
               with a tutor who can maximise your score.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-              <Link href="/enquire" className="btn">
+              <Link href="/enquire" className="btn btn-lg">
                 Enquire now
               </Link>
               <Link href="/#tutors" className="btn-ghost">

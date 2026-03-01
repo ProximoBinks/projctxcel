@@ -192,7 +192,7 @@ export default function MedicinePathwayPage() {
               guided by tutors who&apos;ve successfully navigated the journey themselves.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/enquire" className="btn">
+              <Link href="/enquire" className="btn btn-lg">
                 Enquire now
               </Link>
               <Link href="/#tutors" className="btn-ghost">
@@ -339,7 +339,7 @@ export default function MedicinePathwayPage() {
               who can guide you through every step.
             </p>
             <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
-              <Link href="/enquire" className="btn">
+              <Link href="/enquire" className="btn btn-lg">
                 Enquire now
               </Link>
               <Link href="/#tutors" className="btn-ghost">
