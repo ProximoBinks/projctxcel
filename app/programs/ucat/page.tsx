@@ -214,39 +214,6 @@ export default function UCATPage() {
             </div>
           </section>
 
-          {/* Why Choose Us */}
-          <section className="border-t border-slate-100 py-16">
-            <h2 className="text-3xl font-semibold text-slate-950">
-              Why prepare with Simple Tuition?
-            </h2>
-            <div className="mt-8 grid gap-6 md:grid-cols-3">
-              {[
-                {
-                  title: "Top percentile tutors",
-                  copy: "Learn from tutors who scored in the top percentiles and know exactly what it takes to excel in each subtest.",
-                },
-                {
-                  title: "Proven strategies",
-                  copy: "Master the time-saving techniques and approaches that separate high scorers from average performers.",
-                },
-                {
-                  title: "Realistic practice",
-                  copy: "Access extensive question banks and sit timed mock tests that accurately simulate exam conditions.",
-                },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
-                >
-                  <h3 className="text-lg font-semibold tracking-normal text-slate-950">
-                    {item.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-slate-600">{item.copy}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
           {/* UCAT Subtests */}
           <section className="border-t border-slate-100 py-16">
             <h2 className="text-3xl font-semibold text-slate-950">
@@ -265,6 +232,81 @@ export default function UCATPage() {
                   <p className="mt-2 text-sm leading-relaxed text-slate-500">{subtest.tagline}</p>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* Tutors */}
+          <section className="border-t border-slate-100 py-16">
+            <h2 className="text-3xl font-semibold text-slate-950">
+              Meet your UCAT tutors
+            </h2>
+            <p className="mt-4 text-base text-slate-600">
+              Both classes are led by tutors who scored in the 99th percentile and are now studying medicine at the University of Adelaide.
+            </p>
+            <div className="mt-8 grid gap-6 sm:grid-cols-2">
+              {/* Lochie Siow */}
+              <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+                <div className="flex items-center gap-4">
+                  <img
+                    src="/images/tutors/lochie-siow.jpg"
+                    alt="Lochie Siow"
+                    className="h-16 w-16 rounded-full object-cover"
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-950">Lochie Siow</h3>
+                    <p className="text-sm text-slate-500">Head Tutor · 2025 Dux of St Peter's College</p>
+                  </div>
+                </div>
+                <div className="mt-5 flex gap-3">
+                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
+                    <p className="text-xl font-bold text-slate-950">99th</p>
+                    <p className="mt-0.5 text-xs text-slate-500">percentile UCAT</p>
+                  </div>
+                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
+                    <p className="text-xl font-bold text-slate-950">99.95</p>
+                    <p className="mt-0.5 text-xs text-slate-500">ATAR</p>
+                  </div>
+                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
+                    <p className="text-xl font-bold text-slate-950">1st yr</p>
+                    <p className="mt-0.5 text-xs text-slate-500">Med Student</p>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm leading-relaxed text-slate-600">
+                  2025 Dux of St Peter's College with a 99th percentile UCAT score. Lochie is now a first-year medical student and brings firsthand knowledge of what it takes to succeed in the UCAT and beyond.
+                </p>
+              </div>
+
+              {/* Joey Fitzgerald */}
+              <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
+                <div className="flex items-center gap-4">
+                  <img
+                    src="/images/tutors/joey-fitzgerald.jpg"
+                    alt="Joey Fitzgerald"
+                    className="h-16 w-16 rounded-full object-cover"
+                  />
+                  <div>
+                    <h3 className="text-lg font-semibold text-slate-950">Joey Fitzgerald</h3>
+                    <p className="text-sm text-slate-500">Tutor · University of Adelaide Medicine</p>
+                  </div>
+                </div>
+                <div className="mt-5 flex gap-3">
+                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
+                    <p className="text-xl font-bold text-slate-950">99th</p>
+                    <p className="mt-0.5 text-xs text-slate-500">percentile UCAT</p>
+                  </div>
+                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
+                    <p className="text-xl font-bold text-slate-950">2620</p>
+                    <p className="mt-0.5 text-xs text-slate-500">UCAT score</p>
+                  </div>
+                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
+                    <p className="text-xl font-bold text-slate-950">99.85</p>
+                    <p className="mt-0.5 text-xs text-slate-500">ATAR</p>
+                  </div>
+                </div>
+                <p className="mt-4 text-sm leading-relaxed text-slate-600">
+                  Joey achieved a 2620 UCAT score (99th percentile) and a 99.85 ATAR before securing a place in medicine at the University of Adelaide. He specialises in breaking down each UCAT subtest into manageable, learnable strategies.
+                </p>
+              </div>
             </div>
           </section>
 
@@ -342,81 +384,6 @@ export default function UCATPage() {
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
                   An early start for Year 11 students looking to build a strong foundation before their UCAT year — covering core skills and test strategies.
-                </p>
-              </div>
-            </div>
-          </section>
-
-          {/* Tutors */}
-          <section className="border-t border-slate-100 py-16">
-            <h2 className="text-3xl font-semibold text-slate-950">
-              Meet your UCAT tutors
-            </h2>
-            <p className="mt-4 text-base text-slate-600">
-              Both classes are led by tutors who scored in the 99th percentile and are now studying medicine at the University of Adelaide.
-            </p>
-            <div className="mt-8 grid gap-6 sm:grid-cols-2">
-              {/* Lochie Siow */}
-              <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-4">
-                  <img
-                    src="/images/tutors/lochie-siow.jpg"
-                    alt="Lochie Siow"
-                    className="h-16 w-16 rounded-full object-cover"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-950">Lochie Siow</h3>
-                    <p className="text-sm text-slate-500">Head Tutor · 2025 Dux of St Peter's College</p>
-                  </div>
-                </div>
-                <div className="mt-5 flex gap-3">
-                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
-                    <p className="text-xl font-bold text-slate-950">99th</p>
-                    <p className="mt-0.5 text-xs text-slate-500">percentile UCAT</p>
-                  </div>
-                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
-                    <p className="text-xl font-bold text-slate-950">99.95</p>
-                    <p className="mt-0.5 text-xs text-slate-500">ATAR</p>
-                  </div>
-                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
-                    <p className="text-xl font-bold text-slate-950">1st yr</p>
-                    <p className="mt-0.5 text-xs text-slate-500">Med Student</p>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                  2025 Dux of St Peter's College with a 99th percentile UCAT score. Lochie is now a first-year medical student and brings firsthand knowledge of what it takes to succeed in the UCAT and beyond.
-                </p>
-              </div>
-
-              {/* Joey Fitzgerald */}
-              <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
-                <div className="flex items-center gap-4">
-                  <img
-                    src="/images/tutors/joey-fitzgerald.jpg"
-                    alt="Joey Fitzgerald"
-                    className="h-16 w-16 rounded-full object-cover"
-                  />
-                  <div>
-                    <h3 className="text-lg font-semibold text-slate-950">Joey Fitzgerald</h3>
-                    <p className="text-sm text-slate-500">Tutor · University of Adelaide Medicine</p>
-                  </div>
-                </div>
-                <div className="mt-5 flex gap-3">
-                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
-                    <p className="text-xl font-bold text-slate-950">99th</p>
-                    <p className="mt-0.5 text-xs text-slate-500">percentile UCAT</p>
-                  </div>
-                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
-                    <p className="text-xl font-bold text-slate-950">2620</p>
-                    <p className="mt-0.5 text-xs text-slate-500">UCAT score</p>
-                  </div>
-                  <div className="flex-1 rounded-xl bg-slate-50 px-4 py-3 text-center">
-                    <p className="text-xl font-bold text-slate-950">99.85</p>
-                    <p className="mt-0.5 text-xs text-slate-500">ATAR</p>
-                  </div>
-                </div>
-                <p className="mt-4 text-sm leading-relaxed text-slate-600">
-                  Joey achieved a 2620 UCAT score (99th percentile) and a 99.85 ATAR before securing a place in medicine at the University of Adelaide. He specialises in breaking down each UCAT subtest into manageable, learnable strategies.
                 </p>
               </div>
             </div>
