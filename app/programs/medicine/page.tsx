@@ -98,7 +98,7 @@ const faqSchema = {
       name: "When should I start preparing for medicine?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Ideally, start in Year 10 or 11 to build strong foundations in prerequisite subjects. UCAT preparation typically begins 3-6 months before the test, and interview prep should start once you receive an interview offer.",
+        text: "Ideally, start in Year 10 or 11 to build strong foundations in prerequisite subjects. UCAT preparation typically begins a year to 6 months before the test, and interview prep should start once you receive an interview offer.",
       },
     },
     {
@@ -106,23 +106,7 @@ const faqSchema = {
       name: "What ATAR do I need for medicine?",
       acceptedAnswer: {
         "@type": "Answer",
-        text: "Medical school entry is highly competitive. Most successful applicants have ATARs above 95, though requirements vary by university. A strong UCAT score and interview performance are equally important.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Do your tutors have medical school experience?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Yes. Our medicine pathway tutors are current medical students or recent graduates who have successfully navigated the application process. They understand exactly what it takes to gain admission.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "How does UCAT preparation work?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "We offer structured UCAT preparation covering all four subtests: Verbal Reasoning, Decision Making, Quantitative Reasoning, and Situational Judgement. Sessions include strategy, practice questions, and timed mock tests.",
+        text: "Medical school entry is highly competitive. Most successful applicants have ATARs above 99.5, though requirements vary by university. A strong UCAT score and interview performance are equally important.",
       },
     },
     {

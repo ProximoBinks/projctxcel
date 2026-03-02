@@ -103,22 +103,6 @@ const faqSchema = {
     },
     {
       "@type": "Question",
-      name: "What SACE subjects do you cover?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "We cover Maths Methods, Specialist Maths, General Maths, Chemistry, Physics, Biology, English, English Literature, Accounting, and Research Project. Enquire for additional subjects.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Are your SACE tutors qualified?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "All our tutors are top 1% ATAR achievers with a current Working with Children Check. Many hold SACE subject merits and are current university students.",
-      },
-    },
-    {
-      "@type": "Question",
       name: "How often should a Year 12 student have tutoring?",
       acceptedAnswer: {
         "@type": "Answer",

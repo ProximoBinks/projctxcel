@@ -111,26 +111,10 @@ const faqSchema = {
     },
     {
       "@type": "Question",
-      name: "Are your tutors experienced with younger students?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Yes. Our tutors are selected not just for academic excellence but for their ability to connect with younger students. Every tutor holds a current Working with Children Check and understands how to make learning engaging for primary and middle school students.",
-      },
-    },
-    {
-      "@type": "Question",
       name: "How often should my child have tutoring sessions?",
       acceptedAnswer: {
         "@type": "Answer",
         text: "Most students benefit from 1–2 sessions per week. The right frequency depends on your child's goals and how much support they need. Your tutor can recommend an approach after the first few sessions.",
-      },
-    },
-    {
-      "@type": "Question",
-      name: "Can tutoring help my child get ahead, not just catch up?",
-      acceptedAnswer: {
-        "@type": "Answer",
-        text: "Absolutely. Many of our Year 4–10 students are already performing well but want to be challenged beyond the classroom. Tutoring can extend their learning, introduce advanced concepts, and prepare them for the transition to SACE.",
       },
     },
   ],

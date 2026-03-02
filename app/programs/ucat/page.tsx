@@ -269,8 +269,7 @@ export default function UCATPage() {
                   Strategy-focused sessions
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Each session focuses on specific techniques — time management, question
-                  triage, pattern recognition — not just content review.
+                Learn the exact techniques that our 99th percentile tutors used - from time management and question triage to pattern recognition
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
@@ -284,11 +283,10 @@ export default function UCATPage() {
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
                 <h3 className="text-lg font-semibold tracking-normal text-slate-950">
-                  Flexible scheduling
+                  Realistic practice questions
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  We work around your school schedule with sessions that can be intensified
-                  as your test date approaches.
+                  We work you through questions that are written by our tutors to replicate the exact style and difficulty of the real UCAT.
                 </p>
               </div>
             </div>
