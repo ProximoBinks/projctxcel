@@ -196,6 +196,7 @@ export default defineSchema({
     status: v.string(), // "succeeded" | "failed" | "cash" | "credit_applied"
     weekStartDate: v.string(), // YYYY-MM-DD charge date (daily billing)
     failureReason: v.optional(v.string()),
+    description: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_student", ["studentId"])

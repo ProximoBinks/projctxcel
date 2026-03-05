@@ -415,6 +415,7 @@ export const getChargeHistory = query({
       weekStartDate: v.string(),
       stripePaymentIntentId: v.optional(v.string()),
       failureReason: v.optional(v.string()),
+      description: v.optional(v.string()),
       createdAt: v.number(),
     }),
   ),
@@ -432,8 +433,62 @@ export const getChargeHistory = query({
       weekStartDate: c.weekStartDate,
       stripePaymentIntentId: c.stripePaymentIntentId,
       failureReason: c.failureReason,
+      description: c.description,
       createdAt: c.createdAt,
     }));
+  },
+});
+
+export const getRevenueStats = query({
+  args: { adminId: v.id("tutorAccounts") },
+  returns: v.object({
+    allTimeCents: v.number(),
+    thisMonthCents: v.number(),
+    thisWeekCents: v.number(),
+    chargeCount: v.number(),
+  }),
+  handler: async (ctx, { adminId }) => {
+    await assertAdmin(ctx, adminId);
+
+    const now = new Date();
+    const adelaideMs = now.getTime() + 9.5 * 60 * 60 * 1000;
+    const adelaide = new Date(adelaideMs);
+
+    const monthStart = `${adelaide.getFullYear()}-${String(adelaide.getMonth() + 1).padStart(2, "0")}-01`;
+
+    const jsDay = adelaide.getDay();
+    const mondayOffset = jsDay === 0 ? 6 : jsDay - 1;
+    const weekStart = new Date(adelaide);
+    weekStart.setDate(weekStart.getDate() - mondayOffset);
+    const weekStartStr = weekStart.toISOString().split("T")[0];
+
+    let allTimeCents = 0;
+    let thisMonthCents = 0;
+    let thisWeekCents = 0;
+    let chargeCount = 0;
+
+    let cursor: string | null = null;
+    let done = false;
+
+    while (!done) {
+      const page = await ctx.db
+        .query("billingCharges")
+        .order("desc")
+        .paginate({ numItems: 500, cursor: cursor as any ?? null });
+
+      for (const charge of page.page) {
+        if (charge.status !== "succeeded") continue;
+        allTimeCents += charge.amountCents;
+        chargeCount++;
+        if (charge.weekStartDate >= monthStart) thisMonthCents += charge.amountCents;
+        if (charge.weekStartDate >= weekStartStr) thisWeekCents += charge.amountCents;
+      }
+
+      done = page.isDone;
+      cursor = page.continueCursor as any;
+    }
+
+    return { allTimeCents, thisMonthCents, thisWeekCents, chargeCount };
   },
 });
 
@@ -450,6 +505,7 @@ export const getChargeHistoryAdmin = query({
       weekStartDate: v.string(),
       stripePaymentIntentId: v.optional(v.string()),
       failureReason: v.optional(v.string()),
+      description: v.optional(v.string()),
       createdAt: v.number(),
     }),
   ),
@@ -468,8 +524,60 @@ export const getChargeHistoryAdmin = query({
       weekStartDate: c.weekStartDate,
       stripePaymentIntentId: c.stripePaymentIntentId,
       failureReason: c.failureReason,
+      description: c.description,
       createdAt: c.createdAt,
     }));
+  },
+});
+
+export const getAllChargeHistory = query({
+  args: { adminId: v.id("tutorAccounts") },
+  returns: v.array(
+    v.object({
+      _id: v.id("billingCharges"),
+      studentId: v.id("students"),
+      studentName: v.string(),
+      amountCents: v.number(),
+      status: v.string(),
+      weekStartDate: v.string(),
+      stripePaymentIntentId: v.optional(v.string()),
+      failureReason: v.optional(v.string()),
+      description: v.optional(v.string()),
+      createdAt: v.number(),
+    }),
+  ),
+  handler: async (ctx, { adminId }) => {
+    await assertAdmin(ctx, adminId);
+
+    const charges = await ctx.db
+      .query("billingCharges")
+      .order("desc")
+      .take(200);
+
+    const studentCache = new Map<string, string>();
+
+    return Promise.all(
+      charges.map(async (c) => {
+        let studentName = studentCache.get(c.studentId);
+        if (!studentName) {
+          const s = await ctx.db.get(c.studentId);
+          studentName = s?.name ?? "Unknown";
+          studentCache.set(c.studentId, studentName);
+        }
+        return {
+          _id: c._id,
+          studentId: c.studentId,
+          studentName,
+          amountCents: c.amountCents,
+          status: c.status,
+          weekStartDate: c.weekStartDate,
+          stripePaymentIntentId: c.stripePaymentIntentId,
+          failureReason: c.failureReason,
+          description: c.description,
+          createdAt: c.createdAt,
+        };
+      }),
+    );
   },
 });
 
@@ -775,6 +883,110 @@ export const addCredit = mutation({
 // Internal helpers used by stripeActions.ts
 // ---------------------------------------------------------------------------
 
+export const getAdminInternal = internalQuery({
+  args: { adminId: v.id("tutorAccounts") },
+  returns: v.union(
+    v.object({ roles: v.optional(v.array(v.string())) }),
+    v.null(),
+  ),
+  handler: async (ctx, { adminId }) => {
+    const admin = await ctx.db.get(adminId);
+    if (!admin) return null;
+    return { roles: admin.roles };
+  },
+});
+
+export const getUpcomingCharges = query({
+  args: { adminId: v.id("tutorAccounts") },
+  returns: v.array(
+    v.object({
+      studentId: v.id("students"),
+      studentName: v.string(),
+      dayOfWeek: v.string(),
+      className: v.string(),
+      subject: v.string(),
+      tutorName: v.string(),
+      startTime: v.string(),
+      endTime: v.string(),
+      estimatedCents: v.number(),
+      paymentType: v.string(),
+      hasCard: v.boolean(),
+      status: v.string(),
+    }),
+  ),
+  handler: async (ctx, { adminId }) => {
+    await assertAdmin(ctx, adminId);
+
+    const profiles = await ctx.db
+      .query("billingProfiles")
+      .withIndex("by_status", (q) => q.eq("status", "active"))
+      .collect();
+
+    const results: Array<{
+      studentId: Id<"students">;
+      studentName: string;
+      dayOfWeek: string;
+      className: string;
+      subject: string;
+      tutorName: string;
+      startTime: string;
+      endTime: string;
+      estimatedCents: number;
+      paymentType: string;
+      hasCard: boolean;
+      status: string;
+    }> = [];
+
+    for (const profile of profiles) {
+      const student = await ctx.db.get(profile.studentId);
+      if (!student) continue;
+
+      const now = new Date();
+      const adelaideMs = now.getTime() + 9.5 * 60 * 60 * 1000;
+      const adelaideDate = new Date(adelaideMs);
+
+      for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+        const futureDate = new Date(adelaideDate);
+        futureDate.setDate(futureDate.getDate() + dayOffset);
+        const futureDateStr = futureDate.toISOString().split("T")[0];
+        const jsDay = futureDate.getDay();
+        const day = DAY_ORDER[jsDay === 0 ? 6 : jsDay - 1];
+
+        const existingCharge = await ctx.db
+          .query("billingCharges")
+          .withIndex("by_billingProfile_and_week", (q) =>
+            q.eq("billingProfileId", profile._id).eq("weekStartDate", futureDateStr),
+          )
+          .first();
+        if (existingCharge) continue;
+
+        const rate = await calculateDailyRateHelper(ctx, profile.studentId, day, futureDateStr);
+        if (rate.totalCents <= 0) continue;
+
+        for (const line of rate.breakdown) {
+          if (line.paused || line.lineTotalCents <= 0) continue;
+          results.push({
+            studentId: profile.studentId,
+            studentName: student.name,
+            dayOfWeek: day,
+            className: line.className,
+            subject: line.subject,
+            tutorName: line.tutorName,
+            startTime: line.startTime,
+            endTime: line.endTime,
+            estimatedCents: line.lineTotalCents,
+            paymentType: profile.paymentType,
+            hasCard: !!profile.stripePaymentMethodId,
+            status: dayOffset === 0 ? "Today" : futureDateStr,
+          });
+        }
+      }
+    }
+
+    return results;
+  },
+});
+
 export const getBillingProfileInternal = internalQuery({
   args: { studentId: v.id("students") },
   returns: v.union(
@@ -807,13 +1019,14 @@ export const getStudentInternal = internalQuery({
     v.object({
       name: v.string(),
       email: v.optional(v.string()),
+      parentEmail: v.optional(v.string()),
     }),
     v.null(),
   ),
   handler: async (ctx, { studentId }) => {
     const student = await ctx.db.get(studentId);
     if (!student) return null;
-    return { name: student.name, email: student.email };
+    return { name: student.name, email: student.email, parentEmail: student.parentEmail };
   },
 });
 
@@ -888,6 +1101,7 @@ export const recordCharge = internalMutation({
     weekStartDate: v.string(),
     stripePaymentIntentId: v.optional(v.string()),
     failureReason: v.optional(v.string()),
+    description: v.optional(v.string()),
   },
   returns: v.null(),
   handler: async (ctx, args) => {
@@ -899,6 +1113,7 @@ export const recordCharge = internalMutation({
       weekStartDate: args.weekStartDate,
       stripePaymentIntentId: args.stripePaymentIntentId,
       failureReason: args.failureReason,
+      description: args.description,
       createdAt: Date.now(),
     });
     return null;
