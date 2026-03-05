@@ -97,6 +97,9 @@ export const listStudents = query({
       yearLevel: v.string(),
       subjects: v.array(v.string()),
       assignedTutorNames: v.array(v.string()),
+      enrolledClasses: v.array(
+        v.object({ classId: v.id("classes"), className: v.string() }),
+      ),
       notes: v.optional(v.string()),
       active: v.boolean(),
       createdAt: v.number(),
@@ -108,7 +111,6 @@ export const listStudents = query({
 
     return Promise.all(
       students.map(async (s) => {
-        // Derive tutors from class enrollments
         const enrollments = await ctx.db
           .query("classStudents")
           .withIndex("by_student", (q) => q.eq("studentId", s._id))
@@ -116,7 +118,14 @@ export const listStudents = query({
           .collect();
 
         const tutorNames = new Map<string, string>();
+        const enrolledClasses: Array<{ classId: Id<"classes">; className: string }> = [];
+
         for (const enrollment of enrollments) {
+          const cls = await ctx.db.get(enrollment.classId);
+          if (cls) {
+            enrolledClasses.push({ classId: cls._id, className: cls.name });
+          }
+
           const assignment = await ctx.db
             .query("classAssignments")
             .withIndex("by_class", (q) => q.eq("classId", enrollment.classId))
@@ -139,6 +148,7 @@ export const listStudents = query({
           yearLevel: s.yearLevel,
           subjects: s.subjects,
           assignedTutorNames: Array.from(tutorNames.values()),
+          enrolledClasses,
           notes: s.notes,
           active: s.active,
           createdAt: s.createdAt,
