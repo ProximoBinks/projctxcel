@@ -3599,6 +3599,7 @@ function ManualChargeModal({
   onClose: () => void;
 }) {
   const manualCharge = useAction(api.stripeActions.manualCharge);
+  const billingProfile = useQuery(api.billing.getBillingProfile, { studentId });
   const [amount, setAmount] = useState("");
   const [description, setDescription] = useState("");
   const [dateMode, setDateMode] = useState<"single" | "range">("single");
@@ -3608,6 +3609,8 @@ function ManualChargeModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
+
+  const presets = billingProfile?.weeklyRate.breakdown.filter((l) => !l.paused && l.lineTotalCents > 0) ?? [];
 
   const formatDateLabel = (dateStr: string) => {
     const d = new Date(dateStr + "T00:00:00");
@@ -3691,6 +3694,36 @@ function ManualChargeModal({
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {presets.length > 0 && (
+            <div>
+              <label className="block text-sm font-medium text-slate-700">Quick Presets</label>
+              <div className="mt-2 space-y-1.5">
+                {presets.map((p) => (
+                  <button
+                    key={`${p.classId}-${p.dayOfWeek}`}
+                    type="button"
+                    onClick={() => {
+                      setAmount((p.lineTotalCents / 100).toFixed(2));
+                      setDescription(`${p.subject} — ${p.tutorName} (${p.dayOfWeek} ${p.startTime}–${p.endTime})`);
+                    }}
+                    className="flex w-full items-center justify-between rounded-xl border border-slate-200 px-4 py-3 text-left text-sm transition hover:border-purple-300 hover:bg-purple-50"
+                  >
+                    <div>
+                      <span className="font-medium text-slate-900">{p.className}</span>
+                      <span className="ml-2 text-slate-500">{p.subject} &middot; {p.tutorName}</span>
+                      <div className="text-xs text-slate-400">
+                        {p.dayOfWeek} {p.startTime}–{p.endTime} &middot; {p.durationMinutes}min @ ${(p.rateCents / 100).toFixed(0)}/hr
+                      </div>
+                    </div>
+                    <span className="ml-3 whitespace-nowrap font-semibold text-slate-900">
+                      ${(p.lineTotalCents / 100).toFixed(2)}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-slate-700">Amount ($)</label>
             <input
