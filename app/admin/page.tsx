@@ -982,12 +982,15 @@ function AddClassModal({
   const [startTime, setStartTime] = useState("16:00");
   const [endTime, setEndTime] = useState("17:00");
   const [location, setLocation] = useState("");
+  const [hourlyRate, setHourlyRate] = useState("");
   const [tutorId, setTutorId] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    const rateCents = hourlyRate ? Math.round(parseFloat(hourlyRate) * 100) : undefined;
 
     try {
       const classId = await createClass({
@@ -999,6 +1002,7 @@ function AddClassModal({
         startTime,
         endTime,
         location: location || undefined,
+        hourlyRateCents: rateCents && rateCents > 0 ? rateCents : undefined,
       });
       if (tutorId) {
         await assignTutor({
@@ -1133,6 +1137,21 @@ function AddClassModal({
 
           <div>
             <label className="block text-sm font-medium text-slate-700">
+              Hourly Rate ($)
+            </label>
+            <input
+              type="number"
+              value={hourlyRate}
+              onChange={(e) => setHourlyRate(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              step="0.01"
+              min="0"
+              placeholder="e.g. 50.00 (optional — overrides tutor rate)"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
               Assign tutor
             </label>
             <select
@@ -1188,6 +1207,7 @@ function EditClassModal({
     startTime: string;
     endTime: string;
     location?: string;
+    hourlyRateCents?: number;
   };
   onClose: () => void;
 }) {
@@ -1203,11 +1223,15 @@ function EditClassModal({
   const [startTime, setStartTime] = useState(initialClass.startTime);
   const [endTime, setEndTime] = useState(initialClass.endTime);
   const [location, setLocation] = useState(initialClass.location ?? "");
+  const [hourlyRate, setHourlyRate] = useState(
+    initialClass.hourlyRateCents ? (initialClass.hourlyRateCents / 100).toFixed(2) : "",
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+    const rateCents = hourlyRate ? Math.round(parseFloat(hourlyRate) * 100) : undefined;
     try {
       await updateClass({
         adminId,
@@ -1219,6 +1243,7 @@ function EditClassModal({
         startTime,
         endTime,
         location: location || undefined,
+        hourlyRateCents: rateCents && rateCents > 0 ? rateCents : undefined,
       });
       onClose();
     } catch (err) {
@@ -1342,6 +1367,21 @@ function EditClassModal({
                 className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-700">
+              Hourly Rate ($)
+            </label>
+            <input
+              type="number"
+              value={hourlyRate}
+              onChange={(e) => setHourlyRate(e.target.value)}
+              className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              step="0.01"
+              min="0"
+              placeholder="e.g. 50.00 (optional — overrides tutor rate)"
+            />
           </div>
 
           {error && <p className="text-sm text-red-600">{error}</p>}
@@ -2511,6 +2551,8 @@ function BillingTab({
   const [historyRetryResult, setHistoryRetryResult] = useState<{ id: string; success: boolean; error?: string } | null>(null);
   const [historyStatusFilter, setHistoryStatusFilter] = useState<"all" | "succeeded" | "failed" | "cash" | "credit_applied">("all");
   const [historyTypeFilter, setHistoryTypeFilter] = useState<"all" | "auto" | "manual">("all");
+  const [historyVisibility, setHistoryVisibility] = useState<"visible" | "hidden">("visible");
+  const [hideMode, setHideMode] = useState(false);
   const [viewingHistory, setViewingHistory] = useState<{
     studentId: Id<"students">;
     studentName: string;
@@ -2537,6 +2579,7 @@ function BillingTab({
   const deleteBillingProfile = useMutation(api.billing.deleteBillingProfile);
   const updateBillingStatus = useMutation(api.billing.updateBillingStatus);
   const retryChargeAction = useAction(api.stripeActions.manualCharge);
+  const toggleChargeHidden = useMutation(api.billing.toggleChargeHidden);
 
   const formatCurrency = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
@@ -2940,6 +2983,32 @@ function BillingTab({
                 </button>
               ))}
             </div>
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-medium text-slate-400">Show:</span>
+              {(["visible", "hidden"] as const).map((f) => (
+                <button
+                  key={f}
+                  onClick={() => setHistoryVisibility(f)}
+                  className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                    historyVisibility === f
+                      ? "bg-slate-900 text-white"
+                      : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  }`}
+                >
+                  {f === "visible" ? "Visible" : "Hidden"}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setHideMode((prev) => !prev)}
+              className={`rounded-full px-3 py-1 text-xs font-medium transition ${
+                hideMode
+                  ? "bg-red-100 text-red-700"
+                  : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+              }`}
+            >
+              {hideMode ? "Done Hiding" : "Manage Hidden"}
+            </button>
           </div>
 
           <div className="rounded-2xl border border-slate-200 bg-white">
@@ -2961,6 +3030,9 @@ function BillingTab({
                     (() => {
                       const isAuto = (desc?: string) => !desc || desc.startsWith("Auto:");
                       const filtered = allChargeHistory.filter((c) => {
+                        const isHidden = c.hidden === true;
+                        if (historyVisibility === "visible" && isHidden) return false;
+                        if (historyVisibility === "hidden" && !isHidden) return false;
                         if (historyStatusFilter !== "all" && c.status !== historyStatusFilter) return false;
                         if (historyTypeFilter === "auto" && !isAuto(c.description)) return false;
                         if (historyTypeFilter === "manual" && isAuto(c.description)) return false;
@@ -3046,10 +3118,22 @@ function BillingTab({
                                 </button>
                               </div>
                             )}
-                            {charge.stripePaymentIntentId && charge.status === "succeeded" && (
+                            {charge.stripePaymentIntentId && charge.status === "succeeded" && !hideMode && (
                               <span className="font-mono text-xs text-slate-400">
                                 {charge.stripePaymentIntentId.slice(0, 14)}...
                               </span>
+                            )}
+                            {hideMode && (
+                              <button
+                                onClick={() => toggleChargeHidden({ adminId, chargeId: charge._id, hidden: !charge.hidden })}
+                                className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
+                                  charge.hidden
+                                    ? "bg-green-100 text-green-700 hover:bg-green-200"
+                                    : "bg-slate-100 text-slate-500 hover:bg-red-100 hover:text-red-600"
+                                }`}
+                              >
+                                {charge.hidden ? "Unhide" : "Hide"}
+                              </button>
                             )}
                           </td>
                         </tr>
@@ -3077,14 +3161,18 @@ function BillingTab({
                   {(() => {
                     const isAuto = (desc?: string) => !desc || desc.startsWith("Auto:");
                     const count = allChargeHistory.filter((c) => {
+                      const isHidden = c.hidden === true;
+                      if (historyVisibility === "visible" && isHidden) return false;
+                      if (historyVisibility === "hidden" && !isHidden) return false;
                       if (historyStatusFilter !== "all" && c.status !== historyStatusFilter) return false;
                       if (historyTypeFilter === "auto" && !isAuto(c.description)) return false;
                       if (historyTypeFilter === "manual" && isAuto(c.description)) return false;
                       return true;
                     }).length;
-                    return historyStatusFilter === "all" && historyTypeFilter === "all"
-                      ? `${allChargeHistory.length} charges`
-                      : `${count} of ${allChargeHistory.length} charges`;
+                    const hasFilter = historyStatusFilter !== "all" || historyTypeFilter !== "all" || historyVisibility !== "visible";
+                    return hasFilter
+                      ? `${count} of ${allChargeHistory.length} charges`
+                      : `${allChargeHistory.length} charges`;
                   })()}
                 </span>
                 <span className="font-medium text-green-700">
