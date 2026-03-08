@@ -113,14 +113,7 @@ async function buildClassLine(
   const tutor = await ctx.db.get(activeAssignment.tutorId);
   if (!tutor) return null;
 
-  const subjectRate = await ctx.db
-    .query("subjectRates")
-    .withIndex("by_tutor_and_subject", (q) =>
-      q.eq("tutorId", tutor._id).eq("subject", cls.subject),
-    )
-    .first();
-
-  const rateCents = subjectRate ? subjectRate.ratePerHour : tutor.hourlyRate;
+  const rateCents = cls.hourlyRateCents ?? tutor.hourlyRate;
   const paused = await isClassPausedForStudent(ctx, studentId, cls._id, referenceDate);
   const lineTotalCents = paused ? 0 : Math.round((durationMinutes / 60) * rateCents);
 
@@ -543,6 +536,7 @@ export const getAllChargeHistory = query({
       stripePaymentIntentId: v.optional(v.string()),
       failureReason: v.optional(v.string()),
       description: v.optional(v.string()),
+      hidden: v.optional(v.boolean()),
       createdAt: v.number(),
     }),
   ),
@@ -574,10 +568,25 @@ export const getAllChargeHistory = query({
           stripePaymentIntentId: c.stripePaymentIntentId,
           failureReason: c.failureReason,
           description: c.description,
+          hidden: c.hidden,
           createdAt: c.createdAt,
         };
       }),
     );
+  },
+});
+
+export const toggleChargeHidden = mutation({
+  args: {
+    adminId: v.id("tutorAccounts"),
+    chargeId: v.id("billingCharges"),
+    hidden: v.boolean(),
+  },
+  returns: v.null(),
+  handler: async (ctx, { adminId, chargeId, hidden }) => {
+    await assertAdmin(ctx, adminId);
+    await ctx.db.patch(chargeId, { hidden });
+    return null;
   },
 });
 

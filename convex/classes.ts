@@ -11,6 +11,7 @@ const classWithTutorValidator = v.object({
   startTime: v.string(),
   endTime: v.string(),
   location: v.optional(v.string()),
+  hourlyRateCents: v.optional(v.number()),
   active: v.boolean(),
   tutors: v.array(
     v.object({
@@ -60,6 +61,7 @@ export const listClasses = query({
           startTime: cls.startTime,
           endTime: cls.endTime,
           location: cls.location,
+          hourlyRateCents: cls.hourlyRateCents,
           active: cls.active,
           tutors: activeTutors,
         };
@@ -105,6 +107,7 @@ export const getClassesForTutor = query({
           startTime: cls.startTime,
           endTime: cls.endTime,
           location: cls.location,
+          hourlyRateCents: cls.hourlyRateCents,
           active: cls.active,
           tutors: classTutors,
         };
@@ -124,6 +127,7 @@ export const createClass = mutation({
     startTime: v.string(),
     endTime: v.string(),
     location: v.optional(v.string()),
+    hourlyRateCents: v.optional(v.number()),
   },
   returns: v.id("classes"),
   handler: async (ctx, { adminId, ...args }) => {
@@ -147,6 +151,7 @@ export const updateClass = mutation({
     startTime: v.optional(v.string()),
     endTime: v.optional(v.string()),
     location: v.optional(v.string()),
+    hourlyRateCents: v.optional(v.number()),
     active: v.optional(v.boolean()),
   },
   returns: v.boolean(),

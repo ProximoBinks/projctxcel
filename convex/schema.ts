@@ -135,6 +135,7 @@ export default defineSchema({
     startTime: v.string(), // "HH:MM"
     endTime: v.string(), // "HH:MM"
     location: v.optional(v.string()),
+    hourlyRateCents: v.optional(v.number()),
     active: v.boolean(),
     createdAt: v.number(),
   })
@@ -197,6 +198,7 @@ export default defineSchema({
     weekStartDate: v.string(), // YYYY-MM-DD charge date (daily billing)
     failureReason: v.optional(v.string()),
     description: v.optional(v.string()),
+    hidden: v.optional(v.boolean()),
     createdAt: v.number(),
   })
     .index("by_student", ["studentId"])
