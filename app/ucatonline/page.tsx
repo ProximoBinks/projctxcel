@@ -58,7 +58,7 @@ export default function UcatSignupPage() {
 
         <div className="mb-10 max-w-2xl">
           <p className="text-xs uppercase tracking-[0.3em] text-blue-500">
-            Meducate UCAT Program
+          Simple Tuition UCAT Online Workshop Registration
           </p>
           <h1 className="mt-4 text-3xl font-semibold text-slate-950 sm:text-4xl">
             Reserve your spot
