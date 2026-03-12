@@ -6,7 +6,7 @@ import Confetti from "../../components/Confetti";
 type ClassType = "group" | "1on1" | "both";
 
 type FormState = {
-  yearLevel: "Year 11" | "Year 12" | "";
+  yearLevel: "Year 11" | "Year 12" | "Year 13" | "";
   classType: ClassType | "";
   withFriend: boolean;
   friendName: string;
@@ -33,8 +33,8 @@ const initialState: FormState = {
 
 const CLASS_TYPE_OPTIONS: { value: ClassType; label: string; sub: string }[] = [
   { value: "group", label: "Group class", sub: "Small cohort · Sunday sessions" },
-  { value: "1on1", label: "1-on-1 tutoring", sub: "Fully personalised · flexible scheduling" },
-  { value: "both", label: "Both", sub: "Group class + 1-on-1 support" },
+  { value: "1on1", label: "1-on-1 tutoring", sub: "Personalised · Flexible scheduling" },
+  { value: "both", label: "Both", sub: "Group class & 1-on-1 support" },
 ];
 
 export default function UcatSignupForm() {
@@ -69,7 +69,7 @@ export default function UcatSignupForm() {
         ? "Group class"
         : form.classType === "1on1"
         ? "1-on-1 tutoring"
-        : "Both (group class + 1-on-1)";
+        : "Both (group class & 1-on-1)";
 
     const interests = [
       `Class type: ${classTypeLabel}`,
@@ -133,8 +133,8 @@ export default function UcatSignupForm() {
       {/* Year Level */}
       <div className="grid gap-3">
         <p className="text-sm font-semibold text-slate-900">What year are you in?</p>
-        <div className="grid grid-cols-2 gap-3">
-          {(["Year 11", "Year 12"] as const).map((level) => (
+        <div className="grid grid-cols-3 gap-3">
+          {(["Year 11", "Year 12", "Year 13"] as const).map((level) => (
             <button
               key={level}
               type="button"
@@ -208,7 +208,7 @@ export default function UcatSignupForm() {
             Your friend&apos;s name
             <input
               className="input"
-              placeholder="e.g. Sarah Chen"
+              placeholder="e.g. John Smith"
               value={form.friendName}
               onChange={(e) => setForm((prev) => ({ ...prev, friendName: e.target.value }))}
             />
@@ -250,8 +250,7 @@ export default function UcatSignupForm() {
 
       {/* Optional message */}
       <label className="grid gap-2 text-sm font-medium text-slate-700">
-        Anything else you&apos;d like us to know?{" "}
-        <span className="font-normal text-slate-400">(optional)</span>
+        <span>Anything else you&apos;d like us to know? <span className="font-normal text-slate-400">(optional)</span></span>
         <textarea
           className="input min-h-[100px] resize-y"
           value={form.message}
@@ -269,8 +268,8 @@ export default function UcatSignupForm() {
           required
         />
         <span>
-          I agree to Simple Tuition collecting and using my details to process this registration.
-          View our{" "}
+        I agree to be contacted about tutoring services and occasional updates and promotions.
+         {" "}
           <a href="/privacy" target="_blank" className="font-semibold text-blue-600">
             Privacy Policy
           </a>
