@@ -168,8 +168,8 @@ export default function UCATPage() {
               coaching from 99th percentile scorers.
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
-              <Link href="/enquire" className="btn btn-lg">
-                Enquire now
+              <Link href="/ucatonline" className="btn btn-lg">
+                Sign up
               </Link>
               <Link href="/#tutors" className="btn-ghost">
                 Our tutors
