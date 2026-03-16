@@ -1762,9 +1762,8 @@ function EditStudentModal({
               value={yearLevel}
               onChange={(e) => setYearLevel(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
-              required
             >
-              <option value="">Select year level</option>
+              <option value="">Not Set</option>
               {yearLevels.map((y) => (
                 <option key={y} value={y}>
                   {y}
@@ -1814,6 +1813,7 @@ function EditStudentModal({
               value={parentName}
               onChange={(e) => setParentName(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              placeholder="Optional"
             />
           </div>
 
@@ -1826,6 +1826,7 @@ function EditStudentModal({
               value={parentEmail}
               onChange={(e) => setParentEmail(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              placeholder="Optional"
             />
           </div>
 
@@ -1838,6 +1839,7 @@ function EditStudentModal({
               value={parentPhone}
               onChange={(e) => setParentPhone(e.target.value)}
               className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+              placeholder="Optional"
             />
           </div>
 

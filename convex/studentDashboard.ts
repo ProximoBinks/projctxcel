@@ -566,6 +566,14 @@ export const signupStudent = mutation({
       createdAt: Date.now(),
     });
 
+    // Auto-create a card billing profile so students can add their card immediately
+    await ctx.db.insert("billingProfiles", {
+      studentId,
+      paymentType: "card",
+      status: "active",
+      createdAt: Date.now(),
+    });
+
     return { success: true };
   },
 });

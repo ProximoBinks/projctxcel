@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation, useQuery, useAction } from "convex/react";
@@ -132,6 +132,7 @@ function OverviewTab({
   onCloseEditProfile: () => void;
 }) {
   const overview = useQuery(api.studentDashboard.getOverview, { studentId });
+  const billingProfile = useQuery(api.billing.getBillingProfile, { studentId });
   const subjects = useQuery(api.subjects.listSubjects);
   const updateProfile = useMutation(api.studentDashboard.updateProfile);
   const [saving, setSaving] = useState(false);
@@ -142,63 +143,72 @@ function OverviewTab({
   const [parentName, setParentName] = useState("");
   const [parentEmail, setParentEmail] = useState("");
   const [parentPhone, setParentPhone] = useState("");
+  const [parentEmailError, setParentEmailError] = useState("");
+  const [parentPhoneError, setParentPhoneError] = useState("");
+  const [showSaveTooltip, setShowSaveTooltip] = useState(false);
+  const initialized = useRef(false);
 
   const student = overview?.student;
 
+  // Initialise form fields once when student data first loads.
+  // Using a ref prevents the effect from re-running when the user clears a field,
+  // which would otherwise reset it back to the saved value.
   useEffect(() => {
-    if (!student) return;
-    if (student.yearLevel !== "Not Set" && yearLevel === "") {
-      setYearLevel(student.yearLevel);
-    }
-    if (selectedSubjects.length === 0 && student.subjects.length > 0) {
-      setSelectedSubjects(student.subjects);
-    }
-    if (parentName === "" && student.parentName) {
-      setParentName(student.parentName);
-    }
-    if (parentEmail === "" && student.parentEmail) {
-      setParentEmail(student.parentEmail);
-    }
-    if (parentPhone === "" && student.parentPhone) {
-      setParentPhone(student.parentPhone);
-    }
-  }, [
-    student,
-    yearLevel,
-    selectedSubjects,
-    parentName,
-    parentEmail,
-    parentPhone,
-  ]);
+    if (!student || initialized.current) return;
+    initialized.current = true;
+    setYearLevel(student.yearLevel !== "Not Set" ? student.yearLevel : "");
+    setSelectedSubjects(student.subjects ?? []);
+    setParentName(student.parentName ?? "");
+    setParentEmail(student.parentEmail ?? "");
+    setParentPhone(student.parentPhone ?? "");
+  }, [student]);
 
   if (!overview) {
     return <div className="text-slate-500">Loading...</div>;
   }
 
-  const profileNeedsUpdate =
-    overview.student.yearLevel === "Not Set" ||
-    overview.student.subjects.length === 0 ||
-    !overview.student.parentName ||
-    !overview.student.parentEmail ||
-    !overview.student.parentPhone;
+  const emailValid = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  const phoneValid = (v: string) => /^[0-9\s\+\-\(\)]{6,20}$/.test(v);
 
   const profileComplete =
     yearLevel.trim().length > 0 &&
-    selectedSubjects.length > 0 &&
     parentName.trim().length > 0 &&
     parentEmail.trim().length > 0 &&
     parentPhone.trim().length > 0;
 
+  // Show card setup overlay when billing profile exists but no card saved yet
+  const needsCardSetup =
+    billingProfile !== undefined &&
+    billingProfile !== null &&
+    !billingProfile.stripePaymentMethodId;
+
   return (
     <div className="space-y-8">
-      {(profileNeedsUpdate || forceEditProfile) && (
+      {/* Non-dismissable card setup overlay — shown until a card is added */}
+      {needsCardSetup && stripePromise && (
+        <Elements stripe={stripePromise}>
+          <CardSetupOverlay studentId={studentId} />
+        </Elements>
+      )}
+      {needsCardSetup && !stripePromise && (
         <div className="fixed inset-0 z-40 flex h-dvh items-center justify-center bg-slate-900/40 p-4 backdrop-blur">
-          <div className="w-full max-w-lg max-h-[calc(100dvh-3rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
+          <div className="w-full max-w-md rounded-2xl bg-white p-6 text-center">
+            <p className="text-sm text-red-600">
+              Payment setup is unavailable. Please contact support.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Edit profile modal — only shown via "Edit profile" button */}
+      {forceEditProfile && (
+        <div className="fixed inset-0 z-40 flex h-dvh items-center justify-center bg-slate-900/40 p-4 backdrop-blur">
+          <div className="w-full max-w-lg sm:max-w-xl max-h-[calc(100dvh-3rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-6 shadow-lg sm:p-8">
             <h2 className="text-lg font-semibold text-slate-900">
-              Complete your profile
+              Edit profile
             </h2>
             <p className="mt-1 text-sm text-slate-600">
-              Please fill in all required details to continue.
+              Update your personal details.
             </p>
 
             <form
@@ -206,23 +216,27 @@ function OverviewTab({
               onSubmit={async (e) => {
                 e.preventDefault();
                 setError("");
-                if (!profileComplete) {
-                  setError("Please complete all required fields.");
-                  return;
+                let valid = true;
+                if (!emailValid(parentEmail)) {
+                  setParentEmailError("Please enter a valid email address.");
+                  valid = false;
                 }
+                if (!phoneValid(parentPhone)) {
+                  setParentPhoneError("Please enter a valid phone number (digits, spaces, +, -, brackets).");
+                  valid = false;
+                }
+                if (!valid) return;
                 setSaving(true);
                 try {
                   await updateProfile({
                     studentId,
                     yearLevel,
                     subjects: selectedSubjects,
-                    parentName,
-                    parentEmail,
-                    parentPhone,
+                    parentName: parentName || undefined,
+                    parentEmail: parentEmail || undefined,
+                    parentPhone: parentPhone || undefined,
                   });
-                  if (!profileNeedsUpdate) {
-                    onCloseEditProfile();
-                  }
+                  onCloseEditProfile();
                 } catch {
                   setError("Failed to update your profile. Please try again.");
                 } finally {
@@ -262,8 +276,7 @@ function OverviewTab({
 
               <div>
                 <label className="block text-sm font-medium text-slate-700">
-                  Subjects{" "}
-                  <span className="text-[#DE0000]">*</span>
+                  Subjects
                 </label>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   {subjects?.map((subject) => (
@@ -291,8 +304,7 @@ function OverviewTab({
 
               <div className="border-t border-slate-100 pt-4">
                 <p className="text-sm font-medium text-slate-700">
-                  Parent/Guardian Contact{" "}
-                  {/* <span className="text-[#DE0000]">*</span> */}
+                  Parent/Guardian Contact
                 </p>
               </div>
 
@@ -316,12 +328,22 @@ function OverviewTab({
                   <span className="text-[#DE0000]">*</span>
                 </label>
                 <input
-                  type="email"
+                  type="text"
                   value={parentEmail}
-                  onChange={(e) => setParentEmail(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                  onChange={(e) => {
+                    setParentEmail(e.target.value);
+                    setParentEmailError(
+                      e.target.value && !emailValid(e.target.value)
+                        ? "Please enter a valid email address."
+                        : "",
+                    );
+                  }}
+                  className={`mt-1 w-full rounded-xl border px-4 py-3 text-sm focus:outline-none ${parentEmailError ? "border-red-400 focus:border-red-500" : "border-slate-200 focus:border-blue-500"}`}
                   required
                 />
+                {parentEmailError && (
+                  <p className="mt-1 text-xs text-red-600">{parentEmailError}</p>
+                )}
               </div>
 
               <div>
@@ -330,33 +352,55 @@ function OverviewTab({
                   <span className="text-[#DE0000]">*</span>
                 </label>
                 <input
-                  type="tel"
+                  type="text"
                   value={parentPhone}
-                  onChange={(e) => setParentPhone(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-slate-200 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none"
+                  onChange={(e) => {
+                    setParentPhone(e.target.value);
+                    setParentPhoneError(
+                      e.target.value && !phoneValid(e.target.value)
+                        ? "Please enter a valid phone number."
+                        : "",
+                    );
+                  }}
+                  className={`mt-1 w-full rounded-xl border px-4 py-3 text-sm focus:outline-none ${parentPhoneError ? "border-red-400 focus:border-red-500" : "border-slate-200 focus:border-blue-500"}`}
                   required
                 />
+                {parentPhoneError && (
+                  <p className="mt-1 text-xs text-red-600">{parentPhoneError}</p>
+                )}
               </div>
 
               {error && <p className="text-sm text-red-600">{error}</p>}
 
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                <button
-                  type="submit"
-                  disabled={saving || !profileComplete}
-                  className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50 sm:w-auto"
+              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-center">
+                <div
+                  className="relative w-full sm:w-auto"
+                  onMouseEnter={() => (!profileComplete || !!parentEmailError || !!parentPhoneError) && setShowSaveTooltip(true)}
+                  onMouseLeave={() => setShowSaveTooltip(false)}
+                  onTouchStart={() => (!profileComplete || !!parentEmailError || !!parentPhoneError) && setShowSaveTooltip(true)}
+                  onTouchEnd={() => setTimeout(() => setShowSaveTooltip(false), 1500)}
                 >
-                  {saving ? "Saving..." : "Save profile"}
-                </button>
-                {!profileNeedsUpdate && (
                   <button
-                    type="button"
-                    onClick={onCloseEditProfile}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 sm:w-auto"
+                    type="submit"
+                    disabled={saving || !profileComplete || !!parentEmailError || !!parentPhoneError}
+                    className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                   >
-                    Cancel
+                    {saving ? "Saving..." : "Save profile"}
                   </button>
-                )}
+                  {showSaveTooltip && (
+                    <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white shadow-lg">
+                      Please fill in all required fields
+                      <div className="absolute left-1/2 top-full -translate-x-1/2 border-4 border-transparent border-t-slate-800" />
+                    </div>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={onCloseEditProfile}
+                  className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-600 transition hover:bg-slate-50 sm:w-auto"
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
@@ -1253,6 +1297,136 @@ function AddCardModal({
               Close
             </button>
           </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Non-dismissable overlay shown on first login until a payment method is saved
+function CardSetupOverlay({ studentId }: { studentId: Id<"students"> }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const createSetupIntent = useAction(api.stripeActions.createSetupIntent);
+  const savePaymentMethod = useAction(api.stripeActions.savePaymentMethod);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+
+  const initSetup = useCallback(async () => {
+    try {
+      const result = await createSetupIntent({ studentId });
+      setClientSecret(result.clientSecret);
+    } catch (err: any) {
+      setError(err.message ?? "Failed to initialize card setup");
+    }
+  }, [createSetupIntent, studentId]);
+
+  useEffect(() => {
+    initSetup();
+  }, [initSetup]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements || !clientSecret) return;
+    setLoading(true);
+    setError("");
+
+    const cardElement = elements.getElement(CardElement);
+    if (!cardElement) {
+      setError("Card element not found");
+      setLoading(false);
+      return;
+    }
+
+    const { error: stripeError, setupIntent } = await stripe.confirmCardSetup(
+      clientSecret,
+      { payment_method: { card: cardElement } },
+    );
+
+    if (stripeError) {
+      setError(stripeError.message ?? "Card setup failed");
+      setLoading(false);
+      return;
+    }
+
+    if (setupIntent?.payment_method) {
+      const pmId =
+        typeof setupIntent.payment_method === "string"
+          ? setupIntent.payment_method
+          : setupIntent.payment_method.id;
+      try {
+        await savePaymentMethod({ studentId, stripePaymentMethodId: pmId });
+        // Overlay auto-dismisses — billingProfile will refetch and stripePaymentMethodId will be set
+      } catch (err: any) {
+        setError(err.message ?? "Failed to save payment method");
+      }
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-40 flex h-dvh items-center justify-center bg-slate-900/60 p-4 backdrop-blur">
+      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl sm:p-8">
+        {/* Header */}
+        <div className="mb-1 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100">
+          <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+          </svg>
+        </div>
+        <h2 className="mt-4 text-lg font-semibold text-slate-900">
+          Add your payment method
+        </h2>
+        <p className="mt-1 text-sm text-slate-500">
+          A card on file is required to continue. You'll only be charged for classes you attend.
+        </p>
+
+        {!clientSecret && !error && (
+          <p className="mt-6 text-sm text-slate-400">Preparing secure card form...</p>
+        )}
+
+        {error && !clientSecret && (
+          <div className="mt-6 space-y-3">
+            <p className="text-sm text-red-600">{error}</p>
+            <button
+              onClick={initSetup}
+              className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
+            >
+              Try again
+            </button>
+          </div>
+        )}
+
+        {clientSecret && (
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div className="rounded-xl border border-slate-200 p-4">
+              <CardElement
+                options={{
+                  style: {
+                    base: {
+                      fontSize: "16px",
+                      color: "#1e293b",
+                      "::placeholder": { color: "#94a3b8" },
+                    },
+                  },
+                }}
+              />
+            </div>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={loading || !stripe}
+              className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Saving card..." : "Save card & continue"}
+            </button>
+
+            <p className="text-center text-xs text-slate-400">
+              Your card details are securely handled by Stripe. We never store your card number.
+            </p>
+          </form>
         )}
       </div>
     </div>
