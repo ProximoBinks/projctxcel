@@ -1,5 +1,7 @@
 # Todo
 
+- [ ] add profit calculation based on the payouts
+
 ## Blockers
 - [x] Confirm business name + domain
 - [x] Collect tutor bios/photos/stats
