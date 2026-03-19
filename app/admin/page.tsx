@@ -56,7 +56,7 @@ function AdminDashboard({
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
-    "tutors" | "students" | "sessions" | "classes" | "billing"
+    "tutors" | "students" | "sessions" | "classes" | "billing" | "enquiries"
   >("tutors");
   const [showAddTutor, setShowAddTutor] = useState(false);
   const [showAddStudent, setShowAddStudent] = useState(false);
@@ -107,7 +107,7 @@ function AdminDashboard({
       {/* Tabs */}
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto flex max-w-6xl gap-4 overflow-x-auto px-4 sm:gap-6 sm:px-6">
-          {(["tutors", "students", "sessions", "classes", "billing"] as const).map((tab) => (
+          {(["tutors", "students", "sessions", "classes", "billing", "enquiries"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -150,6 +150,7 @@ function AdminDashboard({
         {activeTab === "billing" && (
           <BillingTab adminId={adminId} students={students} />
         )}
+        {activeTab === "enquiries" && <EnquiriesTab adminId={adminId} />}
       </main>
 
       {/* Modals */}
@@ -2540,6 +2541,213 @@ function AddStudentModal({
   );
 }
 
+function RevenueChart({ data }: { data: { date: string; totalCents: number }[] }) {
+  const [range, setRange] = useState<"all" | "month" | "week">("month");
+
+  const now = new Date();
+  const adelaideMs = now.getTime() + 9.5 * 60 * 60 * 1000;
+  const adelaide = new Date(adelaideMs);
+  const todayStr = adelaide.toISOString().split("T")[0];
+
+  const filtered = data.filter((d) => {
+    if (range === "week") {
+      const jsDay = adelaide.getDay();
+      const offset = jsDay === 0 ? 6 : jsDay - 1;
+      const weekStart = new Date(adelaide);
+      weekStart.setDate(weekStart.getDate() - offset);
+      return d.date >= weekStart.toISOString().split("T")[0];
+    }
+    if (range === "month") {
+      const monthStart = `${adelaide.getFullYear()}-${String(adelaide.getMonth() + 1).padStart(2, "0")}-01`;
+      return d.date >= monthStart;
+    }
+    return true;
+  });
+
+  const points = filtered.sort((a, b) => a.date.localeCompare(b.date));
+  const totalCents = points.reduce((s, p) => s + p.totalCents, 0);
+
+  const formatCurrency = (c: number) => `$${(c / 100).toFixed(2)}`;
+  const formatDate = (d: string) => {
+    const [y, m, day] = d.split("-");
+    return `${parseInt(day)} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][parseInt(m)-1]}`;
+  };
+
+  // SVG chart dimensions
+  const W = 800;
+  const H = 220;
+  const padL = 60;
+  const padR = 20;
+  const padT = 16;
+  const padB = 40;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
+  const maxVal = Math.max(...points.map((p) => p.totalCents), 1);
+
+  const xStep = points.length > 1 ? chartW / (points.length - 1) : chartW;
+  const toX = (i: number) => padL + (points.length === 1 ? chartW / 2 : i * xStep);
+  const toY = (v: number) => padT + chartH - (v / maxVal) * chartH;
+
+  const polyline = points.map((p, i) => `${toX(i)},${toY(p.totalCents)}`).join(" ");
+  const area =
+    points.length > 0
+      ? `M${toX(0)},${padT + chartH} ` +
+        points.map((p, i) => `L${toX(i)},${toY(p.totalCents)}`).join(" ") +
+        ` L${toX(points.length - 1)},${padT + chartH} Z`
+      : "";
+
+  // Y-axis gridlines (4 lines)
+  const yTicks = [0.25, 0.5, 0.75, 1].map((f) => ({
+    y: toY(maxVal * f),
+    label: formatCurrency(maxVal * f),
+  }));
+
+  // X-axis labels: show at most 7 evenly spread
+  const xLabelIndices: number[] = [];
+  if (points.length <= 7) {
+    points.forEach((_, i) => xLabelIndices.push(i));
+  } else {
+    const step = Math.floor(points.length / 6);
+    for (let i = 0; i < points.length; i += step) xLabelIndices.push(i);
+    if (!xLabelIndices.includes(points.length - 1)) xLabelIndices.push(points.length - 1);
+  }
+
+  const [tooltip, setTooltip] = useState<{ i: number; x: number; y: number } | null>(null);
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-5">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h3 className="text-base font-semibold text-slate-900">Revenue</h3>
+          <p className="text-sm text-slate-500">
+            {points.length} day{points.length !== 1 ? "s" : ""} · Total{" "}
+            <span className="font-semibold text-slate-800">{formatCurrency(totalCents)}</span>
+          </p>
+        </div>
+        <div className="flex rounded-xl border border-slate-200 p-0.5">
+          {(["week", "month", "all"] as const).map((r) => (
+            <button
+              key={r}
+              onClick={() => setRange(r)}
+              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                range === r
+                  ? "bg-slate-900 text-white"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              {r === "week" ? "This week" : r === "month" ? "This month" : "All time"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {points.length === 0 ? (
+        <div className="flex h-[220px] items-center justify-center">
+          <p className="text-sm text-slate-400">No revenue data for this period</p>
+        </div>
+      ) : (
+        <div className="relative w-full overflow-x-auto">
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            className="w-full"
+            style={{ minWidth: 300 }}
+            onMouseLeave={() => setTooltip(null)}
+          >
+            <defs>
+              <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#2563eb" stopOpacity="0.18" />
+                <stop offset="100%" stopColor="#2563eb" stopOpacity="0.01" />
+              </linearGradient>
+            </defs>
+
+            {/* Grid lines */}
+            {yTicks.map((t, i) => (
+              <g key={i}>
+                <line
+                  x1={padL} y1={t.y} x2={W - padR} y2={t.y}
+                  stroke="#e2e8f0" strokeWidth="1"
+                />
+                <text
+                  x={padL - 6} y={t.y + 4}
+                  textAnchor="end" fontSize="10" fill="#94a3b8"
+                >
+                  {t.label}
+                </text>
+              </g>
+            ))}
+
+            {/* Area fill */}
+            {area && <path d={area} fill="url(#revenueGrad)" />}
+
+            {/* Line */}
+            <polyline
+              points={polyline}
+              fill="none"
+              stroke="#2563eb"
+              strokeWidth="2.5"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+
+            {/* X-axis labels */}
+            {xLabelIndices.map((i) => (
+              <text
+                key={i}
+                x={toX(i)} y={H - 8}
+                textAnchor="middle" fontSize="10" fill="#94a3b8"
+              >
+                {formatDate(points[i].date)}
+              </text>
+            ))}
+
+            {/* Invisible hit targets + dots */}
+            {points.map((p, i) => (
+              <g key={i}>
+                <circle
+                  cx={toX(i)} cy={toY(p.totalCents)}
+                  r="4" fill="#2563eb" stroke="#fff" strokeWidth="2"
+                  className="opacity-0 transition-opacity"
+                  style={{ opacity: tooltip?.i === i ? 1 : 0 }}
+                />
+                <rect
+                  x={toX(i) - xStep / 2} y={padT}
+                  width={Math.max(xStep, 20)} height={chartH}
+                  fill="transparent"
+                  className="cursor-crosshair"
+                  onMouseEnter={() => setTooltip({ i, x: toX(i), y: toY(p.totalCents) })}
+                />
+              </g>
+            ))}
+
+            {/* Tooltip */}
+            {tooltip !== null && points[tooltip.i] && (() => {
+              const p = points[tooltip.i];
+              const tx = Math.min(Math.max(tooltip.x, padL + 40), W - padR - 40);
+              const ty = Math.max(tooltip.y - 36, padT + 4);
+              return (
+                <g>
+                  <rect
+                    x={tx - 50} y={ty - 14}
+                    width="100" height="28"
+                    rx="6" fill="#0f172a" opacity="0.9"
+                  />
+                  <text x={tx} y={ty + 2} textAnchor="middle" fontSize="11" fill="#fff" fontWeight="600">
+                    {formatCurrency(p.totalCents)}
+                  </text>
+                  <text x={tx} y={ty + 14} textAnchor="middle" fontSize="9" fill="#94a3b8">
+                    {formatDate(p.date)}
+                  </text>
+                </g>
+              );
+            })()}
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function BillingTab({
   adminId,
   students,
@@ -2572,6 +2780,7 @@ function BillingTab({
   const pauseRequests = useQuery(api.billing.listPauseRequests, { adminId });
   const upcomingCharges = useQuery(api.billing.getUpcomingCharges, { adminId });
   const revenueStats = useQuery(api.billing.getRevenueStats, { adminId });
+  const revenueChartData = useQuery(api.billing.getRevenueChartData, { adminId });
   const allChargeHistory = useQuery(api.billing.getAllChargeHistory, billingSubTab === "history" ? { adminId } : "skip");
   const createBillingProfile = useMutation(api.billing.createBillingProfile);
   const reviewPause = useMutation(api.billing.reviewPauseRequest);
@@ -2672,6 +2881,9 @@ function BillingTab({
           </p>
         </div>
       </div>
+
+      {/* Revenue chart */}
+      <RevenueChart data={revenueChartData ?? []} />
 
       {/* Sub-tabs */}
       <div className="flex gap-2 border-b border-slate-200 overflow-x-auto">
@@ -4016,6 +4228,334 @@ function AddCreditModal({
           </div>
         </form>
       </div>
+    </div>
+  );
+}
+
+/* ───────────────────────── Enquiries Tab ───────────────────────── */
+
+function EnquiriesTab({ adminId }: { adminId: Id<"tutorAccounts"> }) {
+  const enquiries = useQuery(api.enquiries.list, { adminId });
+  const deleteEnquiry = useMutation(api.enquiries.remove);
+
+  const [search, setSearch] = useState("");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<"newest" | "oldest">("newest");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkDeleting, setBulkDeleting] = useState(false);
+
+  if (!enquiries) {
+    return <p className="py-12 text-center text-sm text-slate-500">Loading enquiries...</p>;
+  }
+
+  const filtered = enquiries
+    .filter((e) => {
+      if (typeFilter !== "all" && e.type !== typeFilter) return false;
+      if (search) {
+        const q = search.toLowerCase();
+        return (
+          e.name.toLowerCase().includes(q) ||
+          e.email.toLowerCase().includes(q) ||
+          e.message.toLowerCase().includes(q) ||
+          (e.phone ?? "").toLowerCase().includes(q)
+        );
+      }
+      return true;
+    })
+    .sort((a, b) =>
+      sortBy === "newest" ? b.createdAt - a.createdAt : a.createdAt - b.createdAt
+    );
+
+  const filteredIds = filtered.map((e) => e._id);
+  const allSelected = filteredIds.length > 0 && filteredIds.every((id) => selected.has(id));
+  const someSelected = filteredIds.some((id) => selected.has(id));
+
+  const toggleOne = (id: string) => {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  };
+
+  const toggleAll = () => {
+    if (allSelected) {
+      setSelected((prev) => {
+        const next = new Set(prev);
+        filteredIds.forEach((id) => next.delete(id));
+        return next;
+      });
+    } else {
+      setSelected((prev) => new Set([...prev, ...filteredIds]));
+    }
+  };
+
+  const typeOptions = ["all", "student", "tutor", "general"];
+
+  const handleDelete = async (enquiryId: Id<"enquiries">, name: string) => {
+    if (!confirm(`Delete enquiry from "${name}"? This cannot be undone.`)) return;
+    setDeletingId(enquiryId);
+    try {
+      await deleteEnquiry({ adminId, enquiryId });
+      setSelected((prev) => { const n = new Set(prev); n.delete(enquiryId); return n; });
+    } catch {
+      alert("Failed to delete enquiry");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    const count = selected.size;
+    if (!confirm(`Delete ${count} selected enquir${count === 1 ? "y" : "ies"}? This cannot be undone.`)) return;
+    setBulkDeleting(true);
+    try {
+      await Promise.all(
+        [...selected].map((id) =>
+          deleteEnquiry({ adminId, enquiryId: id as Id<"enquiries"> })
+        )
+      );
+      setSelected(new Set());
+    } catch {
+      alert("Some enquiries could not be deleted");
+    } finally {
+      setBulkDeleting(false);
+    }
+  };
+
+  const formatDate = (ts: number) => {
+    const d = new Date(ts);
+    return d.toLocaleDateString("en-AU", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  const typeBadge = (type?: string) => {
+    const styles: Record<string, string> = {
+      student: "bg-blue-50 text-blue-700",
+      tutor: "bg-purple-50 text-purple-700",
+      general: "bg-slate-100 text-slate-700",
+    };
+    const label = type ?? "unknown";
+    return (
+      <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${styles[label] ?? "bg-slate-100 text-slate-600"}`}>
+        {label.charAt(0).toUpperCase() + label.slice(1)}
+      </span>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <h2 className="text-xl font-semibold text-slate-900">
+          Enquiries{" "}
+          <span className="text-base font-normal text-slate-500">({filtered.length})</span>
+        </h2>
+        {someSelected && (
+          <button
+            onClick={handleBulkDelete}
+            disabled={bulkDeleting}
+            className="w-full rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-700 disabled:opacity-50 sm:w-auto"
+          >
+            {bulkDeleting ? "Deleting..." : `Delete selected (${selected.size})`}
+          </button>
+        )}
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by name, email, or message..."
+          className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 sm:max-w-xs"
+        />
+        <div className="flex gap-2">
+          <select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+          >
+            {typeOptions.map((t) => (
+              <option key={t} value={t}>
+                {t === "all" ? "All types" : t.charAt(0).toUpperCase() + t.slice(1)}
+              </option>
+            ))}
+          </select>
+          <select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value as "newest" | "oldest")}
+            className="rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-blue-500 focus:outline-none"
+          >
+            <option value="newest">Newest first</option>
+            <option value="oldest">Oldest first</option>
+          </select>
+        </div>
+      </div>
+
+      {/* Enquiry cards */}
+      {filtered.length === 0 ? (
+        <div className="rounded-2xl border border-slate-200 bg-white py-16 text-center">
+          <p className="text-sm text-slate-500">
+            {search || typeFilter !== "all" ? "No enquiries match your filters." : "No enquiries yet."}
+          </p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {/* Select all row */}
+          <div className="flex items-center gap-3 px-1">
+            <input
+              type="checkbox"
+              checked={allSelected}
+              ref={(el) => { if (el) el.indeterminate = someSelected && !allSelected; }}
+              onChange={toggleAll}
+              className="h-4 w-4 cursor-pointer rounded border-slate-300 accent-slate-900"
+            />
+            <span className="text-sm text-slate-500">
+              {allSelected ? "Deselect all" : "Select all"}
+            </span>
+          </div>
+
+          {filtered.map((e) => {
+            const isExpanded = expandedId === e._id;
+            const isSelected = selected.has(e._id);
+            return (
+              <div
+                key={e._id}
+                className={`rounded-2xl border bg-white transition ${isSelected ? "border-slate-400 ring-1 ring-slate-300" : "border-slate-200 hover:border-slate-300"}`}
+              >
+                {/* Summary row */}
+                <div className="flex items-start gap-3 px-4 py-4 sm:items-center">
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggleOne(e._id)}
+                    onClick={(ev) => ev.stopPropagation()}
+                    className="mt-0.5 h-4 w-4 shrink-0 cursor-pointer rounded border-slate-300 accent-slate-900 sm:mt-0"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setExpandedId(isExpanded ? null : e._id)}
+                    className="flex min-w-0 flex-1 items-start gap-4 text-left sm:items-center"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-sm font-semibold text-slate-900">{e.name}</span>
+                        {typeBadge(e.type)}
+                      </div>
+                      <p className="mt-0.5 truncate text-sm text-slate-500">{e.email}</p>
+                    </div>
+                    <span className="shrink-0 text-xs text-slate-400">{formatDate(e.createdAt)}</span>
+                    <svg
+                      className={`h-5 w-5 shrink-0 text-slate-400 transition ${isExpanded ? "rotate-180" : ""}`}
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={2}
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>
+                  </button>
+                </div>
+
+                {/* Expanded details */}
+                {isExpanded && (
+                  <div className="border-t border-slate-100 px-5 py-4">
+                    <dl className="grid grid-cols-1 gap-x-6 gap-y-3 text-sm sm:grid-cols-2">
+                      <div>
+                        <dt className="font-medium text-slate-500">Phone</dt>
+                        <dd className="text-slate-900">{e.phone || "—"}</dd>
+                      </div>
+                      {e.type === "student" && (
+                        <>
+                          <div>
+                            <dt className="font-medium text-slate-500">Year Level</dt>
+                            <dd className="text-slate-900">{e.yearLevel || "—"}</dd>
+                          </div>
+                          <div>
+                            <dt className="font-medium text-slate-500">Subjects</dt>
+                            <dd className="text-slate-900">{e.subjects || "—"}</dd>
+                          </div>
+                          {e.targetAtar && (
+                            <div>
+                              <dt className="font-medium text-slate-500">Target ATAR</dt>
+                              <dd className="text-slate-900">{e.targetAtar}</dd>
+                            </div>
+                          )}
+                          {e.plannedCourse && (
+                            <div>
+                              <dt className="font-medium text-slate-500">Planned Course</dt>
+                              <dd className="text-slate-900">{e.plannedCourse}</dd>
+                            </div>
+                          )}
+                          {e.interests && (
+                            <div>
+                              <dt className="font-medium text-slate-500">Interests</dt>
+                              <dd className="text-slate-900">{e.interests}</dd>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      {e.type === "tutor" && (
+                        <>
+                          {e.experience && (
+                            <div>
+                              <dt className="font-medium text-slate-500">Experience</dt>
+                              <dd className="text-slate-900">{e.experience}</dd>
+                            </div>
+                          )}
+                          {e.expertise && (
+                            <div>
+                              <dt className="font-medium text-slate-500">Expertise</dt>
+                              <dd className="text-slate-900">{e.expertise}</dd>
+                            </div>
+                          )}
+                          {e.cvFileName && (
+                            <div>
+                              <dt className="font-medium text-slate-500">CV</dt>
+                              <dd className="text-slate-900">{e.cvFileName}</dd>
+                            </div>
+                          )}
+                        </>
+                      )}
+                      {e.sourcePage && (
+                        <div>
+                          <dt className="font-medium text-slate-500">Source Page</dt>
+                          <dd className="text-slate-900">{e.sourcePage}</dd>
+                        </div>
+                      )}
+                    </dl>
+
+                    {e.message && (
+                      <div className="mt-4">
+                        <p className="text-sm font-medium text-slate-500">Message</p>
+                        <p className="mt-1 whitespace-pre-wrap text-sm text-slate-900">{e.message}</p>
+                      </div>
+                    )}
+
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        onClick={() => handleDelete(e._id, e.name)}
+                        disabled={deletingId === e._id}
+                        className="rounded-lg border border-red-200 px-3 py-1.5 text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-50"
+                      >
+                        {deletingId === e._id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
