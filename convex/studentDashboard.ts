@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
+import { internal } from "./_generated/api";
 
 // Generate a random invite code
 function generateCode(): string {
@@ -574,6 +575,12 @@ export const signupStudent = mutation({
       createdAt: Date.now(),
     });
 
+    await ctx.scheduler.runAfter(0, internal.discord.notify, {
+      title: "New Student Signup",
+      description: `**Name:** ${name.trim()}\n**Email:** ${normalizedEmail}`,
+      color: 0x10b981,
+    });
+
     return { success: true };
   },
 });
@@ -740,6 +747,13 @@ export const verifyEmail = mutation({
 
     await ctx.db.patch(account._id, { emailVerified: true });
     await ctx.db.patch(token._id, { used: true });
+
+    const student = await ctx.db.get(account.studentId);
+    await ctx.scheduler.runAfter(0, internal.discord.notify, {
+      title: "Student Email Verified",
+      description: `**Email:** ${token.email}${student ? `\n**Name:** ${student.name}` : ""}`,
+      color: 0x10b981,
+    });
 
     return { success: true };
   },

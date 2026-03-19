@@ -5,6 +5,7 @@ import { action, internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
+import { sendDiscordNotification } from "./discord";
 
 function getStripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -138,6 +139,18 @@ export const savePaymentMethod = action({
       cardLast4,
       cardBrand,
     });
+
+    const student: { name: string } | null = await ctx.runQuery(
+      internal.billing.getStudentInternal,
+      { studentId },
+    );
+    const brandLabel = cardBrand ? cardBrand.charAt(0).toUpperCase() + cardBrand.slice(1) : "Card";
+    await sendDiscordNotification(
+      "Payment Method Added",
+      `**Student:** ${student?.name ?? "Unknown"}\n**Card:** ${brandLabel} ending in ${cardLast4 ?? "****"}`,
+      0x8b5cf6,
+    );
+
     return null;
   },
 });
@@ -226,6 +239,14 @@ export const manualCharge = action({
         failureReason: failMsg,
         description: `Manual: ${description}`,
       });
+
+      if (succeeded) {
+        await sendDiscordNotification(
+          "Payment Successful",
+          `**Student:** ${student?.name ?? "Unknown"}\n**Amount:** $${(amountCents / 100).toFixed(2)}\n**Description:** ${description}`,
+          0x10b981,
+        );
+      }
 
       return succeeded
         ? { success: true }
@@ -395,6 +416,14 @@ export const chargeAllActive = internalAction({
             : `Payment status: ${paymentIntent.status}`,
           description: `Auto: ${dayOfWeek} ${chargeDate} — ${classDetails}`,
         });
+
+        if (succeeded) {
+          await sendDiscordNotification(
+            "Payment Successful",
+            `**Student:** ${student?.name ?? "Unknown"}\n**Amount:** $${(amountToCharge / 100).toFixed(2)}${creditUsed > 0 ? ` (+ $${(creditUsed / 100).toFixed(2)} credit)` : ""}\n**Classes:** ${classDetails || "N/A"}`,
+            0x10b981,
+          );
+        }
 
         if (succeeded && creditUsed > 0) {
           await ctx.runMutation(internal.billing.insertCreditEntry, {
