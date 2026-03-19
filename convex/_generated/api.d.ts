@@ -15,6 +15,7 @@ import type * as billing from "../billing.js";
 import type * as classes from "../classes.js";
 import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
+import type * as discord from "../discord.js";
 import type * as enquiries from "../enquiries.js";
 import type * as enquiryNotifications from "../enquiryNotifications.js";
 import type * as migrations from "../migrations.js";
@@ -40,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   classes: typeof classes;
   crons: typeof crons;
   dashboard: typeof dashboard;
+  discord: typeof discord;
   enquiries: typeof enquiries;
   enquiryNotifications: typeof enquiryNotifications;
   migrations: typeof migrations;

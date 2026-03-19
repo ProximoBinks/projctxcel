@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { api } from "../../../convex/_generated/api";
 import { convex } from "../../../lib/convexServer";
 import { getTransporter, getFromEmail } from "../../../lib/email";
+import { sendDiscordNotification } from "../../../lib/discord";
 
 export const runtime = "nodejs";
 
@@ -290,6 +291,23 @@ export async function POST(request: Request) {
       "</div>",
     ].join(""),
   });
+
+  const typeLabel = type === "tutor" ? "Tutor Application" : type === "general" ? "General Enquiry" : "Student Enquiry";
+  const discordLines = [
+    `**Name:** ${name}`,
+    `**Email:** ${email}`,
+    `**Phone:** ${phone}`,
+  ];
+  if (type === "student") {
+    if (yearLevel) discordLines.push(`**Year Level:** ${yearLevel}`);
+    if (subjects) discordLines.push(`**Subjects:** ${subjects}`);
+  }
+  if (message) discordLines.push(`**Message:** ${message}`);
+  sendDiscordNotification(
+    `New ${typeLabel}`,
+    discordLines.join("\n"),
+    0x2563eb,
+  ).catch(() => {});
 
   return NextResponse.json({ message: "Enquiry sent successfully." });
 }
