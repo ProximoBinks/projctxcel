@@ -1,7 +1,7 @@
 # Todo
 
 - [ ] add profit calculation based on the payouts
-- [ ] setup discord webhoook notifications for student sign up (when student confirms their email), when an enquiry form is sent, when a student request to pause their billing
+- [x] setup discord webhoook notifications for student sign up (when student confirms their email), when an enquiry form is sent, when a student request to pause their billing
 
 ## Blockers
 - [x] Confirm business name + domain

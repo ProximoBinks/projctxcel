@@ -485,6 +485,43 @@ export const getRevenueStats = query({
   },
 });
 
+export const getRevenueChartData = query({
+  args: { adminId: v.id("tutorAccounts") },
+  returns: v.array(
+    v.object({
+      date: v.string(),
+      totalCents: v.number(),
+    }),
+  ),
+  handler: async (ctx, { adminId }) => {
+    await assertAdmin(ctx, adminId);
+
+    const byDate = new Map<string, number>();
+
+    let cursor: string | null = null;
+    let done = false;
+    while (!done) {
+      const page = await ctx.db
+        .query("billingCharges")
+        .order("desc")
+        .paginate({ numItems: 500, cursor: cursor as any ?? null });
+
+      for (const charge of page.page) {
+        if (charge.status !== "succeeded") continue;
+        const date = charge.weekStartDate;
+        byDate.set(date, (byDate.get(date) ?? 0) + charge.amountCents);
+      }
+
+      done = page.isDone;
+      cursor = page.continueCursor as any;
+    }
+
+    return Array.from(byDate.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, totalCents]) => ({ date, totalCents }));
+  },
+});
+
 export const getChargeHistoryAdmin = query({
   args: {
     adminId: v.id("tutorAccounts"),
