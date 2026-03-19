@@ -1176,6 +1176,8 @@ function AddCardModal({
   const savePaymentMethod = useAction(api.stripeActions.savePaymentMethod);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [cardError, setCardError] = useState("");
+  const [cardComplete, setCardComplete] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   const initSetup = useCallback(async () => {
@@ -1252,7 +1254,7 @@ function AddCardModal({
 
         {clientSecret && (
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div className="rounded-xl border border-slate-200 p-4">
+            <div className={`rounded-xl border p-4 ${cardError ? "border-red-300 bg-red-50" : "border-slate-200"}`}>
               <CardElement
                 options={{
                   style: {
@@ -1261,12 +1263,20 @@ function AddCardModal({
                       color: "#1e293b",
                       "::placeholder": { color: "#94a3b8" },
                     },
+                    invalid: { color: "#dc2626" },
                   },
+                }}
+                onChange={(e) => {
+                  setCardError(e.error?.message ?? "");
+                  setCardComplete(e.complete);
+                  if (error) setError("");
                 }}
               />
             </div>
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {(cardError || error) && (
+              <p className="text-sm text-red-600">{cardError || error}</p>
+            )}
 
             <div className="flex gap-3 pt-2">
               <button
@@ -1278,7 +1288,7 @@ function AddCardModal({
               </button>
               <button
                 type="submit"
-                disabled={loading || !stripe}
+                disabled={loading || !stripe || !cardComplete}
                 className="flex-1 rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
               >
                 {loading ? "Saving..." : "Save Card"}
@@ -1311,6 +1321,8 @@ function CardSetupOverlay({ studentId }: { studentId: Id<"students"> }) {
   const savePaymentMethod = useAction(api.stripeActions.savePaymentMethod);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [cardError, setCardError] = useState("");
+  const [cardComplete, setCardComplete] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
   const initSetup = useCallback(async () => {
@@ -1399,7 +1411,7 @@ function CardSetupOverlay({ studentId }: { studentId: Id<"students"> }) {
 
         {clientSecret && (
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div className="rounded-xl border border-slate-200 p-4">
+            <div className={`rounded-xl border p-4 ${cardError ? "border-red-300 bg-red-50" : "border-slate-200"}`}>
               <CardElement
                 options={{
                   style: {
@@ -1408,16 +1420,24 @@ function CardSetupOverlay({ studentId }: { studentId: Id<"students"> }) {
                       color: "#1e293b",
                       "::placeholder": { color: "#94a3b8" },
                     },
+                    invalid: { color: "#dc2626" },
                   },
+                }}
+                onChange={(e) => {
+                  setCardError(e.error?.message ?? "");
+                  setCardComplete(e.complete);
+                  if (error) setError("");
                 }}
               />
             </div>
 
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {(cardError || error) && (
+              <p className="text-sm text-red-600">{cardError || error}</p>
+            )}
 
             <button
               type="submit"
-              disabled={loading || !stripe}
+              disabled={loading || !stripe || !cardComplete}
               className="w-full rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:opacity-50"
             >
               {loading ? "Saving card..." : "Save card & continue"}

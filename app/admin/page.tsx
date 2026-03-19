@@ -2567,9 +2567,22 @@ function RevenueChart({ data }: { data: { date: string; totalCents: number }[] }
   const points = filtered.sort((a, b) => a.date.localeCompare(b.date));
   const totalCents = points.reduce((s, p) => s + p.totalCents, 0);
 
+  // Build cumulative running totals for chart display
+  let running = 0;
+  const cumulativePoints = points.map((p) => {
+    running += p.totalCents;
+    return { date: p.date, totalCents: running };
+  });
+
+  // For a single point, duplicate it so the area fills the full width
+  const chartPoints =
+    cumulativePoints.length === 1
+      ? [cumulativePoints[0], cumulativePoints[0]]
+      : cumulativePoints;
+
   const formatCurrency = (c: number) => `$${(c / 100).toFixed(2)}`;
   const formatDate = (d: string) => {
-    const [y, m, day] = d.split("-");
+    const [, m, day] = d.split("-");
     return `${parseInt(day)} ${["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][parseInt(m)-1]}`;
   };
 
@@ -2583,34 +2596,43 @@ function RevenueChart({ data }: { data: { date: string; totalCents: number }[] }
   const chartW = W - padL - padR;
   const chartH = H - padT - padB;
 
-  const maxVal = Math.max(...points.map((p) => p.totalCents), 1);
+  const rawMax = Math.max(...cumulativePoints.map((p) => p.totalCents), 1);
 
-  const xStep = points.length > 1 ? chartW / (points.length - 1) : chartW;
-  const toX = (i: number) => padL + (points.length === 1 ? chartW / 2 : i * xStep);
-  const toY = (v: number) => padT + chartH - (v / maxVal) * chartH;
+  // Nice Y-axis: round up to a clean tick interval so labels are $50, $100, $200 etc.
+  const targetTicks = 4;
+  const roughInterval = rawMax / targetTicks;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(roughInterval)));
+  const normalized = roughInterval / magnitude;
+  const niceFactor = normalized <= 1 ? 1 : normalized <= 2 ? 2 : normalized <= 5 ? 5 : 10;
+  const tickInterval = niceFactor * magnitude;
+  const niceMax = Math.ceil(rawMax / tickInterval) * tickInterval;
 
-  const polyline = points.map((p, i) => `${toX(i)},${toY(p.totalCents)}`).join(" ");
+  const xStep = chartW / (chartPoints.length - 1);
+  const toX = (i: number) => padL + i * xStep;
+  const toY = (v: number) => padT + chartH - (v / niceMax) * chartH;
+
+  const polyline = chartPoints.map((p, i) => `${toX(i)},${toY(p.totalCents)}`).join(" ");
   const area =
-    points.length > 0
+    chartPoints.length > 0
       ? `M${toX(0)},${padT + chartH} ` +
-        points.map((p, i) => `L${toX(i)},${toY(p.totalCents)}`).join(" ") +
-        ` L${toX(points.length - 1)},${padT + chartH} Z`
+        chartPoints.map((p, i) => `L${toX(i)},${toY(p.totalCents)}`).join(" ") +
+        ` L${toX(chartPoints.length - 1)},${padT + chartH} Z`
       : "";
 
-  // Y-axis gridlines (4 lines)
-  const yTicks = [0.25, 0.5, 0.75, 1].map((f) => ({
-    y: toY(maxVal * f),
-    label: formatCurrency(maxVal * f),
-  }));
+  // Y-axis gridlines at nice intervals from tickInterval up to niceMax
+  const yTicks: { y: number; label: string }[] = [];
+  for (let v = tickInterval; v <= niceMax; v += tickInterval) {
+    yTicks.push({ y: toY(v), label: formatCurrency(v) });
+  }
 
-  // X-axis labels: show at most 7 evenly spread
+  // X-axis labels: show at most 7 evenly spread (use original cumulativePoints for labels/hits)
   const xLabelIndices: number[] = [];
-  if (points.length <= 7) {
-    points.forEach((_, i) => xLabelIndices.push(i));
+  if (cumulativePoints.length <= 7) {
+    cumulativePoints.forEach((_, i) => xLabelIndices.push(i));
   } else {
-    const step = Math.floor(points.length / 6);
-    for (let i = 0; i < points.length; i += step) xLabelIndices.push(i);
-    if (!xLabelIndices.includes(points.length - 1)) xLabelIndices.push(points.length - 1);
+    const step = Math.floor(cumulativePoints.length / 6);
+    for (let i = 0; i < cumulativePoints.length; i += step) xLabelIndices.push(i);
+    if (!xLabelIndices.includes(cumulativePoints.length - 1)) xLabelIndices.push(cumulativePoints.length - 1);
   }
 
   const [tooltip, setTooltip] = useState<{ i: number; x: number; y: number } | null>(null);
@@ -2642,7 +2664,7 @@ function RevenueChart({ data }: { data: { date: string; totalCents: number }[] }
         </div>
       </div>
 
-      {points.length === 0 ? (
+      {cumulativePoints.length === 0 ? (
         <div className="flex h-[220px] items-center justify-center">
           <p className="text-sm text-slate-400">No revenue data for this period</p>
         </div>
@@ -2694,15 +2716,16 @@ function RevenueChart({ data }: { data: { date: string; totalCents: number }[] }
             {xLabelIndices.map((i) => (
               <text
                 key={i}
-                x={toX(i)} y={H - 8}
+                x={cumulativePoints.length === 1 ? toX(chartPoints.length - 1) : toX(i)}
+                y={H - 8}
                 textAnchor="middle" fontSize="10" fill="#94a3b8"
               >
-                {formatDate(points[i].date)}
+                {formatDate(cumulativePoints[i].date)}
               </text>
             ))}
 
             {/* Invisible hit targets + dots */}
-            {points.map((p, i) => (
+            {chartPoints.map((p, i) => (
               <g key={i}>
                 <circle
                   cx={toX(i)} cy={toY(p.totalCents)}
@@ -2721,21 +2744,23 @@ function RevenueChart({ data }: { data: { date: string; totalCents: number }[] }
             ))}
 
             {/* Tooltip */}
-            {tooltip !== null && points[tooltip.i] && (() => {
-              const p = points[tooltip.i];
-              const tx = Math.min(Math.max(tooltip.x, padL + 40), W - padR - 40);
-              const ty = Math.max(tooltip.y - 36, padT + 4);
+            {tooltip !== null && chartPoints[tooltip.i] && (() => {
+              const p = chartPoints[tooltip.i];
+              const tw = 110;
+              const th = 40;
+              const tx = Math.min(Math.max(tooltip.x, padL + tw / 2), W - padR - tw / 2);
+              const ty = Math.max(tooltip.y - th - 8, padT + 2);
               return (
                 <g>
                   <rect
-                    x={tx - 50} y={ty - 14}
-                    width="100" height="28"
-                    rx="6" fill="#0f172a" opacity="0.9"
+                    x={tx - tw / 2} y={ty}
+                    width={tw} height={th}
+                    rx="7" fill="#0f172a" opacity="0.92"
                   />
-                  <text x={tx} y={ty + 2} textAnchor="middle" fontSize="11" fill="#fff" fontWeight="600">
+                  <text x={tx} y={ty + 15} textAnchor="middle" fontSize="12" fill="#fff" fontWeight="600">
                     {formatCurrency(p.totalCents)}
                   </text>
-                  <text x={tx} y={ty + 14} textAnchor="middle" fontSize="9" fill="#94a3b8">
+                  <text x={tx} y={ty + 30} textAnchor="middle" fontSize="10" fill="#94a3b8">
                     {formatDate(p.date)}
                   </text>
                 </g>
