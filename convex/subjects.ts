@@ -4,12 +4,18 @@ import { v } from "convex/values";
 const defaultSubjects = [
   { name: "UCAT" },
   { name: "Interview Prep" },
-  { name: "Specialist Maths" },
-  { name: "Maths Methods" },
-  { name: "Physics" },
-  { name: "Research Project" },
-  { name: "English Literature" },
-  { name: "Accounting" },
+  { name: "Stage 1 Specialist Maths", stage: "Stage 1", baseName: "Specialist Maths" },
+  { name: "Stage 2 Specialist Maths", stage: "Stage 2", baseName: "Specialist Maths" },
+  { name: "Stage 1 Maths Methods", stage: "Stage 1", baseName: "Maths Methods" },
+  { name: "Stage 2 Maths Methods", stage: "Stage 2", baseName: "Maths Methods" },
+  { name: "Stage 1 Physics", stage: "Stage 1", baseName: "Physics" },
+  { name: "Stage 2 Physics", stage: "Stage 2", baseName: "Physics" },
+  { name: "Stage 1 Research Project", stage: "Stage 1", baseName: "Research Project" },
+  { name: "Stage 2 Research Project", stage: "Stage 2", baseName: "Research Project" },
+  { name: "Stage 1 English Literature", stage: "Stage 1", baseName: "English Literature" },
+  { name: "Stage 2 English Literature", stage: "Stage 2", baseName: "English Literature" },
+  { name: "Stage 1 Accounting", stage: "Stage 1", baseName: "Accounting" },
+  { name: "Stage 2 Accounting", stage: "Stage 2", baseName: "Accounting" },
   { name: "Stage 1 English", stage: "Stage 1", baseName: "English" },
   { name: "Stage 2 English", stage: "Stage 2", baseName: "English" },
   {
@@ -88,6 +94,33 @@ export const seedSubjects = mutation({
     let order = 0;
     for (const subject of defaultSubjects) {
       const label = subject.name;
+      const name = subject.baseName ?? subject.name;
+      await ctx.db.insert("subjects", {
+        name,
+        stage: subject.stage,
+        label,
+        active: true,
+        sortOrder: order++,
+      });
+    }
+
+    return null;
+  },
+});
+
+export const syncSubjects = mutation({
+  args: {},
+  returns: v.null(),
+  handler: async (ctx) => {
+    const existing = await ctx.db.query("subjects").collect();
+    const existingLabels = new Set(existing.map((s) => s.label));
+    const maxOrder = existing.reduce((max, s) => Math.max(max, s.sortOrder), -1);
+
+    let order = maxOrder + 1;
+    for (const subject of defaultSubjects) {
+      const label = subject.name;
+      if (existingLabels.has(label)) continue;
+
       const name = subject.baseName ?? subject.name;
       await ctx.db.insert("subjects", {
         name,

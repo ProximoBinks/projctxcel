@@ -10,14 +10,14 @@ const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
 
 export const metadata: Metadata = {
-  title: "SACE Tutoring Adelaide — Year 11–12 ATAR Tutors",
+  title: "SACE Tutoring Adelaide |Tutoring for Year 11–12 students",
   description:
     "Maximise your ATAR with Adelaide's top-performing SACE tutors. Expert support in Maths Methods, Chemistry, Physics, English & more. Enquire today.",
   alternates: {
     canonical: "/programs/sace",
   },
   openGraph: {
-    title: "SACE Tutoring Adelaide — Year 11–12 ATAR Tutors | Simple Tuition",
+    title: "SACE Tutoring Adelaide |Tutoring for Year 11–12 students",
     description:
       "Maximise your ATAR with Adelaide's top-performing SACE tutors. Expert support in Maths Methods, Chemistry, Physics, English & more.",
     url: `${BASE_URL}/programs/sace`,
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "SACE Tutoring Adelaide — Year 11–12 ATAR Tutors | Simple Tuition",
+    title: "SACE Tutoring Adelaide |Tutoring for Year 11–12 students",
     description:
       "Maximise your ATAR with Adelaide's top-performing SACE tutors. Expert support in Maths Methods, Chemistry, Physics, English & more.",
     images: ["/images/banner.webp"],
