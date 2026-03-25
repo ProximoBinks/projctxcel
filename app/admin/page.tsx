@@ -56,7 +56,7 @@ function AdminDashboard({
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
-    "tutors" | "students" | "sessions" | "classes" | "billing" | "enquiries"
+    "tutors" | "students" | "sessions" | "classes" | "subjects" | "billing" | "enquiries" | "email"
   >("tutors");
   const [showAddTutor, setShowAddTutor] = useState(false);
   const [showAddStudent, setShowAddStudent] = useState(false);
