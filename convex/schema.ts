@@ -165,8 +165,10 @@ export default defineSchema({
 
   subjects: defineTable({
     name: v.string(),
+    tags: v.optional(v.array(v.string())), // new format; absent on old docs until syncSubjects runs
+    // legacy fields — present on old docs, removed after migration
+    label: v.optional(v.string()),
     stage: v.optional(v.string()),
-    label: v.string(),
     active: v.boolean(),
     sortOrder: v.number(),
   })
