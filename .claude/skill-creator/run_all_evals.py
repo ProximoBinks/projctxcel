@@ -338,7 +338,7 @@ def run_eval(skill_name: str, skill_dir: Path, eval_file: Path) -> dict | None:
         "--runs-per-query", "1",
         "--num-workers", "8",
         "--timeout", "30",
-        "--model", "claude-opus-4-6",
+        "--model", "claude-haiku-4-5-20251001",
         "--verbose",
     ]
     import os
