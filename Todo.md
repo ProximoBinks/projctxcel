@@ -2,6 +2,7 @@
 
 - [ ] add profit calculation based on the payouts
 - [x] setup discord webhoook notifications for student sign up (when student confirms their email), when an enquiry form is sent, when a student request to pause their billing
+- [ ] use clerk for sign ins 
 
 ## Blockers
 - [x] Confirm business name + domain
