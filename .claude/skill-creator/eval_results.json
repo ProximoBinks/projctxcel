@@ -1,0 +1,2365 @@
+[
+  {
+    "skill_name": "claude-automation-recommender",
+    "description": "Analyze a codebase and recommend Claude Code automations (hooks, subagents, skills, plugins, MCP servers). Use when user asks for automation recommendations, wants to optimize their Claude Code setup, mentions improving Claude Code workflows, asks how to first set up Claude Code for a project, or wants to know what Claude Code features they should use.",
+    "results": [
+      {
+        "query": "What MCP servers would help with my workflow?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "What Claude Code automations should I set up for my project?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "What Claude Code features should I enable for my project?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "What subagents and plugins make sense here?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Recommend hooks and skills for my codebase",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "How should I configure Claude Code for this repo?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Set up Claude Code automations for this Next.js project",
+        "should_trigger": true,
+        "trigger_rate": 1.0,
+        "triggers": 1,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Analyze my project and suggest automation improvements",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Fix the bug in my authentication middleware",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Explain what this Python function does",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me set up CI/CD with GitHub Actions",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add a dark mode toggle to my React app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a new REST endpoint for user profile updates",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write a SQL query to get the top 10 users",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Refactor this component to use hooks",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Review my pull request for code quality",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 9,
+      "failed": 7
+    }
+  },
+  {
+    "skill_name": "claude-md-improver",
+    "description": "Audit and improve CLAUDE.md files in repositories. Use when user asks to check, audit, update, improve, or fix CLAUDE.md files. Scans for all CLAUDE.md files, evaluates quality against templates, outputs quality report, then makes targeted updates. Also use when the user mentions \"CLAUDE.md maintenance\" or \"project memory optimization\".",
+    "results": [
+      {
+        "query": "Run CLAUDE.md maintenance on this project",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Check my CLAUDE.md files and improve them",
+        "should_trigger": true,
+        "trigger_rate": 1.0,
+        "triggers": 1,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Review and optimize the project memory in CLAUDE.md",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Audit CLAUDE.md across the project",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "My CLAUDE.md needs improvement, can you help?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Update our project memory files",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Scan and improve all CLAUDE.md files",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Fix the CLAUDE.md in this repo",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add TypeScript support to this project",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Refactor the database connection logic",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Fix the bug in my login form",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Update the README with installation instructions",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add error handling to the API route",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write unit tests for this module",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Deploy this app to Vercel",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me understand how this codebase is structured",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 9,
+      "failed": 7
+    }
+  },
+  {
+    "skill_name": "frontend-design",
+    "description": "Create distinctive, production-grade frontend interfaces with high design quality. Use this skill when the user asks to build web components, pages, or applications. Generates creative, polished code that avoids generic AI aesthetics.",
+    "results": [
+      {
+        "query": "Create a beautiful dashboard component",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Build a landing page for my SaaS product",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Design a pricing table with modern styling",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Build a hero section with animations",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Design a card grid for displaying products",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Make a responsive navbar with dropdown menus",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a signup form with great UX",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Build a modal dialog with backdrop blur",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Fix the authentication bug in my Express app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write a Python script to parse CSV files",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up a PostgreSQL database schema",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me write unit tests with Jest",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up websocket connections in my backend",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Debug the memory leak in my Node.js app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a bash script for file backups",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Explain how React hooks work",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 8,
+      "failed": 8
+    }
+  },
+  {
+    "skill_name": "writing-hookify-rules",
+    "description": "This skill should be used when the user asks to \"create a hookify rule\", \"write a hook rule\", \"configure hookify\", \"add a hookify rule\", or needs guidance on hookify rule syntax and patterns.",
+    "results": [
+      {
+        "query": "Write a hook rule to validate my commits",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Set up hookify automation rules",
+        "should_trigger": true,
+        "trigger_rate": 1.0,
+        "triggers": 1,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "How do I write a hookify rule?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add TypeScript to this project",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a hookify rule for my project",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Configure hookify for this repo",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add a new hookify rule that runs tests before save",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Fix the bug in the payment processing code",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up ESLint for this codebase",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a React component for the user profile",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a GitHub Actions workflow",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me write git commit hooks manually",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 12,
+      "passed": 7,
+      "failed": 5
+    }
+  },
+  {
+    "skill_name": "math-olympiad",
+    "description": "Solve competition math problems (IMO, Putnam, USAMO, AIME) with adversarial verification that catches the errors self-verification misses. Activates when asked to 'solve this IMO problem', 'prove this olympiad inequality', 'verify this competition proof', 'find a counterexample', 'is this proof correct', or for any problem with 'IMO', 'Putnam', 'USAMO', 'olympiad', or 'competition math' in it. Uses pure reasoning (no tools) \u2014 then a fresh-context adversarial verifier attacks the proof using specific failure patterns, not generic 'check logic'. Outputs calibrated confidence \u2014 will say 'no confident solution' rather than bluff. If LaTeX is available, produces a clean PDF after verification passes.",
+    "results": [
+      {
+        "query": "Is this Putnam proof correct? Here's my attempt at B3...",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Help me with this USAMO geometry problem",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Simplify this proof \u2014 it feels overly complicated",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Prove this olympiad inequality: for positive reals a,b,c with a+b+c=1...",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "I think there's a gap in this competition proof, can you find it?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Solve this IMO problem: Let n \u2265 2 be an integer. Prove that...",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Verify my solution to AIME 2024 problem 12",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Find a counterexample to: every continuous function on [0,1] is uniformly continuous",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "What's the cleanest way to present this olympiad solution?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Help me verify the time complexity of this sorting algorithm",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write a Python function that checks if a number is prime",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Debug this proof assistant code \u2014 my Lean tactic isn't working",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Review my research paper draft on analytic number theory",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Here's a conjecture from a math competition. Is it true?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "I'm doing research on the Riemann Hypothesis, where should I start reading?",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Compute the integral of x^2 sin(x) dx",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "What's a good textbook for learning competition math?",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Explain the proof of the fundamental theorem of calculus to a high schooler",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "What's the difference between IMO and Putnam in difficulty?",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Generate 10 practice problems similar to AIME level",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 20,
+      "passed": 10,
+      "failed": 10
+    }
+  },
+  {
+    "skill_name": "build-mcp-app",
+    "description": "This skill should be used when the user wants to build an \"MCP app\", add \"interactive UI\" or \"widgets\" to an MCP server, \"render components in chat\", build \"MCP UI resources\", make a tool that shows a \"form\", \"picker\", \"dashboard\" or \"confirmation dialog\" inline in the conversation, or mentions \"apps SDK\" in the context of MCP. Use AFTER the build-mcp-server skill has settled the deployment model, or when the user already knows they want UI widgets.",
+    "results": [
+      {
+        "query": "Build interactive MCP UI resources",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create an MCP app with a data table widget",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Build an MCP app with a form picker",
+        "should_trigger": true,
+        "trigger_rate": 1.0,
+        "triggers": 1,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add a date picker widget to my MCP integration",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add interactive UI widgets to my MCP server",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a dashboard widget inside Claude chat",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add a confirmation dialog to my MCP tool",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "I want to render components inline using the apps SDK",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Fix the login bug in my web app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write unit tests for my auth service",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up Stripe payments for my SaaS",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a React dashboard component",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Build a standard REST API endpoint",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me optimize my database queries",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Build an MCP server (no UI needed)",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a CLI tool using Node.js",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 9,
+      "failed": 7
+    }
+  },
+  {
+    "skill_name": "build-mcp-server",
+    "description": "This skill should be used when the user asks to \"build an MCP server\", \"create an MCP\", \"make an MCP integration\", \"wrap an API for Claude\", \"expose tools to Claude\", \"make an MCP app\", or discusses building something with the Model Context Protocol. It is the entry point for MCP server development \u2014 it interrogates the user about their use case, determines the right deployment model (remote HTTP, MCPB, local stdio), picks a tool-design pattern, and hands off to specialized skills.",
+    "results": [
+      {
+        "query": "Build an MCP server for my GitHub integration",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Make an MCP integration for our internal database",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "I want to expose my tools to Claude via MCP",
+        "should_trigger": true,
+        "trigger_rate": 1.0,
+        "triggers": 1,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create an MCP server for Slack messaging",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Help me expose tools to Claude using Model Context Protocol",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create an MCP server that wraps the Stripe API",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Wrap our REST API as an MCP server",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Build an MCP app with tool definitions",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Fix this React component's state management bug",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write a SQL migration for adding user roles",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Review my Python data processing script",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me deploy my Next.js app to AWS",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add authentication to my Express server",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create unit tests for my service layer",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Fix the TypeScript type errors in this file",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up a Redis cache for my application",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 9,
+      "failed": 7
+    }
+  },
+  {
+    "skill_name": "build-mcpb",
+    "description": "This skill should be used when the user wants to \"package an MCP server\", \"bundle an MCP\", \"make an MCPB\", \"ship a local MCP server\", \"distribute a local MCP\", discusses \".mcpb files\", mentions bundling a Node or Python runtime with their MCP server, or needs an MCP server that interacts with the local filesystem, desktop apps, or OS and must be installable without the user having Node/Python set up.",
+    "results": [
+      {
+        "query": "Make an MCPB that works without Node installed",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Package my filesystem MCP tool as MCPB",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Package my MCP server as an MCPB file",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Make my MCP server installable without setup",
+        "should_trigger": true,
+        "trigger_rate": 1.0,
+        "triggers": 1,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Bundle my MCP server for distribution",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a distributable local MCP server",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Bundle a Python runtime with my MCP server",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Ship a local MCP server as a .mcpb file",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Set up Docker for my application",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Build a remote HTTP MCP server",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Fix the authentication in my REST API",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Build a React component library",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a web-based MCP integration",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Deploy to Cloudflare Workers",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create an npm package",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write a Python script for data processing",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 9,
+      "failed": 7
+    }
+  },
+  {
+    "skill_name": "playground",
+    "description": "Creates interactive HTML playgrounds \u2014 self-contained single-file explorers that let users configure something visually through controls, see a live preview, and copy out a prompt. Use when the user asks to make a playground, explorer, or interactive tool for a topic.",
+    "results": [
+      {
+        "query": "Make a color picker explorer tool",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create an interactive playground for CSS animations",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a playground for testing regex patterns",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Build an interactive prompt builder",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create an HTML playground for typography",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a Next.js API route",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write a Python scraper for product data",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add Stripe integration to my app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me debug this TypeScript error",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Fix the payment processing bug",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Make an explorer tool for gradient configurations",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Build a visual configurator with live preview",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Optimize my database queries for performance",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up authentication with JWT tokens",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Review my React component architecture",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Make an interactive tool to explore chart styles",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 8,
+      "failed": 8
+    }
+  },
+  {
+    "skill_name": "agent-development",
+    "description": "This skill should be used when the user asks to \"create an agent\", \"add an agent\", \"write a subagent\", \"agent frontmatter\", \"when to use description\", \"agent examples\", \"agent tools\", \"agent colors\", \"autonomous agent\", or needs guidance on agent structure, system prompts, triggering conditions, or agent development best practices for Claude Code plugins.",
+    "results": [
+      {
+        "query": "Add an agent to my Claude Code plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Set up agent triggering conditions",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Write an autonomous agent with system prompts",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create an agent with custom tools and colors",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add a specialized agent to handle code reviews",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a subagent for my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Build an agent with frontmatter configuration",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create an agent that handles database migrations",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Fix the login bug in my web app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add TypeScript support to this project",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a REST API with Node.js",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up a Redis cache",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Fix the CSS layout issue in my dashboard",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Deploy to AWS with Terraform",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write unit tests for my components",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me use Claude API in my app (not a plugin agent)",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 8,
+      "failed": 8
+    }
+  },
+  {
+    "skill_name": "command-development",
+    "description": "This skill should be used when the user asks to \"create a slash command\", \"add a command\", \"write a custom command\", \"define command arguments\", \"use command frontmatter\", \"organize commands\", \"create command with file references\", \"interactive command\", \"use AskUserQuestion in command\", or needs guidance on slash command structure, YAML frontmatter fields, dynamic arguments, bash execution in commands, user interaction patterns, or command development best practices for Claude Code.",
+    "results": [
+      {
+        "query": "Define command arguments with frontmatter",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create an interactive slash command",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a slash command for code review",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Make a /summarize command for my workflow",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Set up dynamic bash execution in a command",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "How do I use AskUserQuestion in a command?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add a /deploy command to my project",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Write a custom command with file references",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Fix the authentication bug in my app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Explain how async/await works",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write unit tests for my service",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a React component for user profiles",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add TypeScript types to this JavaScript file",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Build a REST API with Express",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up a CI/CD pipeline",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me refactor this class to use composition",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 8,
+      "failed": 8
+    }
+  },
+  {
+    "skill_name": "hook-development",
+    "description": "This skill should be used when the user asks to \"create a hook\", \"add a PreToolUse/PostToolUse/Stop hook\", \"validate tool use\", \"implement prompt-based hooks\", \"use ${CLAUDE_PLUGIN_ROOT}\", \"set up event-driven automation\", \"block dangerous commands\", or mentions hook events (PreToolUse, PostToolUse, Stop, SubagentStop, SessionStart, SessionEnd, UserPromptSubmit, PreCompact, Notification). Provides comprehensive guidance for creating and implementing Claude Code plugin hooks with focus on advanced prompt-based hooks API.",
+    "results": [
+      {
+        "query": "Add a prompt-based hook to my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Set up a Stop hook for session cleanup",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Set up hook events for PreCompact and SessionStart",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Build a hook that blocks dangerous shell commands",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create an event-driven automation with hooks",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a PreToolUse hook to validate commands",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Write a UserPromptSubmit hook for input validation",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add a PostToolUse hook to log tool usage",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Fix the payment processing error",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up git commit hooks with husky",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a GitHub Actions workflow",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write a React component for user settings",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Build a CI pipeline for my project",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write tests for my TypeScript service",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a REST API with authentication",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add ESLint pre-commit hooks",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 8,
+      "failed": 8
+    }
+  },
+  {
+    "skill_name": "mcp-integration",
+    "description": "This skill should be used when the user asks to \"add MCP server\", \"integrate MCP\", \"configure MCP in plugin\", \"use .mcp.json\", \"set up Model Context Protocol\", \"connect external service\", mentions \"${CLAUDE_PLUGIN_ROOT} with MCP\", or discusses MCP server types (SSE, stdio, HTTP, WebSocket). Provides comprehensive guidance for integrating Model Context Protocol servers into Claude Code plugins for external tool and service integration.",
+    "results": [
+      {
+        "query": "Connect an external service via MCP to my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add an SSE MCP server to my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Use Model Context Protocol in my plugin config",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Set up MCP server integration in my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Configure .mcp.json for my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Integrate MCP with my Claude Code plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add an MCP server to my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Integrate a stdio MCP server with ${CLAUDE_PLUGIN_ROOT}",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Build a React dashboard component",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add Stripe payments to my SaaS",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Fix the bug in my Express API",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Optimize my MongoDB queries",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write a Python data processing script",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Deploy my app to Kubernetes",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up a standalone MCP server (not in a plugin)",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a Next.js app from scratch",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 8,
+      "failed": 8
+    }
+  },
+  {
+    "skill_name": "plugin-settings",
+    "description": "This skill should be used when the user asks about \"plugin settings\", \"store plugin configuration\", \"user-configurable plugin\", \".local.md files\", \"plugin state files\", \"read YAML frontmatter\", \"per-project plugin settings\", or wants to make plugin behavior configurable. Documents the .claude/plugin-name.local.md pattern for storing plugin-specific configuration with YAML frontmatter and markdown content.",
+    "results": [
+      {
+        "query": "Make my plugin settings user-configurable",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "How do I store plugin configuration?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "How do I persist plugin state across sessions?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Set up per-project plugin settings",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Configure my plugin with YAML settings",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Read YAML frontmatter in my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Use .local.md files to store plugin state",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Store user preferences in my Claude plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Write a Python ETL pipeline",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Fix the layout bug in my dashboard",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up environment variables for my project",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create API rate limiting middleware",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add Stripe webhooks to my backend",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Refactor this module for better testability",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add user authentication to my web app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Deploy my app to AWS Lambda",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 8,
+      "failed": 8
+    }
+  },
+  {
+    "skill_name": "plugin-structure",
+    "description": "This skill should be used when the user asks to \"create a plugin\", \"scaffold a plugin\", \"understand plugin structure\", \"organize plugin components\", \"set up plugin.json\", \"use ${CLAUDE_PLUGIN_ROOT}\", \"add commands/agents/skills/hooks\", \"configure auto-discovery\", or needs guidance on plugin directory layout, manifest configuration, component organization, file naming conventions, or Claude Code plugin architecture best practices.",
+    "results": [
+      {
+        "query": "Configure auto-discovery for my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Organize my plugin components correctly",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a new Claude Code plugin from scratch",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Set up plugin.json for my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Help me understand the plugin directory structure",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Scaffold a plugin with commands and skills",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Use ${CLAUDE_PLUGIN_ROOT} in my plugin config",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add hooks and agents to my existing plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create unit tests for my service layer",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me build a React app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Fix the authentication flow in my app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write a database migration script",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Optimize the SQL queries in my app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up Docker compose for local development",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Build a CLI tool with Commander.js",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add error boundaries to my React app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 8,
+      "failed": 8
+    }
+  },
+  {
+    "skill_name": "skill-development",
+    "description": "This skill should be used when the user wants to \"create a skill\", \"add a skill to plugin\", \"write a new skill\", \"improve skill description\", \"organize skill content\", or needs guidance on skill structure, progressive disclosure, or skill development best practices for Claude Code plugins.",
+    "results": [
+      {
+        "query": "How should I organize content in my skill?",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Improve my skill description for better triggering",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a skill with references and assets",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Write a new skill with progressive disclosure",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Make a skill that follows best practices",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a new skill for my Claude Code plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Build a code-review skill for my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Add a skill to my existing plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Fix the bug in my React component",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add dark mode support to my app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a REST API with FastAPI",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write a bash script for deployment",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up a PostgreSQL database",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me optimize database queries",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write integration tests for my service",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Explain the difference between props and state",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 8,
+      "failed": 8
+    }
+  },
+  {
+    "skill_name": "skill-creator",
+    "description": "Create new skills, modify and improve existing skills, and measure skill performance. Use when users want to create a skill from scratch, update or optimize an existing skill, run evals to test a skill, benchmark skill performance with variance analysis, or optimize a skill's description for better triggering accuracy.",
+    "results": [
+      {
+        "query": "Test how well my skill triggers",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Improve my existing skill",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create a new skill for my plugin",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Optimize my skill's triggering accuracy",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Help me write a skill from scratch",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Run evals on my skill description",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Create and iterate on a new skill with evals",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Benchmark my skill performance",
+        "should_trigger": true,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": false
+      },
+      {
+        "query": "Fix the authentication bug in my app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Build a React component for user profiles",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Write a SQL query for user analytics",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Create a landing page for my startup",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Set up a CI/CD pipeline with GitHub Actions",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Help me understand how async/await works",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Debug the memory leak in my Node service",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      },
+      {
+        "query": "Add dark mode to my Next.js app",
+        "should_trigger": false,
+        "trigger_rate": 0.0,
+        "triggers": 0,
+        "runs": 1,
+        "pass": true
+      }
+    ],
+    "summary": {
+      "total": 16,
+      "passed": 8,
+      "failed": 8
+    }
+  }
+]
