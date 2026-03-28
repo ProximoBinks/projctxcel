@@ -71,6 +71,22 @@
       { "label": "SACE Merits", "value": "2" },
       { "label": "Engineering Student", "value": "1st Year" }
     ],
+    "active": false,
+    "sortOrder": 11
+  },
+  {
+    "name": "Tanya Yang",
+    "slug": "tanya-yang",
+    "photoFile": "tanya-yang.jpg",
+    "photoZoom": 1.2,
+    "headline": "Tutor",
+    "bioShort": "2024 Dux of Walford. Tanya brings clarity and structure to her tutoring, helping students feel confident and prepared for every assessment.",
+    "subjects": ["Maths Methods", "Chemistry", "English", "UCAT", "Interview Prep"],
+    "stats": [
+      { "label": "ATAR", "value": "99.75" },
+      { "label": "percentile UCAT", "value": "90th" },
+      { "label": "Med Student", "value": "2nd Year" }
+    ],
     "active": true,
     "sortOrder": 5
   },
@@ -116,8 +132,8 @@
       { "label": "All Subjects", "value": "A+" },
       { "label": "Med Student", "value": "1st Year" }
     ],
-    "active": true,
-    "sortOrder": 8
+    "active": false,
+    "sortOrder": 12
   },
   {
     "name": "Bal Gilhotra",
@@ -132,7 +148,7 @@
       { "label": "Med Student", "value": "1st Year" }
     ],
     "active": true,
-    "sortOrder": 9
+    "sortOrder": 8
   },
   {
     "name": "Ansen Li",
@@ -146,7 +162,7 @@
       { "label": "SACE Merit", "value": "Physics" },
       { "label": "All Subjects", "value": "A+" }
     ],
-    "active": false,
-    "sortOrder": 10
+    "active": true,
+    "sortOrder": 9
   }
 ]

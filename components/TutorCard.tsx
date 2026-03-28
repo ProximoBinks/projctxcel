@@ -9,6 +9,7 @@ export type TutorCardData = {
   name: string;
   slug: string;
   photoFile: string;
+  photoZoom?: number;
   headline?: string;
   bioShort: string;
   subjects: string[];
@@ -72,6 +73,7 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
               }
               alt={tutor.name}
               className="h-full w-full object-cover"
+              style={tutor.photoZoom ? { transform: `scale(${tutor.photoZoom})` } : undefined}
               loading="lazy"
               onError={(event) => {
                 if (

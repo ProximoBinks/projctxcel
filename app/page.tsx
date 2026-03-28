@@ -311,6 +311,7 @@ export default function HomePage() {
                                 }
                                 alt={activeTutor.name}
                                 className="h-full w-full object-cover"
+                                style={activeTutor.photoZoom ? { transform: `scale(${activeTutor.photoZoom})` } : undefined}
                                 loading="eager"
                                 decoding="async"
                                 onError={(event) => {
