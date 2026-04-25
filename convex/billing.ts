@@ -108,12 +108,19 @@ async function buildClassLine(
     .withIndex("by_class", (q) => q.eq("classId", cls._id))
     .collect();
   const activeAssignment = assignments.find((a) => a.active);
-  if (!activeAssignment) return null;
 
-  const tutor = await ctx.db.get(activeAssignment.tutorId);
-  if (!tutor) return null;
+  let tutorName = "Unassigned";
+  let tutorHourlyRate: number | undefined;
+  if (activeAssignment) {
+    const tutor = await ctx.db.get(activeAssignment.tutorId);
+    if (tutor) {
+      tutorName = tutor.name;
+      tutorHourlyRate = tutor.hourlyRate;
+    }
+  }
 
-  const rateCents = cls.hourlyRateCents ?? tutor.hourlyRate;
+  const rateCents = cls.hourlyRateCents ?? tutorHourlyRate;
+  if (rateCents === undefined) return null;
   const paused = await isClassPausedForStudent(ctx, studentId, cls._id, referenceDate);
   const lineTotalCents = paused ? 0 : Math.round((durationMinutes / 60) * rateCents);
 
@@ -125,7 +132,7 @@ async function buildClassLine(
     startTime: cls.startTime,
     endTime: cls.endTime,
     durationMinutes,
-    tutorName: tutor.name,
+    tutorName,
     rateCents,
     lineTotalCents,
     paused,
