@@ -835,6 +835,30 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
     <div className="space-y-6">
       <h2 className="text-xl font-semibold text-slate-900">Billing</h2>
 
+      {/* Paused billing banner */}
+      {profile.status === "paused" && (
+        <div className="rounded-2xl border border-yellow-300 bg-yellow-50 p-4 sm:p-5">
+          <div className="flex items-start gap-3">
+            <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-yellow-200 text-yellow-700">
+              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 5.25v13.5m-7.5-13.5v13.5" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-sm font-semibold text-yellow-800">Billing is currently paused</p>
+              <p className="mt-0.5 text-sm text-yellow-700">
+                Your subscription has been paused by your admin. You will not be charged until billing is resumed.
+              </p>
+              {profile.pauseReason && (
+                <p className="mt-1.5 text-sm text-yellow-600">
+                  <span className="font-medium">Reason:</span> {profile.pauseReason}
+                </p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <div className="col-span-2 rounded-2xl border border-green-200 bg-green-50 p-4 sm:col-span-1 sm:p-5">
@@ -946,14 +970,14 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
                                       Cancel
                                     </button>
                                   </div>
-                                ) : (
+                                ) : profile.status !== "paused" ? (
                                   <button
                                     onClick={() => setPausingClassId(line.classId)}
                                     className="rounded-lg px-2 py-1 text-xs text-yellow-700 transition hover:bg-yellow-100 active:bg-yellow-200"
                                   >
                                     Request pause
                                   </button>
-                                )}
+                                ) : null}
                               </div>
                             </div>
                           );

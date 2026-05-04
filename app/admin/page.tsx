@@ -106,20 +106,22 @@ function AdminDashboard({
 
       {/* Tabs */}
       <div className="border-b border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-6xl gap-4 overflow-x-auto px-4 sm:gap-6 sm:px-6">
-          {(["tutors", "students", "classes", "subjects", "sessions", "billing", "enquiries", "email"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`whitespace-nowrap border-b-2 px-1 py-3 text-sm font-medium transition ${
-                activeTab === tab
-                  ? "border-slate-900 text-slate-900"
-                  : "border-transparent text-slate-600 hover:text-slate-900"
-              }`}
-            >
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
+        <div className="mx-auto max-w-6xl px-4 sm:px-6">
+          <nav className="-mb-px flex gap-1 overflow-x-auto scrollbar-hide sm:gap-4" style={{ WebkitOverflowScrolling: "touch" }}>
+            {(["tutors", "students", "classes", "subjects", "sessions", "billing", "enquiries", "email"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`whitespace-nowrap border-b-2 px-2 py-3 text-xs font-medium transition sm:px-3 sm:py-4 sm:text-sm ${
+                  activeTab === tab
+                    ? "border-slate-900 text-slate-900"
+                    : "border-transparent text-slate-500 hover:text-slate-700"
+                }`}
+              >
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </nav>
         </div>
       </div>
 
@@ -2820,6 +2822,8 @@ function BillingTab({
     studentId: Id<"students">;
     studentName: string;
   } | null>(null);
+  const [showBulkPause, setShowBulkPause] = useState(false);
+  const [showBulkUnpause, setShowBulkUnpause] = useState(false);
 
   const billingProfiles = useQuery(api.billing.listAllBillingProfiles, { adminId });
   const pauseRequests = useQuery(api.billing.listPauseRequests, { adminId });
@@ -2836,6 +2840,8 @@ function BillingTab({
   const updateBillingStatus = useMutation(api.billing.updateBillingStatus);
   const retryChargeAction = useAction(api.stripeActions.manualCharge);
   const toggleChargeHidden = useMutation(api.billing.toggleChargeHidden);
+  const adminBulkPause = useMutation(api.billing.adminBulkPause);
+  const adminBulkUnpause = useMutation(api.billing.adminBulkUnpause);
 
   const formatCurrency = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 
@@ -2877,14 +2883,28 @@ function BillingTab({
     <div className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-xl font-semibold text-slate-900">Billing</h2>
-        <div className="flex gap-2">
+        <div className="flex flex-wrap gap-2">
           <button
             onClick={() => setShowSetup(true)}
             disabled={studentsWithoutBilling.length === 0}
-            className="rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed"
+            className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed sm:px-4 sm:text-sm"
             title={studentsWithoutBilling.length === 0 ? "All students already have billing profiles" : ""}
           >
             + Set Up Billing
+          </button>
+          <button
+            onClick={() => setShowBulkPause(true)}
+            disabled={!billingProfiles?.some((p) => p.status === "active")}
+            className="rounded-xl border border-yellow-300 bg-yellow-50 px-3 py-2 text-xs font-semibold text-yellow-700 transition hover:bg-yellow-100 disabled:opacity-40 disabled:cursor-not-allowed sm:px-4 sm:text-sm"
+          >
+            Pause Billing
+          </button>
+          <button
+            onClick={() => setShowBulkUnpause(true)}
+            disabled={!billingProfiles?.some((p) => p.status === "paused")}
+            className="rounded-xl border border-green-300 bg-green-50 px-3 py-2 text-xs font-semibold text-green-700 transition hover:bg-green-100 disabled:opacity-40 disabled:cursor-not-allowed sm:px-4 sm:text-sm"
+          >
+            Unpause
           </button>
         </div>
       </div>
@@ -2985,143 +3005,295 @@ function BillingTab({
       </div>
 
       {billingSubTab === "profiles" && (
-        <div className="rounded-2xl border border-slate-200 bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[840px]">
-              <thead>
-                <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
-                  <th className="px-6 py-3 font-medium">Student</th>
-                  <th className="px-6 py-3 font-medium">Payment Type</th>
-                  <th className="px-6 py-3 font-medium">Weekly Rate</th>
-                  <th className="px-6 py-3 font-medium">Credit</th>
-                  <th className="px-6 py-3 font-medium">Status</th>
-                  <th className="px-6 py-3 font-medium"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {billingProfiles && billingProfiles.length > 0 ? (
-                  billingProfiles.map((profile) => (
-                    <tr key={profile._id} className="text-sm">
-                      <td className="px-6 py-4 font-medium text-slate-900">
-                        {profile.studentName}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`rounded-full px-2 py-1 text-xs font-medium ${
-                              profile.paymentType === "card"
-                                ? "bg-blue-100 text-blue-700"
-                                : "bg-amber-100 text-amber-700"
-                            }`}
-                          >
-                            {profile.paymentType === "card"
-                              ? profile.cardLast4
-                                ? `Card •••• ${profile.cardLast4}`
-                                : "Card (no card yet)"
-                              : "Cash"}
-                          </span>
-                          <button
-                            onClick={() =>
-                              updatePaymentType({
-                                adminId,
-                                studentId: profile.studentId,
-                                paymentType: profile.paymentType === "card" ? "cash" : "card",
-                              })
-                            }
-                            className="text-xs text-slate-500 hover:text-slate-700"
-                            title={`Switch to ${profile.paymentType === "card" ? "cash" : "card"}`}
-                          >
-                            Switch
-                          </button>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-slate-900">
-                        {formatCurrency(profile.weeklyRateCents)}/wk
-                      </td>
-                      <td className="px-6 py-4">
-                        <span className={`text-sm font-medium ${profile.creditBalanceCents > 0 ? "text-blue-700" : "text-slate-400"}`}>
-                          {formatCurrency(profile.creditBalanceCents)}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <span
-                            className={`rounded-full px-2 py-1 text-xs font-medium ${
-                              profile.status === "active"
-                                ? "bg-green-100 text-green-700"
-                                : "bg-yellow-100 text-yellow-700"
-                            }`}
-                          >
-                            {profile.status === "active" ? "Active" : "Paused"}
-                          </span>
-                          {profile.status !== "active" && (
+        <>
+          {/* Desktop table */}
+          <div className="hidden rounded-2xl border border-slate-200 bg-white lg:block">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
+                    <th className="px-6 py-3 font-medium">Student</th>
+                    <th className="px-6 py-3 font-medium">Payment Type</th>
+                    <th className="px-6 py-3 font-medium">Weekly Rate</th>
+                    <th className="px-6 py-3 font-medium">Credit</th>
+                    <th className="px-6 py-3 font-medium">Status</th>
+                    <th className="px-6 py-3 font-medium"></th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {billingProfiles && billingProfiles.length > 0 ? (
+                    billingProfiles.map((profile) => (
+                      <tr key={profile._id} className="text-sm">
+                        <td className="px-6 py-4 font-medium text-slate-900">
+                          {profile.studentName}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className={`rounded-full px-2 py-1 text-xs font-medium ${
+                                profile.paymentType === "card"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : "bg-amber-100 text-amber-700"
+                              }`}
+                            >
+                              {profile.paymentType === "card"
+                                ? profile.cardLast4
+                                  ? `Card •••• ${profile.cardLast4}`
+                                  : "Card (no card yet)"
+                                : "Cash"}
+                            </span>
                             <button
                               onClick={() =>
-                                updateBillingStatus({
+                                updatePaymentType({
                                   adminId,
-                                  billingProfileId: profile._id,
-                                  status: "active",
+                                  studentId: profile.studentId,
+                                  paymentType: profile.paymentType === "card" ? "cash" : "card",
                                 })
                               }
-                              className="text-xs text-blue-600 hover:text-blue-700"
+                              className="text-xs text-slate-500 hover:text-slate-700"
+                              title={`Switch to ${profile.paymentType === "card" ? "cash" : "card"}`}
                             >
-                              Unpause
+                              Switch
                             </button>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex flex-wrap items-center gap-3">
-                          {profile.paymentType === "card" && profile.cardLast4 && (
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-slate-900">
+                          {formatCurrency(profile.weeklyRateCents)}/wk
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`text-sm font-medium ${profile.creditBalanceCents > 0 ? "text-blue-700" : "text-slate-400"}`}>
+                            {formatCurrency(profile.creditBalanceCents)}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-col gap-1">
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={`rounded-full px-2 py-1 text-xs font-medium ${
+                                  profile.status === "active"
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-yellow-100 text-yellow-700"
+                                }`}
+                              >
+                                {profile.status === "active" ? "Active" : "Paused"}
+                              </span>
+                              {profile.status !== "active" && (
+                                <button
+                                  onClick={() =>
+                                    updateBillingStatus({
+                                      adminId,
+                                      billingProfileId: profile._id,
+                                      status: "active",
+                                    })
+                                  }
+                                  className="text-xs text-blue-600 hover:text-blue-700"
+                                >
+                                  Unpause
+                                </button>
+                              )}
+                            </div>
+                            {profile.status === "paused" && profile.pauseReason && (
+                              <p className="text-xs text-yellow-600 max-w-[200px] truncate" title={profile.pauseReason}>
+                                {profile.pauseReason}
+                              </p>
+                            )}
+                            {profile.status === "paused" && profile.pausedAt && (
+                              <p className="text-xs text-slate-400">
+                                Since {new Date(profile.pausedAt).toLocaleDateString()}
+                              </p>
+                            )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex flex-wrap items-center gap-3">
+                            {profile.paymentType === "card" && profile.cardLast4 && (
+                              <button
+                                onClick={() => setChargingStudent({ studentId: profile.studentId, studentName: profile.studentName })}
+                                className="text-sm font-medium text-purple-600 hover:text-purple-700"
+                              >
+                                Charge
+                              </button>
+                            )}
                             <button
-                              onClick={() => setChargingStudent({ studentId: profile.studentId, studentName: profile.studentName })}
-                              className="text-sm font-medium text-purple-600 hover:text-purple-700"
+                              onClick={() => setAddingCredit({ studentId: profile.studentId, studentName: profile.studentName })}
+                              className="text-sm text-green-600 hover:text-green-700"
                             >
-                              Charge
+                              Credit
                             </button>
-                          )}
-                          <button
-                            onClick={() => setAddingCredit({ studentId: profile.studentId, studentName: profile.studentName })}
-                            className="text-sm text-green-600 hover:text-green-700"
-                          >
-                            Credit
-                          </button>
-                          <button
-                            onClick={() =>
-                              setViewingHistory({
-                                studentId: profile.studentId,
-                                studentName: profile.studentName,
-                              })
-                            }
-                            className="text-sm text-blue-600 hover:text-blue-700"
-                          >
-                            History
-                          </button>
-                          <button
-                            onClick={() => {
-                              if (confirm(`Delete billing profile for ${profile.studentName}? This cannot be undone.`)) {
-                                deleteBillingProfile({ adminId, billingProfileId: profile._id });
+                            <button
+                              onClick={() =>
+                                setViewingHistory({
+                                  studentId: profile.studentId,
+                                  studentName: profile.studentName,
+                                })
                               }
-                            }}
-                            className="text-sm text-red-500 hover:text-red-600"
-                          >
-                            Delete
-                          </button>
-                        </div>
+                              className="text-sm text-blue-600 hover:text-blue-700"
+                            >
+                              History
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Delete billing profile for ${profile.studentName}? This cannot be undone.`)) {
+                                  deleteBillingProfile({ adminId, billingProfileId: profile._id });
+                                }
+                              }}
+                              className="text-sm text-red-500 hover:text-red-600"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
+                        No billing profiles yet
                       </td>
                     </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
-                      No billing profiles yet
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+                  )}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+
+          {/* Mobile card view */}
+          <div className="space-y-3 lg:hidden">
+            {billingProfiles && billingProfiles.length > 0 ? (
+              billingProfiles.map((profile) => (
+                <div
+                  key={profile._id}
+                  className={`rounded-2xl border p-4 ${
+                    profile.status === "paused"
+                      ? "border-yellow-200 bg-yellow-50/50"
+                      : "border-slate-200 bg-white"
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-slate-900">{profile.studentName}</p>
+                      <div className="mt-1 flex flex-wrap items-center gap-2">
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                            profile.paymentType === "card"
+                              ? "bg-blue-100 text-blue-700"
+                              : "bg-amber-100 text-amber-700"
+                          }`}
+                        >
+                          {profile.paymentType === "card"
+                            ? profile.cardLast4
+                              ? `•••• ${profile.cardLast4}`
+                              : "No card"
+                            : "Cash"}
+                        </span>
+                        <span
+                          className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                            profile.status === "active"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-yellow-100 text-yellow-700"
+                          }`}
+                        >
+                          {profile.status === "active" ? "Active" : "Paused"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-semibold text-slate-900">
+                        {formatCurrency(profile.weeklyRateCents)}/wk
+                      </p>
+                      {profile.creditBalanceCents > 0 && (
+                        <p className="text-xs font-medium text-blue-700">
+                          {formatCurrency(profile.creditBalanceCents)} credit
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {profile.status === "paused" && (
+                    <div className="mt-2 space-y-0.5">
+                      {profile.pauseReason && (
+                        <p className="text-xs text-yellow-700">{profile.pauseReason}</p>
+                      )}
+                      {profile.pausedAt && (
+                        <p className="text-xs text-slate-400">
+                          Since {new Date(profile.pausedAt).toLocaleDateString()}
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 border-t border-slate-100 pt-3">
+                    {profile.status !== "active" && (
+                      <button
+                        onClick={() =>
+                          updateBillingStatus({
+                            adminId,
+                            billingProfileId: profile._id,
+                            status: "active",
+                          })
+                        }
+                        className="text-xs font-medium text-blue-600"
+                      >
+                        Unpause
+                      </button>
+                    )}
+                    {profile.paymentType === "card" && profile.cardLast4 && (
+                      <button
+                        onClick={() => setChargingStudent({ studentId: profile.studentId, studentName: profile.studentName })}
+                        className="text-xs font-medium text-purple-600"
+                      >
+                        Charge
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setAddingCredit({ studentId: profile.studentId, studentName: profile.studentName })}
+                      className="text-xs font-medium text-green-600"
+                    >
+                      Credit
+                    </button>
+                    <button
+                      onClick={() =>
+                        setViewingHistory({
+                          studentId: profile.studentId,
+                          studentName: profile.studentName,
+                        })
+                      }
+                      className="text-xs font-medium text-blue-600"
+                    >
+                      History
+                    </button>
+                    <button
+                      onClick={() =>
+                        updatePaymentType({
+                          adminId,
+                          studentId: profile.studentId,
+                          paymentType: profile.paymentType === "card" ? "cash" : "card",
+                        })
+                      }
+                      className="text-xs text-slate-500"
+                    >
+                      Switch to {profile.paymentType === "card" ? "cash" : "card"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(`Delete billing profile for ${profile.studentName}? This cannot be undone.`)) {
+                          deleteBillingProfile({ adminId, billingProfileId: profile._id });
+                        }
+                      }}
+                      className="text-xs text-red-500"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 text-center text-slate-500">
+                No billing profiles yet
+              </div>
+            )}
+          </div>
+        </>
       )}
 
       {billingSubTab === "upcoming" && (
@@ -3573,6 +3745,255 @@ function BillingTab({
           onClose={() => setAddingCredit(null)}
         />
       )}
+
+      {/* Bulk pause modal */}
+      {showBulkPause && billingProfiles && (
+        <BulkPauseModal
+          profiles={billingProfiles.filter((p) => p.status === "active")}
+          onSubmit={async (ids, reason) => {
+            await adminBulkPause({ adminId, billingProfileIds: ids, pauseReason: reason || undefined });
+            setShowBulkPause(false);
+          }}
+          onClose={() => setShowBulkPause(false)}
+        />
+      )}
+
+      {/* Bulk unpause modal */}
+      {showBulkUnpause && billingProfiles && (
+        <BulkUnpauseModal
+          profiles={billingProfiles.filter((p) => p.status === "paused")}
+          onSubmit={async (ids) => {
+            await adminBulkUnpause({ adminId, billingProfileIds: ids });
+            setShowBulkUnpause(false);
+          }}
+          onClose={() => setShowBulkUnpause(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+function BulkPauseModal({
+  profiles,
+  onSubmit,
+  onClose,
+}: {
+  profiles: Array<{ _id: Id<"billingProfiles">; studentName: string; weeklyRateCents: number }>;
+  onSubmit: (ids: Id<"billingProfiles">[], reason: string) => Promise<void>;
+  onClose: () => void;
+}) {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [reason, setReason] = useState("");
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const filtered = profiles.filter((p) =>
+    p.studentName.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const toggleAll = () => {
+    if (selected.size === filtered.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map((p) => p._id)));
+    }
+  };
+
+  const toggle = (id: string) => {
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelected(next);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6">
+        <h3 className="text-lg font-semibold text-slate-900">Pause Billing</h3>
+        <p className="mt-1 text-sm text-slate-500">
+          Select students to pause billing. They will not be charged until unpaused.
+        </p>
+
+        <input
+          type="text"
+          placeholder="Search students..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mt-4 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-300 focus:outline-none focus:ring-1 focus:ring-blue-300"
+        />
+
+        <div className="mt-3 max-h-60 overflow-y-auto rounded-lg border border-slate-200">
+          <label className="flex cursor-pointer items-center gap-3 border-b border-slate-100 px-4 py-2.5 hover:bg-slate-50">
+            <input
+              type="checkbox"
+              checked={filtered.length > 0 && selected.size === filtered.length}
+              onChange={toggleAll}
+              className="h-4 w-4 rounded border-slate-300 text-blue-600"
+            />
+            <span className="text-sm font-medium text-slate-700">Select All ({filtered.length})</span>
+          </label>
+          {filtered.map((p) => (
+            <label
+              key={p._id}
+              className="flex cursor-pointer items-center gap-3 px-4 py-2.5 hover:bg-slate-50"
+            >
+              <input
+                type="checkbox"
+                checked={selected.has(p._id)}
+                onChange={() => toggle(p._id)}
+                className="h-4 w-4 rounded border-slate-300 text-blue-600"
+              />
+              <span className="flex-1 text-sm text-slate-900">{p.studentName}</span>
+              <span className="text-xs text-slate-400">${(p.weeklyRateCents / 100).toFixed(2)}/wk</span>
+            </label>
+          ))}
+          {filtered.length === 0 && (
+            <p className="px-4 py-4 text-center text-sm text-slate-400">No active profiles found</p>
+          )}
+        </div>
+
+        <textarea
+          placeholder="Pause reason (optional)..."
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          rows={2}
+          className="mt-4 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-300 focus:outline-none focus:ring-1 focus:ring-blue-300"
+        />
+
+        <div className="mt-4 flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={async () => {
+              if (selected.size === 0) return;
+              setLoading(true);
+              try {
+                await onSubmit(Array.from(selected) as Id<"billingProfiles">[], reason);
+              } finally {
+                setLoading(false);
+              }
+            }}
+            disabled={selected.size === 0 || loading}
+            className="flex-1 rounded-xl bg-yellow-500 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-yellow-600 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {loading ? "Pausing..." : `Pause ${selected.size} student${selected.size !== 1 ? "s" : ""}`}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BulkUnpauseModal({
+  profiles,
+  onSubmit,
+  onClose,
+}: {
+  profiles: Array<{ _id: Id<"billingProfiles">; studentName: string; pauseReason?: string }>;
+  onSubmit: (ids: Id<"billingProfiles">[]) => Promise<void>;
+  onClose: () => void;
+}) {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const filtered = profiles.filter((p) =>
+    p.studentName.toLowerCase().includes(search.toLowerCase()),
+  );
+
+  const toggleAll = () => {
+    if (selected.size === filtered.length) {
+      setSelected(new Set());
+    } else {
+      setSelected(new Set(filtered.map((p) => p._id)));
+    }
+  };
+
+  const toggle = (id: string) => {
+    const next = new Set(selected);
+    if (next.has(id)) next.delete(id);
+    else next.add(id);
+    setSelected(next);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+      <div className="w-full max-w-md rounded-2xl bg-white p-6">
+        <h3 className="text-lg font-semibold text-slate-900">Unpause Billing</h3>
+        <p className="mt-1 text-sm text-slate-500">
+          Select students to resume billing. They will be charged again on their next class day.
+        </p>
+
+        <input
+          type="text"
+          placeholder="Search students..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="mt-4 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-blue-300 focus:outline-none focus:ring-1 focus:ring-blue-300"
+        />
+
+        <div className="mt-3 max-h-60 overflow-y-auto rounded-lg border border-slate-200">
+          <label className="flex cursor-pointer items-center gap-3 border-b border-slate-100 px-4 py-2.5 hover:bg-slate-50">
+            <input
+              type="checkbox"
+              checked={filtered.length > 0 && selected.size === filtered.length}
+              onChange={toggleAll}
+              className="h-4 w-4 rounded border-slate-300 text-blue-600"
+            />
+            <span className="text-sm font-medium text-slate-700">Select All ({filtered.length})</span>
+          </label>
+          {filtered.map((p) => (
+            <label
+              key={p._id}
+              className="flex cursor-pointer items-center gap-3 px-4 py-2.5 hover:bg-slate-50"
+            >
+              <input
+                type="checkbox"
+                checked={selected.has(p._id)}
+                onChange={() => toggle(p._id)}
+                className="h-4 w-4 rounded border-slate-300 text-blue-600"
+              />
+              <span className="flex-1 text-sm text-slate-900">{p.studentName}</span>
+              {p.pauseReason && (
+                <span className="max-w-[120px] truncate text-xs text-yellow-600" title={p.pauseReason}>
+                  {p.pauseReason}
+                </span>
+              )}
+            </label>
+          ))}
+          {filtered.length === 0 && (
+            <p className="px-4 py-4 text-center text-sm text-slate-400">No paused profiles found</p>
+          )}
+        </div>
+
+        <div className="mt-4 flex gap-3">
+          <button
+            onClick={onClose}
+            className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            Cancel
+          </button>
+          <button
+            onClick={async () => {
+              if (selected.size === 0) return;
+              setLoading(true);
+              try {
+                await onSubmit(Array.from(selected) as Id<"billingProfiles">[]);
+              } finally {
+                setLoading(false);
+              }
+            }}
+            disabled={selected.size === 0 || loading}
+            className="flex-1 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-green-700 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {loading ? "Unpausing..." : `Unpause ${selected.size} student${selected.size !== 1 ? "s" : ""}`}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
