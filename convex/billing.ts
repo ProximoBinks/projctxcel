@@ -235,6 +235,9 @@ export const getBillingProfile = query({
       cardLast4: v.optional(v.string()),
       cardBrand: v.optional(v.string()),
       status: v.string(),
+      pausedAt: v.optional(v.number()),
+      pausedBy: v.optional(v.string()),
+      pauseReason: v.optional(v.string()),
       createdAt: v.number(),
       weeklyRate: weeklyRateValidator,
       creditBalanceCents: v.number(),
@@ -260,6 +263,9 @@ export const getBillingProfile = query({
       cardLast4: profile.cardLast4,
       cardBrand: profile.cardBrand,
       status: profile.status,
+      pausedAt: profile.pausedAt,
+      pausedBy: profile.pausedBy,
+      pauseReason: profile.pauseReason,
       createdAt: profile.createdAt,
       weeklyRate,
       creditBalanceCents,
@@ -278,6 +284,9 @@ export const listAllBillingProfiles = query({
       cardLast4: v.optional(v.string()),
       cardBrand: v.optional(v.string()),
       status: v.string(),
+      pausedAt: v.optional(v.number()),
+      pausedBy: v.optional(v.string()),
+      pauseReason: v.optional(v.string()),
       weeklyRateCents: v.number(),
       creditBalanceCents: v.number(),
       createdAt: v.number(),
@@ -301,6 +310,9 @@ export const listAllBillingProfiles = query({
           cardLast4: profile.cardLast4,
           cardBrand: profile.cardBrand,
           status: profile.status,
+          pausedAt: profile.pausedAt,
+          pausedBy: profile.pausedBy,
+          pauseReason: profile.pauseReason,
           weeklyRateCents: weeklyRate.totalCents,
           creditBalanceCents,
           createdAt: profile.createdAt,
@@ -380,9 +392,10 @@ export const updateBillingStatus = mutation({
     adminId: v.id("tutorAccounts"),
     billingProfileId: v.id("billingProfiles"),
     status: v.string(),
+    pauseReason: v.optional(v.string()),
   },
   returns: v.boolean(),
-  handler: async (ctx, { adminId, billingProfileId, status }) => {
+  handler: async (ctx, { adminId, billingProfileId, status, pauseReason }) => {
     await assertAdmin(ctx, adminId);
     const profile = await ctx.db.get(billingProfileId);
     if (!profile) return false;
@@ -392,9 +405,62 @@ export const updateBillingStatus = mutation({
       patch.pausedAt = undefined;
       patch.pausedBy = undefined;
       patch.pauseReason = undefined;
+    } else if (status === "paused") {
+      patch.pausedAt = Date.now();
+      patch.pausedBy = "admin";
+      patch.pauseReason = pauseReason ?? undefined;
     }
     await ctx.db.patch(billingProfileId, patch);
     return true;
+  },
+});
+
+export const adminBulkPause = mutation({
+  args: {
+    adminId: v.id("tutorAccounts"),
+    billingProfileIds: v.array(v.id("billingProfiles")),
+    pauseReason: v.optional(v.string()),
+  },
+  returns: v.number(),
+  handler: async (ctx, { adminId, billingProfileIds, pauseReason }) => {
+    await assertAdmin(ctx, adminId);
+    let count = 0;
+    for (const id of billingProfileIds) {
+      const profile = await ctx.db.get(id);
+      if (!profile || profile.status === "paused") continue;
+      await ctx.db.patch(id, {
+        status: "paused",
+        pausedAt: Date.now(),
+        pausedBy: "admin",
+        pauseReason: pauseReason ?? undefined,
+      });
+      count++;
+    }
+    return count;
+  },
+});
+
+export const adminBulkUnpause = mutation({
+  args: {
+    adminId: v.id("tutorAccounts"),
+    billingProfileIds: v.array(v.id("billingProfiles")),
+  },
+  returns: v.number(),
+  handler: async (ctx, { adminId, billingProfileIds }) => {
+    await assertAdmin(ctx, adminId);
+    let count = 0;
+    for (const id of billingProfileIds) {
+      const profile = await ctx.db.get(id);
+      if (!profile || profile.status === "active") continue;
+      await ctx.db.patch(id, {
+        status: "active",
+        pausedAt: undefined,
+        pausedBy: undefined,
+        pauseReason: undefined,
+      });
+      count++;
+    }
+    return count;
   },
 });
 
