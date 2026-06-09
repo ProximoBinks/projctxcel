@@ -872,10 +872,25 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
       {/* Summary cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
         <div className="col-span-2 rounded-2xl border border-green-200 bg-green-50 p-4 sm:col-span-1 sm:p-5">
-          <p className="text-xs font-medium text-green-700 sm:text-sm">Weekly Total</p>
-          <p className="mt-1 text-xl font-semibold text-green-900 sm:text-2xl">
-            {formatCurrency(profile.weeklyRate.totalCents)}
+          <p className="text-xs font-medium text-green-700 sm:text-sm">
+            {profile.cadenceIntervalWeeks
+              ? profile.cadenceIntervalWeeks === 2
+                ? "Fortnightly Total"
+                : `Per ${profile.cadenceIntervalWeeks} Weeks`
+              : "Weekly Total"}
           </p>
+          <p className="mt-1 text-xl font-semibold text-green-900 sm:text-2xl">
+            {formatCurrency(
+              profile.cadenceIntervalWeeks
+                ? profile.weeklyRate.totalCents
+                : profile.weeklyRate.effectiveWeeklyCents,
+            )}
+          </p>
+          {profile.cadenceIntervalWeeks && (
+            <p className="mt-0.5 text-xs text-green-700">
+              ≈ {formatCurrency(profile.weeklyRate.effectiveWeeklyCents)}/wk
+            </p>
+          )}
         </div>
         <div className="rounded-2xl border border-blue-200 bg-blue-50 p-4 sm:p-5">
           <p className="text-xs font-medium text-blue-700 sm:text-sm">Credit Balance</p>
@@ -899,10 +914,10 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
         {/* Weekly rate breakdown grouped by day */}
         <div className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-6">
           <h3 className="text-base font-semibold text-slate-900 sm:text-lg">
-            Weekly Rate Breakdown
+            Billing Breakdown
           </h3>
           <p className="mt-0.5 text-xs text-slate-500">
-            Billed daily at 9am for that day&apos;s sessions
+            Charged around 9am on each class day, at each class&apos;s billing frequency
           </p>
           {profile.weeklyRate.breakdown.length > 0 ? (
             <div className="mt-4 space-y-4">
@@ -939,6 +954,11 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
                                 <div className={`min-w-0 flex-1 ${line.paused ? "opacity-60" : ""}`}>
                                   <div className="font-medium text-slate-900">
                                     {line.className}
+                                    {line.intervalWeeks > 1 && (
+                                      <span className="ml-1.5 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">
+                                        {line.intervalWeeks === 2 ? "Fortnightly" : `Every ${line.intervalWeeks} wks`}
+                                      </span>
+                                    )}
                                     {line.paused && (
                                       <span className="ml-1.5 rounded-full bg-yellow-200 px-2 py-0.5 text-xs font-medium text-yellow-800">
                                         Paused
@@ -998,9 +1018,19 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
                 });
               })()}
               <div className="flex items-center justify-between border-t border-slate-200 pt-3">
-                <span className="font-semibold text-slate-900">Weekly Total</span>
+                <span className="font-semibold text-slate-900">
+                  {profile.cadenceIntervalWeeks
+                    ? profile.cadenceIntervalWeeks === 2
+                      ? "Fortnightly Total"
+                      : `Per ${profile.cadenceIntervalWeeks} Weeks`
+                    : "Per week (avg)"}
+                </span>
                 <span className="text-lg font-semibold text-slate-900">
-                  {formatCurrency(profile.weeklyRate.totalCents)}
+                  {formatCurrency(
+                    profile.cadenceIntervalWeeks
+                      ? profile.weeklyRate.totalCents
+                      : profile.weeklyRate.effectiveWeeklyCents,
+                  )}
                 </span>
               </div>
             </div>

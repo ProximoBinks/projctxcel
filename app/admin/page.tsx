@@ -3255,6 +3255,11 @@ function BillingTab({
                         </td>
                         <td className="px-6 py-4 text-slate-900">
                           {formatCurrency(profile.weeklyRateCents)}/wk
+                          {profile.cadenceIntervalWeeks && (
+                            <span className="ml-1.5 rounded-full bg-purple-100 px-2 py-0.5 text-xs font-medium text-purple-700">
+                              {profile.cadenceIntervalWeeks === 2 ? "Fortnightly" : `Every ${profile.cadenceIntervalWeeks} wks`}
+                            </span>
+                          )}
                         </td>
                         <td className="px-6 py-4">
                           <span className={`text-sm font-medium ${profile.creditBalanceCents > 0 ? "text-blue-700" : "text-slate-400"}`}>
@@ -3417,6 +3422,11 @@ function BillingTab({
                       <p className="text-sm font-semibold text-slate-900">
                         {formatCurrency(profile.weeklyRateCents)}/wk
                       </p>
+                      {profile.cadenceIntervalWeeks && (
+                        <p className="text-xs font-medium text-purple-700">
+                          {profile.cadenceIntervalWeeks === 2 ? "Fortnightly" : `Every ${profile.cadenceIntervalWeeks} wks`}
+                        </p>
+                      )}
                       {profile.creditBalanceCents > 0 && (
                         <p className="text-xs font-medium text-blue-700">
                           {formatCurrency(profile.creditBalanceCents)} credit

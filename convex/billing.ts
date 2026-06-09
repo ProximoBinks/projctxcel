@@ -60,6 +60,21 @@ type WeeklyRate = {
   breakdown: BreakdownLine[];
 };
 
+/**
+ * If every billable class shares one non-weekly interval (e.g. all fortnightly),
+ * return that interval so the UI can show a single billing period. Returns null
+ * for weekly-only or mixed cadences (UI then shows a per-week average). Shared by
+ * the admin list and the student dashboard so both display the same thing.
+ */
+function uniformIntervalWeeks(rate: WeeklyRate): number | null {
+  const active = rate.breakdown.filter((l) => !l.paused && l.lineTotalCents > 0);
+  if (active.length === 0) return null;
+  const intervals = new Set(active.map((l) => l.intervalWeeks));
+  if (intervals.size !== 1) return null;
+  const only = [...intervals][0];
+  return only > 1 ? only : null;
+}
+
 function getTodayAdelaide(): string {
   // ACST is UTC+9:30; close enough for date calculation
   const now = new Date();
@@ -283,6 +298,7 @@ export const getBillingProfile = query({
       pauseReason: v.optional(v.string()),
       createdAt: v.number(),
       weeklyRate: weeklyRateValidator,
+      cadenceIntervalWeeks: v.optional(v.number()),
       creditBalanceCents: v.number(),
     }),
     v.null(),
@@ -312,6 +328,7 @@ export const getBillingProfile = query({
       pauseReason: profile.pauseReason,
       createdAt: profile.createdAt,
       weeklyRate,
+      cadenceIntervalWeeks: uniformIntervalWeeks(weeklyRate) ?? undefined,
       creditBalanceCents,
     };
   },
@@ -332,6 +349,7 @@ export const listAllBillingProfiles = query({
       pausedBy: v.optional(v.string()),
       pauseReason: v.optional(v.string()),
       weeklyRateCents: v.number(),
+      cadenceIntervalWeeks: v.optional(v.number()),
       creditBalanceCents: v.number(),
       createdAt: v.number(),
     }),
@@ -358,6 +376,7 @@ export const listAllBillingProfiles = query({
           pausedBy: profile.pausedBy,
           pauseReason: profile.pauseReason,
           weeklyRateCents: weeklyRate.effectiveWeeklyCents,
+          cadenceIntervalWeeks: uniformIntervalWeeks(weeklyRate) ?? undefined,
           creditBalanceCents,
           createdAt: profile.createdAt,
         };
