@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { convex } from "../../../../lib/convexServer";
 import { api } from "../../../../convex/_generated/api";
+import { getServerSecret } from "../../../../lib/serverSecret";
 
 const MIN_PASSWORD_LENGTH = 8;
 
@@ -62,6 +63,7 @@ export async function POST(req: Request) {
     email,
     password,
     hourlyRate: 5000,
+    serverSecret: getServerSecret(),
   });
 
   if (!result.success) {

@@ -1,46 +1,18 @@
-import { internalMutation, mutation, query } from "./_generated/server";
+import { internalMutation, internalQuery, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
-import bcrypt from "bcryptjs";
+import type { Id } from "./_generated/dataModel";
+import {
+  hashPassword,
+  normalizeEmail,
+  verifyPasswordAndMaybeUpgrade,
+} from "./passwords";
+import { assertServerSecret } from "./serverOnly";
 
-const LEGACY_SALT = "simple_tuition_salt_2024";
-const BCRYPT_ROUNDS = 12;
-
-async function hashPasswordLegacy(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password + LEGACY_SALT);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-function isBcryptHash(hash: string): boolean {
-  return hash.startsWith("$2a$") || hash.startsWith("$2b$") || hash.startsWith("$2y$");
-}
-
-async function verifyPasswordAndMaybeUpgrade(
-  password: string,
-  currentHash: string
-): Promise<{ valid: boolean; newHash?: string }> {
-  if (isBcryptHash(currentHash)) {
-    const valid = bcrypt.compareSync(password, currentHash);
-    return { valid };
+async function assertAdmin(ctx: { db: any }, adminId: Id<"tutorAccounts">) {
+  const admin = await ctx.db.get(adminId);
+  if (!admin || !admin.roles?.includes("admin")) {
+    throw new Error("Unauthorized");
   }
-
-  const legacyHash = await hashPasswordLegacy(password);
-  if (legacyHash !== currentHash) {
-    return { valid: false };
-  }
-
-  const upgradedHash = bcrypt.hashSync(password, BCRYPT_ROUNDS);
-  return { valid: true, newHash: upgradedHash };
-}
-
-function hashPassword(password: string): string {
-  return bcrypt.hashSync(password, BCRYPT_ROUNDS);
-}
-
-function normalizeEmail(email: string): string {
-  return email.trim().toLowerCase();
 }
 
 // Tutor authentication
@@ -78,7 +50,8 @@ export const loginTutor = mutation({
 
     const { valid, newHash } = await verifyPasswordAndMaybeUpgrade(
       password,
-      tutor.passwordHash
+      tutor.passwordHash,
+      "tutorSalted"
     );
     if (!valid) {
       return { success: false as const, error: "Invalid email or password" };
@@ -132,7 +105,8 @@ export const loginAdmin = mutation({
 
     const { valid, newHash } = await verifyPasswordAndMaybeUpgrade(
       password,
-      admin.passwordHash
+      admin.passwordHash,
+      "tutorSalted"
     );
     if (!valid) {
       return { success: false as const, error: "Invalid email or password" };
@@ -159,12 +133,24 @@ export const createTutorAccount = mutation({
     name: v.string(),
     tutorSlug: v.optional(v.string()),
     hourlyRate: v.number(),
+    // Authorize via EITHER an admin caller (admin dashboard) OR the shared
+    // server secret (the gated public tutor-signup API route).
+    adminId: v.optional(v.id("tutorAccounts")),
+    serverSecret: v.optional(v.string()),
   },
   returns: v.union(
     v.object({ success: v.literal(true), tutorId: v.id("tutorAccounts") }),
     v.object({ success: v.literal(false), error: v.string() })
   ),
-  handler: async (ctx, { email, password, name, tutorSlug, hourlyRate }) => {
+  handler: async (ctx, { email, password, name, tutorSlug, hourlyRate, adminId, serverSecret }) => {
+    if (adminId) {
+      await assertAdmin(ctx, adminId);
+    } else if (serverSecret !== undefined) {
+      assertServerSecret(serverSecret);
+    } else {
+      throw new Error("Unauthorized");
+    }
+
     const existing = await ctx.db
       .query("tutorAccounts")
       .withIndex("by_email", (q) => q.eq("email", normalizeEmail(email)))
@@ -228,8 +214,11 @@ export const createTutorAccountWithHash = internalMutation({
   },
 });
 
-// Create admin account
-export const createAdminAccount = mutation({
+// Create admin account.
+// Internal-only: invoke from a seed/migration or `npx convex run`, never from a
+// client. (Previously this was a public mutation that would mint a full admin
+// to anyone who called it.)
+export const createAdminAccount = internalMutation({
   args: {
     email: v.string(),
     password: v.string(),
@@ -267,9 +256,10 @@ export const createAdminAccount = mutation({
 // --- Tutor Password Reset ---
 
 export const createTutorPasswordResetToken = mutation({
-  args: { email: v.string(), tokenHash: v.string() },
+  args: { email: v.string(), tokenHash: v.string(), serverSecret: v.string() },
   returns: v.object({ created: v.boolean(), name: v.optional(v.string()) }),
-  handler: async (ctx, { email, tokenHash }) => {
+  handler: async (ctx, { email, tokenHash, serverSecret }) => {
+    assertServerSecret(serverSecret);
     const normalizedEmail = email.toLowerCase().trim();
 
     const account = await ctx.db
@@ -293,9 +283,10 @@ export const createTutorPasswordResetToken = mutation({
 });
 
 export const resetTutorPassword = mutation({
-  args: { tokenHash: v.string(), newPasswordHash: v.string() },
+  args: { tokenHash: v.string(), newPassword: v.string(), serverSecret: v.string() },
   returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
-  handler: async (ctx, { tokenHash, newPasswordHash }) => {
+  handler: async (ctx, { tokenHash, newPassword, serverSecret }) => {
+    assertServerSecret(serverSecret);
     const token = await ctx.db
       .query("passwordResetTokens")
       .withIndex("by_tokenHash", (q) => q.eq("tokenHash", tokenHash))
@@ -320,15 +311,15 @@ export const resetTutorPassword = mutation({
       return { success: false, error: "Account not found." };
     }
 
-    await ctx.db.patch(account._id, { passwordHash: newPasswordHash });
+    await ctx.db.patch(account._id, { passwordHash: hashPassword(newPassword) });
     await ctx.db.patch(token._id, { used: true });
 
     return { success: true };
   },
 });
 
-// Get tutor by ID (for session validation)
-export const getTutorAccount = query({
+// Get tutor by ID (for session validation). Internal-only — not client-callable.
+export const getTutorAccount = internalQuery({
   args: { tutorId: v.id("tutorAccounts") },
   returns: v.union(
     v.object({
