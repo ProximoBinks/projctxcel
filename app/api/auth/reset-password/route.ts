@@ -4,6 +4,7 @@ import { convex } from "../../../../lib/convexServer";
 import { api } from "../../../../convex/_generated/api";
 import { sendPasswordResetEmail } from "../../../../lib/email";
 import { getServerSecret } from "../../../../lib/serverSecret";
+import { rateLimit, tooManyRequests } from "../../../../lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,9 @@ function hashToken(token: string): string {
 
 // POST: Request a password reset (send email) OR reset the password (with token)
 export async function POST(req: Request) {
+  const rl = await rateLimit(req, "reset-password", { maxAttempts: 5, windowMs: 10 * 60 * 1000 });
+  if (!rl.allowed) return tooManyRequests(rl.retryAfterMs);
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();

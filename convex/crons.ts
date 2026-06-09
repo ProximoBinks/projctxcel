@@ -11,4 +11,12 @@ crons.cron(
   {},
 );
 
+// Purge stale rate-limit counters once a day.
+crons.cron(
+  "cleanup rate limits",
+  "0 1 * * *",
+  internal.rateLimit.cleanupRateLimits,
+  {},
+);
+
 export default crons;

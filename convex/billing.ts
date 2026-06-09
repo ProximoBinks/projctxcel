@@ -2,12 +2,12 @@ import { query, mutation, internalQuery, internalMutation } from "./_generated/s
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import type { QueryCtx, MutationCtx } from "./_generated/server";
+import { requireAdmin, requireStudentSelfOrAdmin } from "./identity";
 
-async function assertAdmin(ctx: { db: any }, adminId: Id<"tutorAccounts">) {
-  const admin = await ctx.db.get(adminId);
-  if (!admin || !admin.roles?.includes("admin")) {
-    throw new Error("Unauthorized");
-  }
+// Authorize via the verified ctx.auth identity. The adminId arg is retained for
+// backward compatibility with existing callers but is no longer trusted.
+async function assertAdmin(ctx: any, _adminId: Id<"tutorAccounts">) {
+  await requireAdmin(ctx);
 }
 
 // ---------------------------------------------------------------------------
@@ -245,6 +245,7 @@ export const getBillingProfile = query({
     v.null(),
   ),
   handler: async (ctx, { studentId }) => {
+    await requireStudentSelfOrAdmin(ctx, studentId);
     const profile = await ctx.db
       .query("billingProfiles")
       .withIndex("by_studentId", (q) => q.eq("studentId", studentId))
@@ -486,6 +487,7 @@ export const getChargeHistory = query({
     }),
   ),
   handler: async (ctx, { studentId, limit }) => {
+    await requireStudentSelfOrAdmin(ctx, studentId);
     const charges = await ctx.db
       .query("billingCharges")
       .withIndex("by_student", (q) => q.eq("studentId", studentId))
@@ -714,6 +716,7 @@ export const requestClassPause = mutation({
   },
   returns: v.id("pauseRequests"),
   handler: async (ctx, { studentId, classId, reason, startDate, endDate }) => {
+    await requireStudentSelfOrAdmin(ctx, studentId);
     const enrollment = await ctx.db
       .query("classStudents")
       .withIndex("by_student_and_class", (q) =>
@@ -774,6 +777,7 @@ export const cancelPauseRequest = mutation({
   },
   returns: v.boolean(),
   handler: async (ctx, { studentId, requestId }) => {
+    await requireStudentSelfOrAdmin(ctx, studentId);
     const request = await ctx.db.get(requestId);
     if (!request || request.studentId !== studentId) return false;
     if (request.status !== "pending" && request.status !== "approved") return false;
@@ -867,6 +871,7 @@ export const getMyPauseRequests = query({
     }),
   ),
   handler: async (ctx, { studentId }) => {
+    await requireStudentSelfOrAdmin(ctx, studentId);
     const requests = await ctx.db
       .query("pauseRequests")
       .withIndex("by_student", (q) => q.eq("studentId", studentId))
@@ -911,6 +916,7 @@ export const getStudentCreditBalance = query({
   args: { studentId: v.id("students") },
   returns: v.number(),
   handler: async (ctx, { studentId }) => {
+    await requireStudentSelfOrAdmin(ctx, studentId);
     return await getCreditBalanceHelper(ctx, studentId);
   },
 });
@@ -927,6 +933,7 @@ export const getCreditHistory = query({
     }),
   ),
   handler: async (ctx, { studentId }) => {
+    await requireStudentSelfOrAdmin(ctx, studentId);
     const credits = await ctx.db
       .query("billingCredits")
       .withIndex("by_student", (q) => q.eq("studentId", studentId))

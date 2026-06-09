@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { convex } from "../../../../lib/convexServer";
 import { api } from "../../../../convex/_generated/api";
 import { signAuthToken, type AuthRole, type AuthSession } from "../../../../lib/auth";
+import { rateLimit, tooManyRequests } from "../../../../lib/rateLimit";
 import type { Id } from "../../../../convex/_generated/dataModel";
 
 const COOKIE_NAME = "auth_token";
@@ -14,6 +15,9 @@ const COOKIE_OPTIONS = {
 };
 
 export async function POST(req: Request) {
+  const rl = await rateLimit(req, "login", { maxAttempts: 10, windowMs: 5 * 60 * 1000 });
+  if (!rl.allowed) return tooManyRequests(rl.retryAfterMs);
+
   let payload: { email?: string; password?: string; role?: AuthRole } | null = null;
   try {
     payload = await req.json();

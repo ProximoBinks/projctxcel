@@ -1,12 +1,12 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
+import { requireAdmin } from "./identity";
 
-async function assertAdmin(ctx: { db: any }, adminId: Id<"tutorAccounts">) {
-  const admin = await ctx.db.get(adminId);
-  if (!admin || !admin.roles?.includes("admin")) {
-    throw new Error("Unauthorized");
-  }
+// Authorize via the verified ctx.auth identity. The adminId arg is retained for
+// backward compatibility with existing callers but is no longer trusted.
+async function assertAdmin(ctx: any, _adminId: Id<"tutorAccounts">) {
+  await requireAdmin(ctx);
 }
 
 // List all tutor accounts

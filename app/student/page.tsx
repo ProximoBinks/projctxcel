@@ -5,7 +5,7 @@ export const dynamic = "force-dynamic";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useMutation, useQuery, useAction } from "convex/react";
+import { useMutation, useQuery, useAction, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAuth } from "../../contexts/AuthContext";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -21,6 +21,7 @@ type Tab = "overview" | "timetable" | "resources" | "billing";
 export default function StudentDashboardPage() {
   const router = useRouter();
   const { session, isLoading, logout } = useAuth();
+  const { isAuthenticated: convexAuthed } = useConvexAuth();
   const [activeTab, setActiveTab] = useState<Tab>("overview");
   const [forceEditProfile, setForceEditProfile] = useState(false);
 
@@ -40,6 +41,15 @@ export default function StudentDashboardPage() {
 
   if (!session || session.type !== "student") {
     return null;
+  }
+
+  // Wait for the Convex token before firing student queries.
+  if (!convexAuthed) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-slate-500">Loading...</div>
+      </div>
+    );
   }
 
   const studentId = session.studentId as Id<"students">;

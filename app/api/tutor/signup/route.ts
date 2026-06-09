@@ -3,10 +3,14 @@ import nodemailer from "nodemailer";
 import { convex } from "../../../../lib/convexServer";
 import { api } from "../../../../convex/_generated/api";
 import { getServerSecret } from "../../../../lib/serverSecret";
+import { rateLimit, tooManyRequests } from "../../../../lib/rateLimit";
 
 const MIN_PASSWORD_LENGTH = 8;
 
 export async function POST(req: Request) {
+  const rl = await rateLimit(req, "tutor-signup", { maxAttempts: 5, windowMs: 10 * 60 * 1000 });
+  if (!rl.allowed) return tooManyRequests(rl.retryAfterMs);
+
   let payload:
     | { name?: string; email?: string; password?: string; secretCode?: string }
     | null = null;

@@ -4,6 +4,7 @@ import { convex } from "../../../../lib/convexServer";
 import { api } from "../../../../convex/_generated/api";
 import { sendVerificationEmail } from "../../../../lib/email";
 import { getServerSecret } from "../../../../lib/serverSecret";
+import { rateLimit, tooManyRequests } from "../../../../lib/rateLimit";
 
 export const runtime = "nodejs";
 
@@ -14,6 +15,9 @@ function hashToken(token: string): string {
 // POST { token } -> verify email
 // POST { email } -> resend verification email
 export async function POST(req: Request) {
+  const rl = await rateLimit(req, "verify-email", { maxAttempts: 8, windowMs: 10 * 60 * 1000 });
+  if (!rl.allowed) return tooManyRequests(rl.retryAfterMs);
+
   let body: Record<string, unknown>;
   try {
     body = await req.json();

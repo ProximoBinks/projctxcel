@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
+import { requireAdmin } from "./identity";
 
 export const create = mutation({
   args: {
@@ -91,9 +92,8 @@ export const list = query({
       status: v.optional(v.string()),
     })
   ),
-  handler: async (ctx, { adminId }) => {
-    const admin = await ctx.db.get(adminId);
-    if (!admin || !admin.roles?.includes("admin")) return [];
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
 
     const enquiries = await ctx.db
       .query("enquiries")
@@ -131,9 +131,8 @@ export const remove = mutation({
     enquiryId: v.id("enquiries"),
   },
   returns: v.boolean(),
-  handler: async (ctx, { adminId, enquiryId }) => {
-    const admin = await ctx.db.get(adminId);
-    if (!admin || !admin.roles?.includes("admin")) return false;
+  handler: async (ctx, { enquiryId }) => {
+    await requireAdmin(ctx);
 
     const enquiry = await ctx.db.get(enquiryId);
     if (!enquiry) return false;

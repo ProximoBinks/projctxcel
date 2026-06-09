@@ -277,6 +277,13 @@ export default defineSchema({
     .index("by_code", ["code"])
     .index("by_studentId", ["studentId"]),
 
+  // Fixed-window rate-limit counters (keyed by route + client IP).
+  rateLimits: defineTable({
+    key: v.string(),
+    count: v.number(),
+    windowStart: v.number(),
+  }).index("by_key", ["key"]),
+
   // Student resources/homework (links only)
   studentResources: defineTable({
     studentId: v.id("students"),

@@ -4,6 +4,7 @@ import type { Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { hashPassword, verifyPasswordAndMaybeUpgrade } from "./passwords";
 import { assertServerSecret } from "./serverOnly";
+import { requireAdmin, requireStudentSelfOrAdmin, requireTutor } from "./identity";
 
 // Generate a cryptographically-random invite code.
 function generateCode(): string {
@@ -25,11 +26,8 @@ export const generateInviteCode = mutation({
   },
   returns: v.object({ success: v.boolean(), code: v.optional(v.string()), error: v.optional(v.string()) }),
   handler: async (ctx, { adminId, studentId }) => {
-    // Verify admin
-    const admin = await ctx.db.get(adminId);
-    if (!admin || !admin.roles?.includes("admin")) {
-      return { success: false, error: "Unauthorized" };
-    }
+    // Authorize via verified identity; use the real admin id for createdBy.
+    adminId = await requireAdmin(ctx);
 
     // Verify student exists
     const student = await ctx.db.get(studentId);
@@ -268,6 +266,7 @@ export const getOverview = query({
     ),
   }),
   handler: async (ctx, { studentId }) => {
+    await requireStudentSelfOrAdmin(ctx, studentId);
     const student = await ctx.db.get(studentId);
     if (!student) {
       throw new Error("Student not found");
@@ -389,6 +388,7 @@ export const getTimetable = query({
     })
   ),
   handler: async (ctx, { studentId }) => {
+    await requireStudentSelfOrAdmin(ctx, studentId);
     const enrollments = await ctx.db
       .query("classStudents")
       .withIndex("by_student", (q) => q.eq("studentId", studentId))
@@ -446,6 +446,7 @@ export const getResources = query({
     })
   ),
   handler: async (ctx, { studentId }) => {
+    await requireStudentSelfOrAdmin(ctx, studentId);
     const resources = await ctx.db
       .query("studentResources")
       .withIndex("by_student", (q) => q.eq("studentId", studentId))
@@ -481,10 +482,8 @@ export const addResource = mutation({
   },
   returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
   handler: async (ctx, { creatorId, studentId, title, description, url, subject }) => {
-    const creator = await ctx.db.get(creatorId);
-    if (!creator || !creator.active) {
-      return { success: false, error: "Unauthorized" };
-    }
+    // Authorize via verified identity; record the real creator.
+    creatorId = await requireTutor(ctx);
 
     const student = await ctx.db.get(studentId);
     if (!student) {
@@ -512,11 +511,8 @@ export const deleteResource = mutation({
     resourceId: v.id("studentResources"),
   },
   returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
-  handler: async (ctx, { creatorId, resourceId }) => {
-    const creator = await ctx.db.get(creatorId);
-    if (!creator || !creator.active) {
-      return { success: false, error: "Unauthorized" };
-    }
+  handler: async (ctx, { resourceId }) => {
+    await requireTutor(ctx);
 
     const resource = await ctx.db.get(resourceId);
     if (!resource) {
@@ -600,11 +596,8 @@ export const listInviteCodes = query({
       createdAt: v.number(),
     })
   ),
-  handler: async (ctx, { adminId }) => {
-    const admin = await ctx.db.get(adminId);
-    if (!admin || !admin.roles?.includes("admin")) {
-      return [];
-    }
+  handler: async (ctx) => {
+    await requireAdmin(ctx);
 
     const codes = await ctx.db.query("studentInviteCodes").order("desc").collect();
 
@@ -777,6 +770,7 @@ export const updateProfile = mutation({
   },
   returns: v.boolean(),
   handler: async (ctx, { studentId, ...updates }) => {
+    await requireStudentSelfOrAdmin(ctx, studentId);
     const student = await ctx.db.get(studentId);
     if (!student) {
       return false;

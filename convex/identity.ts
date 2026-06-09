@@ -80,3 +80,46 @@ export async function requireStudentSelfOrAdmin(
   }
   throw new ForbiddenError();
 }
+
+/** Assert the caller is the given tutor (or an admin). */
+export async function requireTutorSelfOrAdmin(
+  ctx: DbCtx,
+  tutorId: Id<"tutorAccounts">,
+): Promise<void> {
+  const identity = await identityOrThrow(ctx);
+  if (identity.type === "admin") {
+    await requireAdmin(ctx);
+    return;
+  }
+  if (identity.type === "tutor" && identity.tutorAccountId === tutorId) {
+    const account = await ctx.db.get(tutorId);
+    if (!account) throw new ForbiddenError();
+    return;
+  }
+  throw new ForbiddenError();
+}
+
+// ---------------------------------------------------------------------------
+// Claims-only variants (no ctx.db) for use inside actions, which expose
+// ctx.auth but not ctx.db. The token is RS256-signed and minted from a
+// DB-verified login session, so trusting its claims here is sound.
+// ---------------------------------------------------------------------------
+
+export async function requireAdminClaims(ctx: AuthCtx): Promise<Id<"tutorAccounts">> {
+  const identity = await identityOrThrow(ctx);
+  const adminId = identity.tutorAccountId as Id<"tutorAccounts"> | undefined;
+  if (identity.type !== "admin" || !adminId || !(identity.roles ?? []).includes("admin")) {
+    throw new ForbiddenError();
+  }
+  return adminId;
+}
+
+export async function requireStudentSelfOrAdminClaims(
+  ctx: AuthCtx,
+  studentId: Id<"students">,
+): Promise<void> {
+  const identity = await identityOrThrow(ctx);
+  if (identity.type === "student" && identity.studentId === studentId) return;
+  if (identity.type === "admin" && (identity.roles ?? []).includes("admin")) return;
+  throw new ForbiddenError();
+}

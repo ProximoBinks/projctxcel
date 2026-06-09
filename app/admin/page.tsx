@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useQuery, useMutation, useAction } from "convex/react";
+import { useQuery, useMutation, useAction, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAuth } from "../../contexts/AuthContext";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -13,6 +13,9 @@ import type { Id } from "../../convex/_generated/dataModel";
 export default function AdminDashboardPage() {
   const router = useRouter();
   const { session, isLoading: authLoading, logout } = useAuth();
+  // Gate on Convex auth too, so admin queries only fire once the Convex token
+  // is attached (otherwise requireAdmin would reject the first requests).
+  const { isAuthenticated: convexAuthed } = useConvexAuth();
 
   useEffect(() => {
     if (
@@ -27,7 +30,8 @@ export default function AdminDashboardPage() {
     authLoading ||
     !session ||
     session.type !== "admin" ||
-    !session.roles.includes("admin")
+    !session.roles.includes("admin") ||
+    !convexAuthed
   ) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">

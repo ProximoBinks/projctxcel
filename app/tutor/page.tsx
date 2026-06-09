@@ -5,7 +5,7 @@ export const dynamic = 'force-dynamic';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useQuery, useMutation } from "convex/react";
+import { useQuery, useMutation, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAuth } from "../../contexts/AuthContext";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -13,6 +13,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 export default function TutorDashboardPage() {
   const router = useRouter();
   const { session, isLoading: authLoading, logout } = useAuth();
+  const { isAuthenticated: convexAuthed } = useConvexAuth();
 
   useEffect(() => {
     if (
@@ -27,7 +28,8 @@ export default function TutorDashboardPage() {
     authLoading ||
     !session ||
     session.type !== "tutor" ||
-    !session.roles.includes("tutor")
+    !session.roles.includes("tutor") ||
+    !convexAuthed
   ) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-slate-50">

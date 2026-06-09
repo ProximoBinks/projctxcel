@@ -6,6 +6,7 @@ import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { sendDiscordNotification } from "./discord";
+import { requireAdminClaims, requireStudentSelfOrAdminClaims } from "./identity";
 
 function getStripe(): Stripe {
   const key = process.env.STRIPE_SECRET_KEY;
@@ -66,6 +67,7 @@ export const createSetupIntent = action({
     stripeCustomerId: v.string(),
   }),
   handler: async (ctx, { studentId }): Promise<{ clientSecret: string; stripeCustomerId: string }> => {
+    await requireStudentSelfOrAdminClaims(ctx, studentId);
     const stripe = getStripe();
 
     type ProfileResult = {
@@ -125,6 +127,7 @@ export const savePaymentMethod = action({
   },
   returns: v.null(),
   handler: async (ctx, { studentId, stripePaymentMethodId }) => {
+    await requireStudentSelfOrAdminClaims(ctx, studentId);
     const stripe = getStripe();
 
     const pm: Stripe.PaymentMethod = await stripe.paymentMethods.retrieve(
@@ -164,14 +167,7 @@ export const manualCharge = action({
   },
   returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
   handler: async (ctx, { adminId, studentId, amountCents, description }): Promise<{ success: boolean; error?: string }> => {
-    // Verify admin
-    const admin: { roles?: string[] } | null = await ctx.runQuery(
-      internal.billing.getAdminInternal,
-      { adminId },
-    );
-    if (!admin || !admin.roles?.includes("admin")) {
-      return { success: false, error: "Unauthorized" };
-    }
+    await requireAdminClaims(ctx);
 
     if (amountCents <= 0) {
       return { success: false, error: "Amount must be greater than zero" };

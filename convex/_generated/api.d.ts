@@ -21,6 +21,7 @@ import type * as enquiryNotifications from "../enquiryNotifications.js";
 import type * as identity from "../identity.js";
 import type * as migrations from "../migrations.js";
 import type * as passwords from "../passwords.js";
+import type * as rateLimit from "../rateLimit.js";
 import type * as seed from "../seed.js";
 import type * as seedAdmin from "../seedAdmin.js";
 import type * as serverOnly from "../serverOnly.js";
@@ -51,6 +52,7 @@ declare const fullApi: ApiFromModules<{
   identity: typeof identity;
   migrations: typeof migrations;
   passwords: typeof passwords;
+  rateLimit: typeof rateLimit;
   seed: typeof seed;
   seedAdmin: typeof seedAdmin;
   serverOnly: typeof serverOnly;

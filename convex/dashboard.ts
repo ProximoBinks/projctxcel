@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
+import { requireTutorSelfOrAdmin } from "./identity";
 
 async function tutorTeachesStudent(
   ctx: { db: any },
@@ -48,6 +49,7 @@ export const getMyStudents = query({
     })
   ),
   handler: async (ctx, { tutorId }) => {
+    await requireTutorSelfOrAdmin(ctx, tutorId);
     // Find all classes this tutor is assigned to
     const assignments = await ctx.db
       .query("classAssignments")
@@ -103,6 +105,7 @@ export const logSession = mutation({
   },
   returns: v.id("sessions"),
   handler: async (ctx, { tutorId, studentId, date, durationMinutes, subject, notes }) => {
+    await requireTutorSelfOrAdmin(ctx, tutorId);
     // Get the rate for this session
     const tutor = await ctx.db.get(tutorId);
     if (!tutor) throw new Error("Tutor not found");
@@ -151,6 +154,7 @@ export const getMySessions = query({
     })
   ),
   handler: async (ctx, { tutorId, startDate, endDate }) => {
+    await requireTutorSelfOrAdmin(ctx, tutorId);
     let sessionsQuery = ctx.db
       .query("sessions")
       .withIndex("by_tutor", (q) => q.eq("tutorId", tutorId));
@@ -211,6 +215,7 @@ export const getMyClassesWithStudents = query({
     })
   ),
   handler: async (ctx, { tutorId }) => {
+    await requireTutorSelfOrAdmin(ctx, tutorId);
     const assignments = await ctx.db
       .query("classAssignments")
       .withIndex("by_tutor", (q) => q.eq("tutorId", tutorId))
@@ -276,6 +281,7 @@ export const getMyWeeklyClasses = query({
     })
   ),
   handler: async (ctx, { tutorId }) => {
+    await requireTutorSelfOrAdmin(ctx, tutorId);
     const assignments = await ctx.db
       .query("classAssignments")
       .withIndex("by_tutor", (q) => q.eq("tutorId", tutorId))
@@ -318,6 +324,7 @@ export const getWeeklyEarnings = query({
     }),
   }),
   handler: async (ctx, { tutorId }) => {
+    await requireTutorSelfOrAdmin(ctx, tutorId);
     const now = new Date();
     const dayOfWeek = now.getDay();
     const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
@@ -374,6 +381,7 @@ export const updateStudentNotes = mutation({
   },
   returns: v.boolean(),
   handler: async (ctx, { tutorId, studentId, notes }) => {
+    await requireTutorSelfOrAdmin(ctx, tutorId);
     const student = await ctx.db.get(studentId);
     if (!student) return false;
 
@@ -393,6 +401,7 @@ export const deleteSession = mutation({
   },
   returns: v.boolean(),
   handler: async (ctx, { tutorId, sessionId }) => {
+    await requireTutorSelfOrAdmin(ctx, tutorId);
     const session = await ctx.db.get(sessionId);
     if (!session || session.tutorId !== tutorId) {
       return false;
@@ -419,6 +428,7 @@ export const getStudentClasses = query({
     })
   ),
   handler: async (ctx, { tutorId, studentId }) => {
+    await requireTutorSelfOrAdmin(ctx, tutorId);
     const student = await ctx.db.get(studentId);
     if (!student) return [];
 
