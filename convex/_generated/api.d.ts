@@ -30,7 +30,6 @@ import type * as studentDashboard from "../studentDashboard.js";
 import type * as subjects from "../subjects.js";
 import type * as testimonials from "../testimonials.js";
 import type * as tutors from "../tutors.js";
-import type * as whoami from "../whoami.js";
 
 import type {
   ApiFromModules,
@@ -61,7 +60,6 @@ declare const fullApi: ApiFromModules<{
   subjects: typeof subjects;
   testimonials: typeof testimonials;
   tutors: typeof tutors;
-  whoami: typeof whoami;
 }>;
 
 /**
