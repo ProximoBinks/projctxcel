@@ -336,6 +336,8 @@ export const listStudentClasses = query({
       dayOfWeek: v.string(),
       startTime: v.string(),
       endTime: v.string(),
+      billingIntervalWeeks: v.optional(v.number()),
+      billingAnchorDate: v.optional(v.string()),
     })
   ),
   handler: async (ctx, { adminId, studentId }) => {
@@ -355,10 +357,55 @@ export const listStudentClasses = query({
           dayOfWeek: cls.dayOfWeek,
           startTime: cls.startTime,
           endTime: cls.endTime,
+          billingIntervalWeeks: link.billingIntervalWeeks,
+          billingAnchorDate: link.billingAnchorDate,
         };
       })
     );
     return classes.filter((c): c is NonNullable<typeof c> => Boolean(c));
+  },
+});
+
+// Set the per-student billing cadence for a class enrollment.
+// intervalWeeks: 1 = weekly (clears the cadence), 2 = fortnightly, etc.
+export const setEnrollmentCadence = mutation({
+  args: {
+    adminId: v.id("tutorAccounts"),
+    classId: v.id("classes"),
+    studentId: v.id("students"),
+    intervalWeeks: v.number(),
+    anchorDate: v.optional(v.string()),
+  },
+  returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
+  handler: async (ctx, { adminId, classId, studentId, intervalWeeks, anchorDate }) => {
+    await assertAdmin(ctx, adminId);
+    if (intervalWeeks < 1 || !Number.isInteger(intervalWeeks)) {
+      return { success: false, error: "Interval must be a whole number of weeks ≥ 1" };
+    }
+    const link = await ctx.db
+      .query("classStudents")
+      .withIndex("by_student_and_class", (q) =>
+        q.eq("studentId", studentId).eq("classId", classId)
+      )
+      .unique();
+    if (!link) return { success: false, error: "Enrollment not found" };
+
+    if (intervalWeeks <= 1) {
+      // Back to weekly — clear cadence fields.
+      await ctx.db.patch(link._id, {
+        billingIntervalWeeks: undefined,
+        billingAnchorDate: undefined,
+      });
+    } else {
+      if (!anchorDate) {
+        return { success: false, error: "An anchor (start) date is required for non-weekly billing" };
+      }
+      await ctx.db.patch(link._id, {
+        billingIntervalWeeks: intervalWeeks,
+        billingAnchorDate: anchorDate,
+      });
+    }
+    return { success: true };
   },
 });
 

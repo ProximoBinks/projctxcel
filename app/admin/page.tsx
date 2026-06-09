@@ -1636,8 +1636,16 @@ function ManageStudentClassesModal({
   });
   const assignStudent = useMutation(api.classes.assignStudentToClass);
   const unassignStudent = useMutation(api.classes.unassignStudentFromClass);
+  const setCadence = useMutation(api.classes.setEnrollmentCadence);
 
   const assignedIds = new Set((assigned ?? []).map((c) => c._id));
+  const cadenceByClass = new Map(
+    (assigned ?? []).map((c) => [
+      c._id,
+      { interval: c.billingIntervalWeeks ?? 1, anchor: c.billingAnchorDate },
+    ]),
+  );
+  const today = new Date().toISOString().split("T")[0];
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -1648,39 +1656,99 @@ function ManageStudentClassesModal({
 
         <div className="mt-4 space-y-2">
           {classes && classes.length > 0 ? (
-            classes.map((cls) => (
-              <label
-                key={cls._id}
-                className="flex items-center justify-between rounded-lg border border-slate-100 px-3 py-2 text-sm text-slate-700"
-              >
-                <div>
-                  <div className="font-medium">{cls.name}</div>
-                  <div className="text-xs text-slate-400">
-                    {cls.dayOfWeek} • {cls.startTime}–{cls.endTime}
-                  </div>
+            classes.map((cls) => {
+              const cadence = cadenceByClass.get(cls._id) ?? { interval: 1, anchor: undefined };
+              const isAssigned = assignedIds.has(cls._id);
+              return (
+                <div
+                  key={cls._id}
+                  className="rounded-lg border border-slate-100 px-3 py-2 text-sm text-slate-700"
+                >
+                  <label className="flex cursor-pointer items-center justify-between">
+                    <div>
+                      <div className="font-medium">{cls.name}</div>
+                      <div className="text-xs text-slate-400">
+                        {cls.dayOfWeek} • {cls.startTime}–{cls.endTime}
+                      </div>
+                    </div>
+                    <input
+                      type="checkbox"
+                      checked={isAssigned}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          void assignStudent({
+                            adminId,
+                            classId: cls._id,
+                            studentId: student._id,
+                          });
+                        } else {
+                          void unassignStudent({
+                            adminId,
+                            classId: cls._id,
+                            studentId: student._id,
+                          });
+                        }
+                      }}
+                      className="h-4 w-4 rounded border-slate-300"
+                    />
+                  </label>
+
+                  {isAssigned && (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-slate-100 pt-2">
+                      <span className="text-xs text-slate-500">Billing</span>
+                      <select
+                        value={cadence.interval}
+                        onChange={(e) => {
+                          const interval = parseInt(e.target.value, 10);
+                          if (interval <= 1) {
+                            void setCadence({
+                              adminId,
+                              classId: cls._id,
+                              studentId: student._id,
+                              intervalWeeks: 1,
+                            });
+                          } else {
+                            void setCadence({
+                              adminId,
+                              classId: cls._id,
+                              studentId: student._id,
+                              intervalWeeks: interval,
+                              anchorDate: cadence.anchor || today,
+                            });
+                          }
+                        }}
+                        className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                      >
+                        <option value={1}>Weekly</option>
+                        <option value={2}>Fortnightly</option>
+                        <option value={3}>Every 3 weeks</option>
+                        <option value={4}>Every 4 weeks</option>
+                      </select>
+                      {cadence.interval > 1 && (
+                        <label className="flex items-center gap-1 text-xs text-slate-500">
+                          starting
+                          <input
+                            type="date"
+                            value={cadence.anchor || today}
+                            onChange={(e) => {
+                              if (!e.target.value) return;
+                              void setCadence({
+                                adminId,
+                                classId: cls._id,
+                                studentId: student._id,
+                                intervalWeeks: cadence.interval,
+                                anchorDate: e.target.value,
+                              });
+                            }}
+                            className="rounded-lg border border-slate-200 px-2 py-1 text-xs"
+                          />
+                        </label>
+                      )}
+                    </div>
+                  )}
                 </div>
-                <input
-                  type="checkbox"
-                  checked={assignedIds.has(cls._id)}
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      void assignStudent({
-                        adminId,
-                        classId: cls._id,
-                        studentId: student._id,
-                      });
-                    } else {
-                      void unassignStudent({
-                        adminId,
-                        classId: cls._id,
-                        studentId: student._id,
-                      });
-                    }
-                  }}
-                  className="h-4 w-4 rounded border-slate-300"
-                />
-              </label>
-            ))
+              );
+            })
           ) : (
             <p className="text-sm text-slate-500">No classes available.</p>
           )}
@@ -3096,6 +3164,26 @@ function BillingTab({
                                   Unpause
                                 </button>
                               )}
+                              {profile.status === "active" && (
+                                <button
+                                  onClick={async () => {
+                                    const reason = window.prompt(
+                                      `Pause auto-charging for ${profile.studentName}? They will NOT be auto-charged until unpaused (you can still use "Charge" manually). Optional note:`,
+                                      "",
+                                    );
+                                    if (reason === null) return;
+                                    await updateBillingStatus({
+                                      adminId,
+                                      billingProfileId: profile._id,
+                                      status: "paused",
+                                      pauseReason: reason || undefined,
+                                    });
+                                  }}
+                                  className="text-xs text-yellow-600 hover:text-yellow-700"
+                                >
+                                  Pause
+                                </button>
+                              )}
                             </div>
                             {profile.status === "paused" && profile.pauseReason && (
                               <p className="text-xs text-yellow-600 max-w-[200px] truncate" title={profile.pauseReason}>
@@ -3240,6 +3328,26 @@ function BillingTab({
                         className="text-xs font-medium text-blue-600"
                       >
                         Unpause
+                      </button>
+                    )}
+                    {profile.status === "active" && (
+                      <button
+                        onClick={async () => {
+                          const reason = window.prompt(
+                            `Pause auto-charging for ${profile.studentName}? They will NOT be auto-charged until unpaused (you can still use "Charge" manually). Optional note:`,
+                            "",
+                          );
+                          if (reason === null) return;
+                          await updateBillingStatus({
+                            adminId,
+                            billingProfileId: profile._id,
+                            status: "paused",
+                            pauseReason: reason || undefined,
+                          });
+                        }}
+                        className="text-xs font-medium text-yellow-600"
+                      >
+                        Pause
                       </button>
                     )}
                     {profile.paymentType === "card" && profile.cardLast4 && (
@@ -4651,6 +4759,11 @@ function AddCreditModal({
         <h2 className="text-lg font-semibold text-slate-900">
           Add Credit — {studentName}
         </h2>
+        <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-700">
+          Prefer credit (or bank transfer) over Stripe refunds — frequent Stripe
+          refunds can get the account flagged. Credit is auto-applied to their
+          next charges.
+        </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div>

@@ -158,6 +158,12 @@ export default defineSchema({
     studentId: v.id("students"),
     assignedAt: v.number(),
     active: v.boolean(),
+    // Per-student billing cadence for this class. Absent/1 = weekly (default),
+    // 2 = fortnightly, etc. billingAnchorDate (YYYY-MM-DD) marks a week the
+    // cycle charges; charging happens on weeks where
+    // floor(weeksSince(anchor)) % interval === 0.
+    billingIntervalWeeks: v.optional(v.number()),
+    billingAnchorDate: v.optional(v.string()),
   })
     .index("by_class", ["classId"])
     .index("by_student", ["studentId"])

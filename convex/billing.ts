@@ -68,6 +68,35 @@ function getDayOfWeekAdelaide(): string {
   return DAY_ORDER[d.getDay() === 0 ? 6 : d.getDay() - 1];
 }
 
+/**
+ * Whether a (fortnightly/every-N-weeks) enrollment is "on cycle" for a given
+ * charge date. Weekly enrollments (interval ≤ 1 or unset) are always on cycle,
+ * so existing students are unaffected.
+ */
+function isEnrollmentOnCycle(
+  enrollment: {
+    billingIntervalWeeks?: number;
+    billingAnchorDate?: string;
+    assignedAt: number;
+  },
+  referenceDate: string,
+): boolean {
+  const interval = enrollment.billingIntervalWeeks ?? 1;
+  if (interval <= 1) return true;
+
+  const anchorStr =
+    enrollment.billingAnchorDate ??
+    new Date(enrollment.assignedAt).toISOString().split("T")[0];
+
+  const refMs = Date.parse(`${referenceDate}T00:00:00Z`);
+  const anchorMs = Date.parse(`${anchorStr}T00:00:00Z`);
+  if (Number.isNaN(refMs) || Number.isNaN(anchorMs)) return true;
+
+  const weeks = Math.floor((refMs - anchorMs) / (7 * 24 * 60 * 60 * 1000));
+  if (weeks < 0) return false; // cycle hasn't started yet
+  return weeks % interval === 0;
+}
+
 async function isClassPausedForStudent(
   ctx: QueryCtx,
   studentId: Id<"students">,
@@ -197,6 +226,8 @@ export async function calculateDailyRateHelper(
   for (const enrollment of activeEnrollments) {
     const cls = await ctx.db.get(enrollment.classId);
     if (!cls || !cls.active || cls.dayOfWeek !== dayOfWeek) continue;
+    // Skip fortnightly/every-N-week enrollments on their "off" weeks.
+    if (!isEnrollmentOnCycle(enrollment, referenceDate)) continue;
 
     const line = await buildClassLine(ctx, studentId, enrollment.classId, referenceDate);
     if (!line) continue;
