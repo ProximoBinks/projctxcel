@@ -290,6 +290,13 @@ export const chargeAllActive = internalAction({
     const dayOfWeek: string = dayNames[adelaideDate.getDay()];
 
     for (const profile of profiles) {
+      // Idempotency: never charge the same profile twice for the same date.
+      const alreadyCharged: boolean = await ctx.runQuery(
+        internal.billing.getChargeForProfileAndDate,
+        { billingProfileId: profile._id, weekStartDate: chargeDate },
+      );
+      if (alreadyCharged) continue;
+
       const rate: {
         totalCents: number;
         breakdown: Array<{

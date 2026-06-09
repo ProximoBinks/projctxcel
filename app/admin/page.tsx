@@ -60,7 +60,7 @@ function AdminDashboard({
 }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<
-    "tutors" | "students" | "sessions" | "classes" | "subjects" | "billing" | "enquiries" | "email"
+    "tutors" | "students" | "sessions" | "classes" | "subjects" | "billing" | "enquiries" | "email" | "help"
   >("tutors");
   const [showAddTutor, setShowAddTutor] = useState(false);
   const [showAddStudent, setShowAddStudent] = useState(false);
@@ -112,7 +112,7 @@ function AdminDashboard({
       <div className="border-b border-slate-200 bg-white">
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <nav className="-mb-px flex gap-1 overflow-x-auto scrollbar-hide sm:gap-4" style={{ WebkitOverflowScrolling: "touch" }}>
-            {(["tutors", "students", "classes", "subjects", "sessions", "billing", "enquiries", "email"] as const).map((tab) => (
+            {(["tutors", "students", "classes", "subjects", "sessions", "billing", "enquiries", "email", "help"] as const).map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
@@ -157,6 +157,7 @@ function AdminDashboard({
           <BillingTab adminId={adminId} students={students} />
         )}
         {activeTab === "enquiries" && <EnquiriesTab adminId={adminId} />}
+        {activeTab === "help" && <HelpTab />}
         {activeTab === "email" && <EmailTab />}
         {activeTab === "subjects" && <SubjectsTab />}
       </main>
@@ -2868,6 +2869,133 @@ function RevenueChart({ data }: { data: { date: string; totalCents: number }[] }
   );
 }
 
+function HelpTab() {
+  const faqs: { q: string; a: React.ReactNode }[] = [
+    {
+      q: "How do I pause auto-charging for a student?",
+      a: (
+        <>
+          Go to <strong>Billing → Profiles</strong>, find the student, and click{" "}
+          <strong>Pause</strong> in their row. They won&apos;t be auto-charged until
+          you click <strong>Unpause</strong>. You can still charge them manually
+          while paused (see below).
+        </>
+      ),
+    },
+    {
+      q: "A student needs a refund — what should I do?",
+      a: (
+        <>
+          Prefer <strong>account credit</strong> or a <strong>bank transfer</strong>{" "}
+          over a Stripe refund — frequent Stripe refunds can get the account
+          flagged. In <strong>Billing → Profiles</strong>, click{" "}
+          <strong>Credit</strong> on the student&apos;s row and add the amount.
+          Credit is automatically applied to their next charges.
+        </>
+      ),
+    },
+    {
+      q: "How do I bill a student fortnightly (or every few weeks)?",
+      a: (
+        <>
+          Open the student in <strong>Students</strong>, click{" "}
+          <strong>Manage Classes</strong>, and for the relevant class set{" "}
+          <strong>Billing</strong> to <em>Fortnightly</em> / <em>Every 3 weeks</em> /
+          etc. and pick the <strong>start date</strong> (the first week they should
+          be charged). They&apos;ll then be auto-charged only on those weeks.
+        </>
+      ),
+    },
+    {
+      q: "How do I charge a one-off amount (e.g. a single make-up class)?",
+      a: (
+        <>
+          In <strong>Billing → Profiles</strong>, click <strong>Charge</strong> on
+          the student&apos;s row (only available if they have a card on file), enter
+          the amount and a description, and confirm. This charges their card
+          immediately via Stripe.
+        </>
+      ),
+    },
+    {
+      q: "When exactly are customers charged?",
+      a: (
+        <>
+          Automatically once a day at around <strong>9am Adelaide time</strong>.
+          Each student is charged for the classes they have <em>that day</em>
+          (respecting any pause or fortnightly cadence). See the exact upcoming
+          charges under <strong>Billing → Payment Schedule</strong>.
+        </>
+      ),
+    },
+    {
+      q: "How can I see what Stripe will charge, and when?",
+      a: (
+        <>
+          <strong>Billing → Payment Schedule</strong> lists every upcoming charge
+          for the next 4 weeks, grouped by date, showing the net amount (after
+          credit) and whether it&apos;s a card (Stripe) or cash collection.
+        </>
+      ),
+    },
+    {
+      q: "What's the difference between Pause and a per-class pause request?",
+      a: (
+        <>
+          <strong>Pause</strong> (on the billing row) stops <em>all</em>{" "}
+          auto-charging for that student. A <strong>pause request</strong> (under
+          Billing → Pause Requests) is for a single class over a date range — e.g.
+          a student away for a few weeks — and only that class is skipped.
+        </>
+      ),
+    },
+    {
+      q: "A student pays cash — how does that work?",
+      a: (
+        <>
+          Switch their payment type to <strong>Cash</strong> in the billing row.
+          Their charges are still recorded (so you can track what&apos;s owed) but
+          marked as cash to collect manually — no card is charged.
+        </>
+      ),
+    },
+    {
+      q: "A charge failed — what should I do?",
+      a: (
+        <>
+          Open <strong>Billing → History</strong>, filter by <em>failed</em>, and
+          use <strong>Retry</strong> on the student to attempt the card again. If it
+          keeps failing, the card may have expired — ask them to re-add it from
+          their student dashboard.
+        </>
+      ),
+    },
+  ];
+
+  return (
+    <div className="mx-auto max-w-3xl space-y-3">
+      <div>
+        <h2 className="text-lg font-semibold text-slate-900">Help &amp; FAQs</h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Common billing and admin questions. Click a question to expand.
+        </p>
+      </div>
+      {faqs.map((faq, i) => (
+        <details
+          key={i}
+          className="group rounded-2xl border border-slate-200 bg-white px-5 py-4"
+        >
+          <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-medium text-slate-900">
+            {faq.q}
+            <span className="ml-3 text-slate-400 transition group-open:rotate-45">+</span>
+          </summary>
+          <div className="mt-3 text-sm leading-relaxed text-slate-600">{faq.a}</div>
+        </details>
+      ))}
+    </div>
+  );
+}
+
 function BillingTab({
   adminId,
   students,
@@ -3043,12 +3171,7 @@ function BillingTab({
               : "border-transparent text-slate-500 hover:text-slate-700"
           }`}
         >
-          Upcoming Charges
-          {upcomingCharges && upcomingCharges.length > 0 && (
-            <span className="ml-2 rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
-              {upcomingCharges.length}
-            </span>
-          )}
+          Payment Schedule
         </button>
         <button
           onClick={() => setBillingSubTab("history")}
@@ -3087,7 +3210,7 @@ function BillingTab({
                   <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
                     <th className="px-6 py-3 font-medium">Student</th>
                     <th className="px-6 py-3 font-medium">Payment Type</th>
-                    <th className="px-6 py-3 font-medium">Weekly Rate</th>
+                    <th className="px-6 py-3 font-medium">Per week (avg)</th>
                     <th className="px-6 py-3 font-medium">Credit</th>
                     <th className="px-6 py-3 font-medium">Status</th>
                     <th className="px-6 py-3 font-medium"></th>
@@ -3410,83 +3533,94 @@ function BillingTab({
       )}
 
       {billingSubTab === "upcoming" && (
-        <div className="rounded-2xl border border-slate-200 bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[640px]">
-              <thead>
-                <tr className="border-b border-slate-100 text-left text-sm text-slate-500">
-                  <th className="px-6 py-3 font-medium">Student</th>
-                  <th className="px-6 py-3 font-medium">Class</th>
-                  <th className="px-6 py-3 font-medium">Day</th>
-                  <th className="px-6 py-3 font-medium">Date</th>
-                  <th className="px-6 py-3 font-medium">Amount</th>
-                  <th className="px-6 py-3 font-medium">Method</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {upcomingCharges && upcomingCharges.length > 0 ? (
-                  upcomingCharges.map((charge, i) => (
-                    <tr key={`${charge.studentId}-${charge.status}-${charge.className}-${i}`} className="text-sm">
-                      <td className="px-6 py-4 font-medium text-slate-900">
-                        {charge.studentName}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="text-slate-900 font-medium">{charge.className}</div>
-                        <div className="text-xs text-slate-500">
-                          {charge.subject} &middot; {charge.tutorName}
-                        </div>
-                        <div className="text-xs text-slate-400">
-                          {charge.startTime} – {charge.endTime}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 text-slate-600">{charge.dayOfWeek}</td>
-                      <td className="px-6 py-4">
-                        {charge.status === "Today" ? (
-                          <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
-                            Today
+        <div className="space-y-4">
+          <p className="text-sm text-slate-500">
+            Exactly when each customer will be charged over the next 4 weeks. Card
+            charges run automatically around 9am (Adelaide) on the date shown; cash
+            is collected manually. Amounts are net of any account credit.
+          </p>
+          {upcomingCharges && upcomingCharges.length > 0 ? (
+            (() => {
+              type UC = (typeof upcomingCharges)[number];
+              const groups: Record<string, UC[]> = {};
+              for (const c of upcomingCharges) {
+                (groups[c.date] ??= []).push(c);
+              }
+              return Object.keys(groups)
+                .sort()
+                .map((date) => {
+                  const rows = groups[date];
+                  const dateTotalNet = rows.reduce((s, r) => s + r.netChargeCents, 0);
+                  return (
+                    <div key={date} className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                      <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50 px-5 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-slate-900">
+                            {rows[0].dayOfWeek}, {date}
                           </span>
-                        ) : (
-                          <span className="text-slate-600">{charge.status}</span>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 font-medium text-slate-900">
-                        {formatCurrency(charge.estimatedCents)}
-                      </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`rounded-full px-2 py-1 text-xs font-medium ${
-                            charge.paymentType === "card" && charge.hasCard
-                              ? "bg-blue-100 text-blue-700"
-                              : charge.paymentType === "cash"
-                                ? "bg-amber-100 text-amber-700"
-                                : "bg-red-100 text-red-700"
-                          }`}
-                        >
-                          {charge.paymentType === "card"
-                            ? charge.hasCard
-                              ? "Card"
-                              : "Card (missing)"
-                            : "Cash"}
+                          {rows[0].isToday && (
+                            <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
+                              Today
+                            </span>
+                          )}
+                        </div>
+                        <span className="text-sm font-semibold text-slate-700">
+                          {formatCurrency(dateTotalNet)}
                         </span>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan={6} className="px-6 py-8 text-center text-slate-500">
-                      No upcoming charges this week
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                      <div className="divide-y divide-slate-100">
+                        {rows.map((r, i) => (
+                          <div
+                            key={`${r.studentId}-${i}`}
+                            className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 text-sm"
+                          >
+                            <div className="min-w-0">
+                              <div className="font-medium text-slate-900">{r.studentName}</div>
+                              <div className="truncate text-xs text-slate-500">
+                                {r.classesSummary || "—"}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              {r.creditAppliedCents > 0 && (
+                                <span className="text-xs text-blue-600">
+                                  −{formatCurrency(r.creditAppliedCents)} credit
+                                </span>
+                              )}
+                              <span className="font-medium text-slate-900">
+                                {formatCurrency(r.netChargeCents)}
+                              </span>
+                              <span
+                                className={`rounded-full px-2 py-1 text-xs font-medium ${
+                                  r.paymentType === "card"
+                                    ? r.hasCard
+                                      ? "bg-blue-100 text-blue-700"
+                                      : "bg-red-100 text-red-700"
+                                    : "bg-amber-100 text-amber-700"
+                                }`}
+                              >
+                                {r.paymentType === "card"
+                                  ? r.hasCard
+                                    ? "Stripe"
+                                    : "No card!"
+                                  : "Cash"}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                });
+            })()
+          ) : (
+            <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 text-center text-slate-500">
+              No upcoming charges in the next 4 weeks
+            </div>
+          )}
           {upcomingCharges && upcomingCharges.length > 0 && (
-            <div className="border-t border-slate-100 px-6 py-3 text-right text-sm font-medium text-slate-700">
-              Total:{" "}
-              {formatCurrency(
-                upcomingCharges.reduce((sum, c) => sum + c.estimatedCents, 0),
-              )}
+            <div className="rounded-xl bg-slate-900 px-5 py-3 text-right text-sm font-medium text-white">
+              Total to be charged (next 4 weeks):{" "}
+              {formatCurrency(upcomingCharges.reduce((s, c) => s + c.netChargeCents, 0))}
             </div>
           )}
         </div>

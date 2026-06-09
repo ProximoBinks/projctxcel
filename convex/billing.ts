@@ -27,11 +27,15 @@ const breakdownLineValidator = v.object({
   tutorName: v.string(),
   rateCents: v.number(),
   lineTotalCents: v.number(),
+  intervalWeeks: v.number(), // 1 = weekly, 2 = fortnightly, ...
   paused: v.boolean(),
 });
 
 const weeklyRateValidator = v.object({
+  // Gross cost of one full occurrence of every class (per-session amounts).
   totalCents: v.number(),
+  // Cadence-averaged cost per week (each line's amount ÷ its interval).
+  effectiveWeeklyCents: v.number(),
   breakdown: v.array(breakdownLineValidator),
 });
 
@@ -46,11 +50,13 @@ type BreakdownLine = {
   tutorName: string;
   rateCents: number;
   lineTotalCents: number;
+  intervalWeeks: number;
   paused: boolean;
 };
 
 type WeeklyRate = {
   totalCents: number;
+  effectiveWeeklyCents: number;
   breakdown: BreakdownLine[];
 };
 
@@ -123,6 +129,7 @@ async function buildClassLine(
   studentId: Id<"students">,
   classId: Id<"classes">,
   referenceDate: string,
+  intervalWeeks: number = 1,
 ): Promise<BreakdownLine | null> {
   const cls = await ctx.db.get(classId);
   if (!cls || !cls.active) return null;
@@ -164,6 +171,7 @@ async function buildClassLine(
     tutorName,
     rateCents,
     lineTotalCents,
+    intervalWeeks: intervalWeeks < 1 ? 1 : intervalWeeks,
     paused,
   };
 }
@@ -182,12 +190,15 @@ export async function calculateWeeklyRateHelper(
   const referenceDate = getTodayAdelaide();
   const breakdown: BreakdownLine[] = [];
   let totalCents = 0;
+  let effectiveWeeklyCents = 0;
 
   for (const enrollment of activeEnrollments) {
-    const line = await buildClassLine(ctx, studentId, enrollment.classId, referenceDate);
+    const interval = enrollment.billingIntervalWeeks ?? 1;
+    const line = await buildClassLine(ctx, studentId, enrollment.classId, referenceDate, interval);
     if (!line) continue;
     breakdown.push(line);
     totalCents += line.lineTotalCents;
+    effectiveWeeklyCents += Math.round(line.lineTotalCents / line.intervalWeeks);
   }
 
   breakdown.sort((a, b) => {
@@ -196,7 +207,7 @@ export async function calculateWeeklyRateHelper(
     return a.startTime.localeCompare(b.startTime);
   });
 
-  return { totalCents, breakdown };
+  return { totalCents, effectiveWeeklyCents, breakdown };
 }
 
 export const calculateWeeklyRate = internalQuery({
@@ -229,13 +240,14 @@ export async function calculateDailyRateHelper(
     // Skip fortnightly/every-N-week enrollments on their "off" weeks.
     if (!isEnrollmentOnCycle(enrollment, referenceDate)) continue;
 
-    const line = await buildClassLine(ctx, studentId, enrollment.classId, referenceDate);
+    const line = await buildClassLine(ctx, studentId, enrollment.classId, referenceDate, 1);
     if (!line) continue;
     breakdown.push(line);
     totalCents += line.lineTotalCents;
   }
 
-  return { totalCents, breakdown };
+  // For a single day, each line is an actual charge (interval already resolved).
+  return { totalCents, effectiveWeeklyCents: totalCents, breakdown };
 }
 
 export const calculateDailyRate = internalQuery({
@@ -345,7 +357,7 @@ export const listAllBillingProfiles = query({
           pausedAt: profile.pausedAt,
           pausedBy: profile.pausedBy,
           pauseReason: profile.pauseReason,
-          weeklyRateCents: weeklyRate.totalCents,
+          weeklyRateCents: weeklyRate.effectiveWeeklyCents,
           creditBalanceCents,
           createdAt: profile.createdAt,
         };
@@ -1053,94 +1065,129 @@ export const getAdminInternal = internalQuery({
   },
 });
 
+// Forward payment schedule: one row per student per charge date, NET of credit,
+// so it shows exactly what each customer will be charged and when. Looks 28 days
+// ahead (captures weekly, fortnightly, and ~monthly cadences).
 export const getUpcomingCharges = query({
-  args: { adminId: v.id("tutorAccounts") },
+  args: { adminId: v.id("tutorAccounts"), daysAhead: v.optional(v.number()) },
   returns: v.array(
     v.object({
       studentId: v.id("students"),
       studentName: v.string(),
+      date: v.string(),
       dayOfWeek: v.string(),
-      className: v.string(),
-      subject: v.string(),
-      tutorName: v.string(),
-      startTime: v.string(),
-      endTime: v.string(),
-      estimatedCents: v.number(),
+      isToday: v.boolean(),
+      grossCents: v.number(),
+      creditAppliedCents: v.number(),
+      netChargeCents: v.number(),
       paymentType: v.string(),
       hasCard: v.boolean(),
-      status: v.string(),
+      classesSummary: v.string(),
     }),
   ),
-  handler: async (ctx, { adminId }) => {
+  handler: async (ctx, { adminId, daysAhead }) => {
     await assertAdmin(ctx, adminId);
+    const horizon = daysAhead ?? 28;
 
     const profiles = await ctx.db
       .query("billingProfiles")
       .withIndex("by_status", (q) => q.eq("status", "active"))
       .collect();
 
-    const results: Array<{
+    const now = new Date();
+    const adelaideDate = new Date(now.getTime() + 9.5 * 60 * 60 * 1000);
+    const todayStr = adelaideDate.toISOString().split("T")[0];
+
+    type Row = {
       studentId: Id<"students">;
       studentName: string;
+      date: string;
       dayOfWeek: string;
-      className: string;
-      subject: string;
-      tutorName: string;
-      startTime: string;
-      endTime: string;
-      estimatedCents: number;
+      isToday: boolean;
+      grossCents: number;
+      creditAppliedCents: number;
+      netChargeCents: number;
       paymentType: string;
       hasCard: boolean;
-      status: string;
-    }> = [];
+      classesSummary: string;
+    };
+    const rows: Row[] = [];
 
     for (const profile of profiles) {
       const student = await ctx.db.get(profile.studentId);
       if (!student) continue;
 
-      const now = new Date();
-      const adelaideMs = now.getTime() + 9.5 * 60 * 60 * 1000;
-      const adelaideDate = new Date(adelaideMs);
-
-      for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+      // Collect this student's upcoming charge events in date order.
+      const events: Array<{ date: string; day: string; grossCents: number; summary: string }> = [];
+      for (let dayOffset = 0; dayOffset < horizon; dayOffset++) {
         const futureDate = new Date(adelaideDate);
         futureDate.setDate(futureDate.getDate() + dayOffset);
-        const futureDateStr = futureDate.toISOString().split("T")[0];
+        const dateStr = futureDate.toISOString().split("T")[0];
         const jsDay = futureDate.getDay();
         const day = DAY_ORDER[jsDay === 0 ? 6 : jsDay - 1];
 
-        const existingCharge = await ctx.db
+        // Skip if already charged for this day.
+        const existing = await ctx.db
           .query("billingCharges")
           .withIndex("by_billingProfile_and_week", (q) =>
-            q.eq("billingProfileId", profile._id).eq("weekStartDate", futureDateStr),
+            q.eq("billingProfileId", profile._id).eq("weekStartDate", dateStr),
           )
           .first();
-        if (existingCharge) continue;
+        if (existing) continue;
 
-        const rate = await calculateDailyRateHelper(ctx, profile.studentId, day, futureDateStr);
+        const rate = await calculateDailyRateHelper(ctx, profile.studentId, day, dateStr);
         if (rate.totalCents <= 0) continue;
 
-        for (const line of rate.breakdown) {
-          if (line.paused || line.lineTotalCents <= 0) continue;
-          results.push({
-            studentId: profile.studentId,
-            studentName: student.name,
-            dayOfWeek: day,
-            className: line.className,
-            subject: line.subject,
-            tutorName: line.tutorName,
-            startTime: line.startTime,
-            endTime: line.endTime,
-            estimatedCents: line.lineTotalCents,
-            paymentType: profile.paymentType,
-            hasCard: !!profile.stripePaymentMethodId,
-            status: dayOffset === 0 ? "Today" : futureDateStr,
-          });
-        }
+        const summary = rate.breakdown
+          .filter((l) => !l.paused && l.lineTotalCents > 0)
+          .map((l) => `${l.subject} — ${l.tutorName}`)
+          .join(", ");
+        events.push({ date: dateStr, day, grossCents: rate.totalCents, summary });
+      }
+
+      // Apply current credit balance across the events in chronological order,
+      // mirroring how the daily cron consumes credit, to show the real card hit.
+      let remainingCredit = await getCreditBalanceHelper(ctx, profile.studentId);
+      for (const ev of events) {
+        const applied = Math.max(0, Math.min(remainingCredit, ev.grossCents));
+        remainingCredit -= applied;
+        rows.push({
+          studentId: profile.studentId,
+          studentName: student.name,
+          date: ev.date,
+          dayOfWeek: ev.day,
+          isToday: ev.date === todayStr,
+          grossCents: ev.grossCents,
+          creditAppliedCents: applied,
+          netChargeCents: ev.grossCents - applied,
+          paymentType: profile.paymentType,
+          hasCard: !!profile.stripePaymentMethodId,
+          classesSummary: ev.summary,
+        });
       }
     }
 
-    return results;
+    rows.sort((a, b) => (a.date === b.date ? a.studentName.localeCompare(b.studentName) : a.date.localeCompare(b.date)));
+    return rows;
+  },
+});
+
+// Idempotency check for the daily cron: has this profile already been charged
+// (any status) for this date? Prevents double-charging on cron retries / re-runs.
+export const getChargeForProfileAndDate = internalQuery({
+  args: {
+    billingProfileId: v.id("billingProfiles"),
+    weekStartDate: v.string(),
+  },
+  returns: v.boolean(),
+  handler: async (ctx, { billingProfileId, weekStartDate }) => {
+    const existing = await ctx.db
+      .query("billingCharges")
+      .withIndex("by_billingProfile_and_week", (q) =>
+        q.eq("billingProfileId", billingProfileId).eq("weekStartDate", weekStartDate),
+      )
+      .first();
+    return existing !== null;
   },
 });
 
