@@ -42,3 +42,4 @@ yarn-error.log*
 .env.local
 certificates
 tailwindcss-31736.log
+next-env.d.ts
