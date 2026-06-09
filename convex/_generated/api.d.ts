@@ -18,6 +18,7 @@ import type * as dashboard from "../dashboard.js";
 import type * as discord from "../discord.js";
 import type * as enquiries from "../enquiries.js";
 import type * as enquiryNotifications from "../enquiryNotifications.js";
+import type * as identity from "../identity.js";
 import type * as migrations from "../migrations.js";
 import type * as passwords from "../passwords.js";
 import type * as seed from "../seed.js";
@@ -28,6 +29,7 @@ import type * as studentDashboard from "../studentDashboard.js";
 import type * as subjects from "../subjects.js";
 import type * as testimonials from "../testimonials.js";
 import type * as tutors from "../tutors.js";
+import type * as whoami from "../whoami.js";
 
 import type {
   ApiFromModules,
@@ -46,6 +48,7 @@ declare const fullApi: ApiFromModules<{
   discord: typeof discord;
   enquiries: typeof enquiries;
   enquiryNotifications: typeof enquiryNotifications;
+  identity: typeof identity;
   migrations: typeof migrations;
   passwords: typeof passwords;
   seed: typeof seed;
@@ -56,6 +59,7 @@ declare const fullApi: ApiFromModules<{
   subjects: typeof subjects;
   testimonials: typeof testimonials;
   tutors: typeof tutors;
+  whoami: typeof whoami;
 }>;
 
 /**
