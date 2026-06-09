@@ -2,24 +2,19 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
+import { hashPassword, verifyPasswordAndMaybeUpgrade } from "./passwords";
+import { assertServerSecret } from "./serverOnly";
 
-// Generate a random invite code
+// Generate a cryptographically-random invite code.
 function generateCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Avoid confusing characters
+  const bytes = new Uint8Array(8);
+  crypto.getRandomValues(bytes);
   let code = "";
-  for (let i = 0; i < 8; i++) {
-    code += chars[Math.floor(Math.random() * chars.length)];
+  for (let i = 0; i < bytes.length; i++) {
+    code += chars[bytes[i] % chars.length];
   }
   return code;
-}
-
-// Hash password (simple SHA-256)
-async function hashPassword(password: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(password);
-  const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
 }
 
 // Admin: Generate invite code for a student
@@ -149,7 +144,7 @@ export const signupWithCode = mutation({
     }
 
     // Create student account
-    const passwordHash = await hashPassword(password);
+    const passwordHash = hashPassword(password);
     await ctx.db.insert("studentAccounts", {
       studentId: invite.studentId,
       email: email.toLowerCase(),
@@ -202,9 +197,16 @@ export const login = mutation({
       return { success: false, error: "Account is deactivated" };
     }
 
-    const passwordHash = await hashPassword(password);
-    if (account.passwordHash !== passwordHash) {
+    const { valid, newHash } = await verifyPasswordAndMaybeUpgrade(
+      password,
+      account.passwordHash,
+      "studentPlain",
+    );
+    if (!valid) {
       return { success: false, error: "Invalid email or password" };
+    }
+    if (newHash) {
+      await ctx.db.patch(account._id, { passwordHash: newHash });
     }
 
     if (account.emailVerified === false) {
@@ -557,7 +559,7 @@ export const signupStudent = mutation({
     });
 
     // Create student account (unverified until email confirmed)
-    const passwordHash = await hashPassword(password);
+    const passwordHash = hashPassword(password);
     await ctx.db.insert("studentAccounts", {
       studentId,
       email: normalizedEmail,
@@ -625,9 +627,10 @@ export const listInviteCodes = query({
 // --- Password Reset ---
 
 export const createPasswordResetToken = mutation({
-  args: { email: v.string(), tokenHash: v.string() },
+  args: { email: v.string(), tokenHash: v.string(), serverSecret: v.string() },
   returns: v.object({ created: v.boolean(), name: v.optional(v.string()) }),
-  handler: async (ctx, { email, tokenHash }) => {
+  handler: async (ctx, { email, tokenHash, serverSecret }) => {
+    assertServerSecret(serverSecret);
     const normalizedEmail = email.toLowerCase().trim();
 
     const account = await ctx.db
@@ -653,9 +656,10 @@ export const createPasswordResetToken = mutation({
 });
 
 export const resetPassword = mutation({
-  args: { tokenHash: v.string(), newPasswordHash: v.string() },
+  args: { tokenHash: v.string(), newPassword: v.string(), serverSecret: v.string() },
   returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
-  handler: async (ctx, { tokenHash, newPasswordHash }) => {
+  handler: async (ctx, { tokenHash, newPassword, serverSecret }) => {
+    assertServerSecret(serverSecret);
     const token = await ctx.db
       .query("passwordResetTokens")
       .withIndex("by_tokenHash", (q) => q.eq("tokenHash", tokenHash))
@@ -680,7 +684,7 @@ export const resetPassword = mutation({
       return { success: false, error: "Account not found." };
     }
 
-    await ctx.db.patch(account._id, { passwordHash: newPasswordHash });
+    await ctx.db.patch(account._id, { passwordHash: hashPassword(newPassword) });
     await ctx.db.patch(token._id, { used: true });
 
     return { success: true };
@@ -690,9 +694,10 @@ export const resetPassword = mutation({
 // --- Email Verification ---
 
 export const createEmailVerificationToken = mutation({
-  args: { email: v.string(), tokenHash: v.string() },
+  args: { email: v.string(), tokenHash: v.string(), serverSecret: v.string() },
   returns: v.object({ created: v.boolean(), name: v.optional(v.string()) }),
-  handler: async (ctx, { email, tokenHash }) => {
+  handler: async (ctx, { email, tokenHash, serverSecret }) => {
+    assertServerSecret(serverSecret);
     const normalizedEmail = email.toLowerCase().trim();
 
     const account = await ctx.db
@@ -718,9 +723,10 @@ export const createEmailVerificationToken = mutation({
 });
 
 export const verifyEmail = mutation({
-  args: { tokenHash: v.string() },
+  args: { tokenHash: v.string(), serverSecret: v.string() },
   returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
-  handler: async (ctx, { tokenHash }) => {
+  handler: async (ctx, { tokenHash, serverSecret }) => {
+    assertServerSecret(serverSecret);
     const token = await ctx.db
       .query("emailVerificationTokens")
       .withIndex("by_tokenHash", (q) => q.eq("tokenHash", tokenHash))

@@ -3,6 +3,7 @@ import { randomBytes, createHash } from "crypto";
 import { convex } from "../../../../lib/convexServer";
 import { api } from "../../../../convex/_generated/api";
 import { sendVerificationEmail } from "../../../../lib/email";
+import { getServerSecret } from "../../../../lib/serverSecret";
 
 export const runtime = "nodejs";
 
@@ -25,6 +26,7 @@ export async function POST(req: Request) {
     const tokenHash = hashToken(body.token);
     const result = await convex.mutation(api.studentDashboard.verifyEmail, {
       tokenHash,
+      serverSecret: getServerSecret(),
     });
 
     if (!result.success) {
@@ -42,7 +44,7 @@ export async function POST(req: Request) {
 
     const result = await convex.mutation(
       api.studentDashboard.createEmailVerificationToken,
-      { email, tokenHash },
+      { email, tokenHash, serverSecret: getServerSecret() },
     );
 
     if (result.created && result.name) {

@@ -158,7 +158,7 @@ function AdminDashboard({
       </main>
 
       {/* Modals */}
-      {showAddTutor && <AddTutorModal onClose={() => setShowAddTutor(false)} />}
+      {showAddTutor && <AddTutorModal adminId={adminId} onClose={() => setShowAddTutor(false)} />}
       {showAddStudent && adminId && (
         <AddStudentModal
           adminId={adminId}
@@ -2111,7 +2111,7 @@ function SessionsTab({ adminId }: { adminId: Id<"tutorAccounts"> }) {
   );
 }
 
-function AddTutorModal({ onClose }: { onClose: () => void }) {
+function AddTutorModal({ adminId, onClose }: { adminId: Id<"tutorAccounts">; onClose: () => void }) {
   const createTutor = useMutation(api.auth.createTutorAccount);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -2128,6 +2128,7 @@ function AddTutorModal({ onClose }: { onClose: () => void }) {
 
     try {
       const result = await createTutor({
+        adminId,
         name,
         email,
         password,

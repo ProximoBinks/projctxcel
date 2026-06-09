@@ -3,15 +3,12 @@ import { randomBytes, createHash } from "crypto";
 import { convex } from "../../../../lib/convexServer";
 import { api } from "../../../../convex/_generated/api";
 import { sendPasswordResetEmail } from "../../../../lib/email";
+import { getServerSecret } from "../../../../lib/serverSecret";
 
 export const runtime = "nodejs";
 
 function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
-}
-
-function hashPassword(password: string): string {
-  return createHash("sha256").update(password).digest("hex");
 }
 
 // POST: Request a password reset (send email) OR reset the password (with token)
@@ -35,11 +32,11 @@ export async function POST(req: Request) {
     }
 
     const tokenHash = hashToken(token);
-    const newPasswordHash = hashPassword(newPassword);
 
     const result = await convex.mutation(api.studentDashboard.resetPassword, {
       tokenHash,
-      newPasswordHash,
+      newPassword,
+      serverSecret: getServerSecret(),
     });
 
     if (!result.success) {
@@ -60,7 +57,7 @@ export async function POST(req: Request) {
 
   const result = await convex.mutation(
     api.studentDashboard.createPasswordResetToken,
-    { email, tokenHash },
+    { email, tokenHash, serverSecret: getServerSecret() },
   );
 
   // Always return success to prevent email enumeration
