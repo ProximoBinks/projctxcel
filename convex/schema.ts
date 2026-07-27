@@ -39,6 +39,7 @@ export default defineSchema({
     yearLevel: v.string(),
     subjects: v.string(),
     message: v.string(),
+    school: v.optional(v.string()),
     targetAtar: v.optional(v.string()),
     plannedCourse: v.optional(v.string()),
     interests: v.optional(v.string()),

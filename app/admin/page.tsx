@@ -5211,6 +5211,12 @@ function EnquiriesTab({ adminId }: { adminId: Id<"tutorAccounts"> }) {
                             <dt className="font-medium text-slate-500">Subjects</dt>
                             <dd className="text-slate-900">{e.subjects || "—"}</dd>
                           </div>
+                          {e.school && (
+                            <div>
+                              <dt className="font-medium text-slate-500">School</dt>
+                              <dd className="text-slate-900">{e.school}</dd>
+                            </div>
+                          )}
                           {e.targetAtar && (
                             <div>
                               <dt className="font-medium text-slate-500">Target ATAR</dt>

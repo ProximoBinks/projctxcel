@@ -22,34 +22,12 @@ import tutorsData from "../data/tutors.json";
 import testimonialsData from "../data/testimonials.json";
 import matchPreviewData from "../data/matchPreview.json";
 import { useTranslation } from "../i18n/LanguageContext";
+import { getSubjectStyle } from "../lib/subjectStyles";
 
 const serviceIcons = ["school", "book", "stethoscope"] as const;
 const serviceLinks = ["/programs/accelerate", "/programs/sace", "/programs/medicine"];
 const groupIcons = ["sparkle", "stethoscope"] as const;
 const groupLinks = ["/programs/classes", "/programs/ucat"];
-
-const getSubjectStyle = (subject: string) => {
-  const s = subject.toLowerCase();
-  // Maths
-  if (s === "general maths") return "bg-sky-100 text-sky-700 border-sky-200";
-  if (s === "maths methods") return "bg-blue-100 text-blue-700 border-blue-200";
-  if (s === "specialist maths") return "bg-blue-100 text-blue-800 border-blue-200";
-  // Sciences
-  if (s === "biology") return "bg-emerald-100 text-emerald-700 border-emerald-200";
-  if (s === "chemistry") return "bg-orange-100 text-orange-700 border-orange-200";
-  if (s === "physics") return "bg-violet-100 text-violet-700 border-violet-200";
-  // English
-  if (s === "english") return "bg-red-100 text-red-700 border-red-200";
-  if (s === "english literature") return "bg-rose-100 text-rose-800 border-rose-200";
-  if (s === "research project") return "bg-slate-100 text-slate-600 border-slate-200";
-  // Business
-  if (s === "accounting") return "bg-gray-200 text-gray-800 border-gray-300";
-  // Medicine pathway
-  if (s === "ucat") return "bg-pink-100 text-pink-700 border-pink-200";
-  if (s === "interview prep") return "bg-amber-50 text-amber-700 border-amber-300";
-  // Default
-  return "border-slate-200 text-slate-600 bg-white";
-};
 
 
 type FocusKey = "sace" | "ucat" | "in_person" | "tailored";
@@ -191,8 +169,6 @@ export default function HomePage() {
     const translated = t(`statLabels.${label}`);
     return translated !== `statLabels.${label}` ? translated : label;
   };
-
-  const expectItems = tArray<string>("enquireSection.expectItems");
 
   return (
     <div className="min-h-screen">
@@ -580,27 +556,18 @@ export default function HomePage() {
           anchorId="enquire"
           eyebrow={t("enquireSection.eyebrow")}
           title={t("enquireSection.title")}
-          subtitle={t("enquireSection.subtitle")}
+          subtitle={
+            <>
+              {t("enquireSection.subtitle")}{" "}
+              {t("enquireSection.contactLinePrefix")}{" "}
+              <strong className="font-semibold">
+                admin@simpletuition.com.au
+              </strong>
+            </>
+          }
           className="bg-slate-50"
         >
-          <div className="grid gap-10 lg:grid-cols-[1fr,1.1fr] lg:items-start">
-            <MotionInView>
-              <div className="relative overflow-hidden rounded-3xl border border-slate-200/80 bg-white p-6 shadow-sm sm:p-8">
-                <div className="pointer-events-none absolute -right-12 -top-10 h-32 w-32 rounded-full bg-blue-200/40 blur-2xl" />
-                <div className="pointer-events-none absolute -bottom-8 left-6 h-24 w-24 rounded-full bg-sky-200/40 blur-2xl" />
-                <h3 className="text-xl font-semibold text-slate-950">
-                  {t("enquireSection.whatToExpect")}
-                </h3>
-                <ul className="mt-4 space-y-3 text-sm text-slate-600">
-                  {expectItems.map((item, i) => (
-                    <li key={i}>{item}</li>
-                  ))}
-                </ul>
-                <div className="mt-8 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-700">
-                  {t("enquireSection.pricingNote")}
-                </div>
-              </div>
-            </MotionInView>
+          <div className="w-full">
             <MotionInView>
               <Suspense
                 fallback={

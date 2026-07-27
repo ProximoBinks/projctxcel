@@ -12,6 +12,7 @@ export const create = mutation({
     yearLevel: v.string(),
     subjects: v.string(),
     message: v.string(),
+    school: v.optional(v.string()),
     targetAtar: v.optional(v.string()),
     plannedCourse: v.optional(v.string()),
     interests: v.optional(v.string()),
@@ -53,6 +54,7 @@ export const create = mutation({
     ];
     if (args.type === "student") {
       if (args.yearLevel) lines.push(`**Year Level:** ${args.yearLevel}`);
+      if (args.school) lines.push(`**School:** ${args.school}`);
       if (args.subjects) lines.push(`**Subjects:** ${args.subjects}`);
     }
     if (args.message) lines.push(`**Message:** ${args.message}`);
@@ -80,6 +82,7 @@ export const list = query({
       yearLevel: v.string(),
       subjects: v.string(),
       message: v.string(),
+      school: v.optional(v.string()),
       targetAtar: v.optional(v.string()),
       plannedCourse: v.optional(v.string()),
       interests: v.optional(v.string()),
@@ -111,6 +114,7 @@ export const list = query({
       yearLevel: e.yearLevel,
       subjects: e.subjects,
       message: e.message,
+      school: e.school,
       targetAtar: e.targetAtar,
       plannedCourse: e.plannedCourse,
       interests: e.interests,

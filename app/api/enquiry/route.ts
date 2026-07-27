@@ -16,9 +16,9 @@ export async function POST(request: Request) {
   const yearLevel = String(formData.get("yearLevel") ?? "");
   const subjects = String(formData.get("subjects") ?? "");
   const message = String(formData.get("message") ?? "");
+  const school = String(formData.get("school") ?? "");
   const targetAtar = String(formData.get("targetAtar") ?? "");
   const plannedCourse = String(formData.get("plannedCourse") ?? "");
-  const interests = String(formData.get("interests") ?? "");
   const experience = String(formData.get("experience") ?? "");
   const expertise = String(formData.get("expertise") ?? "");
   const consent = String(formData.get("consent") ?? "") === "true";
@@ -27,7 +27,7 @@ export async function POST(request: Request) {
   const company = String(formData.get("company") ?? "");
   const cvFile = formData.get("cv");
 
-  if (!type || !name || !email || !phone || !consent) {
+  if (!type || !name || !email || !phone || !message || !consent) {
     return NextResponse.json(
       { message: "Missing required contact fields." },
       { status: 400 }
@@ -46,7 +46,7 @@ export async function POST(request: Request) {
   }
 
   if (type === "student") {
-    if (!yearLevel || !subjects || !interests) {
+    if (!yearLevel || !subjects || !school) {
       return NextResponse.json(
         { message: "Missing required student fields." },
         { status: 400 }
@@ -55,7 +55,7 @@ export async function POST(request: Request) {
   }
 
   if (type === "tutor") {
-    if (!experience || !expertise) {
+    if (!expertise) {
       return NextResponse.json(
         { message: "Missing required tutor fields." },
         { status: 400 }
@@ -122,9 +122,9 @@ export async function POST(request: Request) {
     yearLevel,
     subjects,
     message,
+    school: school || undefined,
     targetAtar: targetAtar || undefined,
     plannedCourse: plannedCourse || undefined,
-    interests: interests || undefined,
     experience: experience || undefined,
     expertise: expertise || undefined,
     cvFileName,
@@ -158,10 +158,10 @@ export async function POST(request: Request) {
 
   const studentLines = [
     `Year level: ${yearLevel || "Not provided"}`,
+    `School: ${school || "Not provided"}`,
     `Target ATAR: ${targetAtar || "Not provided"}`,
     `Subjects: ${subjects || "Not provided"}`,
     `Planned course: ${plannedCourse || "Not provided"}`,
-    `Interests: ${interests || "Not provided"}`,
   ];
 
   const tutorLines = [
