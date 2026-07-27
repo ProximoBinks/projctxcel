@@ -114,26 +114,44 @@ export async function POST(request: Request) {
     };
   }
 
-  await convex.mutation(api.enquiries.create, {
-    type,
-    name,
-    email,
-    phone,
-    yearLevel,
-    subjects,
-    message,
-    school: school || undefined,
-    targetAtar: targetAtar || undefined,
-    plannedCourse: plannedCourse || undefined,
-    experience: experience || undefined,
-    expertise: expertise || undefined,
-    cvFileName,
-    cvFileType,
-    cvFileSize,
-    consent,
-    sourcePage: sourcePage || undefined,
-    utm,
-  });
+  // The notification email is how enquiries actually reach the team, so a failed
+  // database write must never prevent it. Record the failure and keep going.
+  let stored = true;
+  try {
+    await convex.mutation(api.enquiries.create, {
+      type,
+      name,
+      email,
+      phone,
+      yearLevel,
+      subjects,
+      message,
+      school: school || undefined,
+      targetAtar: targetAtar || undefined,
+      plannedCourse: plannedCourse || undefined,
+      experience: experience || undefined,
+      expertise: expertise || undefined,
+      cvFileName,
+      cvFileType,
+      cvFileSize,
+      consent,
+      sourcePage: sourcePage || undefined,
+      utm,
+    });
+  } catch (error) {
+    stored = false;
+    console.error("Failed to store enquiry; sending email anyway.", error);
+  }
+
+  // If the write failed and we also cannot email, the enquiry is lost — report
+  // that honestly so the visitor retries instead of seeing a false success.
+  const cannotEmail = () =>
+    stored
+      ? NextResponse.json({ message: "Enquiry stored." })
+      : NextResponse.json(
+          { message: "Could not record enquiry." },
+          { status: 500 }
+        );
 
   const toEmail = process.env.CONTACT_TO_EMAIL;
   let fromEmail: string;
@@ -142,10 +160,10 @@ export async function POST(request: Request) {
     fromEmail = getFromEmail();
     transporter = getTransporter();
   } catch {
-    return NextResponse.json({ message: "Enquiry stored." });
+    return cannotEmail();
   }
   if (!toEmail) {
-    return NextResponse.json({ message: "Enquiry stored." });
+    return cannotEmail();
   }
 
   const baseLines = [
@@ -173,6 +191,13 @@ export async function POST(request: Request) {
   const generalLines = ["General enquiry"];
 
   const adminLines = [
+    ...(stored
+      ? []
+      : [
+          "WARNING: this enquiry could not be saved to the dashboard.",
+          "This email is the only record of it.",
+          "",
+        ]),
     ...baseLines,
     ...(type === "student"
       ? studentLines
