@@ -245,20 +245,20 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section id="services" className="scroll-mt-24 bg-white py-10 sm:py-16">
+        <section id="services" className="scroll-mt-16 bg-white pb-10 pt-6 sm:pb-16 sm:pt-10">
           <div className="mx-auto w-full max-w-[1440px] px-3 sm:px-6">
-            <div className="rounded-[2rem] bg-[#2455C2] px-6 py-14 sm:rounded-[3rem] sm:px-12 sm:py-20 lg:px-14">
+            <div className="rounded-[2rem] bg-[#2455C2] px-6 py-8 sm:rounded-[3rem] sm:px-12 sm:py-12 lg:px-14">
               <div className="mx-auto w-full max-w-[1280px]">
                 <MotionInView>
                   <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-[2.75rem]">
                     {t("services.title")}
                   </h2>
-                  <p className="mt-4 max-w-4xl text-base text-blue-50/85 sm:text-lg">
+                  <p className="mt-3 max-w-4xl text-base text-blue-50/85 sm:text-lg">
                     {t("services.subtitle")}
                   </p>
                 </MotionInView>
 
-                <div className="mt-10 grid gap-5 md:grid-cols-3 lg:gap-7">
+                <div className="mt-6 grid gap-5 md:grid-cols-3 lg:gap-7">
                   {services.map((service, index) => (
                     <MotionInView
                       key={service.title}
@@ -274,15 +274,15 @@ export default function HomePage() {
                             y: -5,
                             boxShadow: "0 22px 45px rgba(10,33,89,0.18)",
                           }}
-                          className="h-full min-h-[250px] rounded-[1.4rem] border border-white/70 bg-[#F7FAFF] p-7 shadow-[0_12px_28px_rgba(10,33,89,0.1)] transition-colors hover:border-blue-200 sm:p-8"
+                          className="h-full min-h-[200px] rounded-[1.4rem] border border-white/70 bg-[#F7FAFF] p-6 shadow-[0_12px_28px_rgba(10,33,89,0.1)] transition-colors hover:border-blue-200 sm:p-7"
                         >
                           <ServiceCardIcon
                             icon={serviceIcons[index] ?? ChartLineUp}
                           />
-                          <h3 className="mt-6 text-xl font-semibold tracking-tight text-slate-950">
+                          <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-950">
                             {service.title}
                           </h3>
-                          <p className="mt-4 text-base leading-relaxed text-slate-600">
+                          <p className="mt-3 text-base leading-relaxed text-slate-600">
                             {service.copy}
                           </p>
                         </motion.div>
@@ -293,18 +293,18 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="mt-5 rounded-[2rem] bg-[#EDF4FF] px-6 py-14 sm:mt-7 sm:rounded-[3rem] sm:px-12 sm:py-20 lg:px-14">
+            <div className="mt-4 rounded-[2rem] bg-[#EDF4FF] px-6 py-8 sm:mt-5 sm:rounded-[3rem] sm:px-12 sm:py-12 lg:px-14">
               <div className="mx-auto w-full max-w-[1280px]">
                 <MotionInView>
                   <h3 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl lg:text-[2.75rem]">
                     {t("services.groupTitle")}
                   </h3>
-                  <p className="mt-4 max-w-4xl text-base text-slate-600 sm:text-lg">
+                  <p className="mt-3 max-w-4xl text-base text-slate-600 sm:text-lg">
                     {t("services.groupSubtitle")}
                   </p>
                 </MotionInView>
 
-                <div className="mt-10 grid gap-5 md:grid-cols-3 lg:gap-7">
+                <div className="mt-6 grid gap-5 md:grid-cols-3 lg:gap-7">
                   {groupPrograms.map((item, index) => (
                     <MotionInView
                       key={item.title}
@@ -320,15 +320,15 @@ export default function HomePage() {
                             y: -5,
                             boxShadow: "0 22px 45px rgba(35,66,130,0.12)",
                           }}
-                          className="h-full min-h-[220px] rounded-[1.4rem] border border-blue-200/80 bg-white/90 p-7 shadow-[0_10px_24px_rgba(35,66,130,0.07)] transition-colors sm:p-8"
+                          className="h-full min-h-[190px] rounded-[1.4rem] border border-blue-200/80 bg-white/90 p-6 shadow-[0_10px_24px_rgba(35,66,130,0.07)] transition-colors sm:p-7"
                         >
                           <ServiceCardIcon
                             icon={groupIcons[index] ?? ChalkboardTeacher}
                           />
-                          <h3 className="mt-6 text-xl font-semibold tracking-tight text-slate-950">
+                          <h3 className="mt-4 text-xl font-semibold tracking-tight text-slate-950">
                             {item.title}
                           </h3>
-                          <p className="mt-4 text-base leading-relaxed text-slate-600">
+                          <p className="mt-3 text-base leading-relaxed text-slate-600">
                             {item.copy}
                           </p>
                         </motion.div>
