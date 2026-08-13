@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useTranslation } from "../../../i18n/LanguageContext";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
@@ -39,25 +40,17 @@ export default function TutorDetailClient({ tutor }: { tutor: TutorRecord }) {
       <main className="mx-auto w-full max-w-5xl px-6 py-16 sm:px-10">
         <div className="grid gap-10 lg:grid-cols-[1fr,1.2fr] lg:items-start">
           <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-            <div className="aspect-4/5 overflow-hidden rounded-2xl bg-slate-100">
-              <img
+            <div className="relative aspect-4/5 overflow-hidden rounded-2xl bg-slate-100">
+              <Image
                 src={
                   tutor.photoFile
                     ? `/images/tutors/${tutor.photoFile}`
                     : "/images/tutors/default.webp"
                 }
                 alt={tutor.name}
+                fill
+                sizes="(min-width: 1024px) 420px, 90vw"
                 className="h-full w-full object-cover"
-                onError={(event) => {
-                  if (
-                    event.currentTarget.src.includes(
-                      "/images/tutors/default.webp"
-                    )
-                  ) {
-                    return;
-                  }
-                  event.currentTarget.src = "/images/tutors/default.webp";
-                }}
               />
             </div>
             <div className="mt-6 space-y-2">

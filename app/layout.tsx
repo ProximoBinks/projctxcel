@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 import Script from "next/script";
+import { Inter } from "next/font/google";
 import "../styles/globals.css";
 import Providers from "./providers";
 import { JsonLd } from "../components/JsonLd";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
@@ -105,9 +112,9 @@ export default function RootLayout({
         <JsonLd data={organizationSchema} />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-J81WF7WXDD"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
@@ -116,7 +123,7 @@ export default function RootLayout({
           `}
         </Script>
       </head>
-      <body className="bg-white font-sans text-slate-950 antialiased">
+      <body className={`${inter.variable} bg-white font-sans text-slate-950 antialiased`}>
         <Providers>{children}</Providers>
       </body>
     </html>

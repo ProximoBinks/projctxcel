@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import {
   BookOpenText,
   ChalkboardTeacher,
@@ -14,16 +13,14 @@ import {
 import MotionInView from "../components/MotionInView";
 import Section from "../components/Section";
 import TutorCard from "../components/TutorCard";
-import EnquiryForm from "../components/EnquiryForm";
+import DeferredEnquiryForm from "../components/DeferredEnquiryForm";
 import Icon from "../components/Icon";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import {
   type MouseEvent,
-  Suspense,
   useCallback,
   useEffect,
-  useMemo,
   useState,
 } from "react";
 import tutorsData from "../data/tutors.json";
@@ -62,20 +59,26 @@ function ServiceCardIcon({ icon: IconGraphic }: { icon: PhosphorIcon }) {
  */
 function RotatingCareer({
   words,
-  reduced,
 }: {
   words: string[];
-  reduced: boolean;
 }) {
   const [index, setIndex] = useState(0);
+  const [visible, setVisible] = useState(true);
 
   useEffect(() => {
     if (words.length <= 1) return;
-    const id = setInterval(
-      () => setIndex((i) => (i + 1) % words.length),
-      CAREER_ROTATE_MS,
-    );
-    return () => clearInterval(id);
+    let transitionId: number | undefined;
+    const id = setInterval(() => {
+      setVisible(false);
+      transitionId = window.setTimeout(() => {
+        setIndex((i) => (i + 1) % words.length);
+        setVisible(true);
+      }, 220);
+    }, CAREER_ROTATE_MS);
+    return () => {
+      clearInterval(id);
+      if (transitionId !== undefined) clearTimeout(transitionId);
+    };
   }, [words.length]);
 
   if (words.length === 0) return null;
@@ -94,34 +97,14 @@ function RotatingCareer({
       {/* Read once by screen readers; the animated copy is hidden from them so
           the rotation is never announced repeatedly. */}
       <span className="sr-only">{words[0]}</span>
-      <AnimatePresence mode="sync" initial={false}>
-        <motion.span
-          key={current}
-          aria-hidden="true"
-          className="gradient-text col-start-1 row-start-1 whitespace-nowrap"
-          initial={
-            reduced
-              ? { opacity: 0 }
-              : { opacity: 0, x: "0.7em", filter: "blur(6px)" }
-          }
-          animate={
-            reduced
-              ? { opacity: 1 }
-              : { opacity: 1, x: "0em", filter: "blur(0px)" }
-          }
-          exit={
-            reduced
-              ? { opacity: 0 }
-              : { opacity: 0, x: "-0.7em", filter: "blur(6px)" }
-          }
-          transition={{
-            duration: reduced ? 0.2 : 0.46,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-        >
-          {current}
-        </motion.span>
-      </AnimatePresence>
+      <span
+        aria-hidden="true"
+        className={`gradient-text col-start-1 row-start-1 whitespace-nowrap transition duration-300 ease-out motion-reduce:transition-none ${
+          visible ? "translate-x-0 opacity-100 blur-0" : "-translate-x-3 opacity-0 blur-sm"
+        }`}
+      >
+        {current}
+      </span>
     </span>
   );
 }
@@ -158,15 +141,6 @@ export default function HomePage() {
 
   const careers = tArray<string>("hero.careers");
 
-  const prefersReducedMotion = useReducedMotion();
-  const heroFade = useMemo(
-    () =>
-      prefersReducedMotion
-        ? { initial: { opacity: 1 }, animate: { opacity: 1 } }
-        : { initial: { opacity: 0, y: 16 }, animate: { opacity: 1, y: 0 } },
-    [prefersReducedMotion],
-  );
-
   const scrollToId = useCallback((id: string) => {
     const target = document.getElementById(id);
     if (!target) return;
@@ -193,39 +167,27 @@ export default function HomePage() {
             browser chrome doesn't push the fold off-screen. */}
         <section className="relative flex min-h-[calc(100svh-var(--header-h))] items-center bg-white py-14 [--header-h:7rem] sm:py-18">
         <div className="relative z-10 mx-auto w-full max-w-[1120px] -translate-y-8 px-6 text-center sm:-translate-y-16 sm:px-10">
-            <motion.h1
-              initial={heroFade.initial}
-              animate={heroFade.animate}
-              transition={{ duration: 0.6 }}
-              className="mx-auto max-w-4xl text-[clamp(2.75rem,7vw,5.25rem)] font-semibold leading-[1.02] tracking-[-0.035em] text-slate-950"
+            <h1
+              className="hero-enter mx-auto max-w-4xl text-[clamp(2.75rem,7vw,5.25rem)] font-semibold leading-[1.02] tracking-[-0.035em] text-slate-950"
             >
               <span className="block">{t("hero.title")}</span>
               <span className="block">
                 {t("hero.tailoredPrefix")}
-                <RotatingCareer
-                  words={careers}
-                  reduced={Boolean(prefersReducedMotion)}
-                />
+                <RotatingCareer words={careers} />
                 {t("hero.tailoredSuffix")}
               </span>
-            </motion.h1>
+            </h1>
 
-            <motion.p
-              initial={heroFade.initial}
-              animate={heroFade.animate}
-              transition={{ duration: 0.6, delay: 0.14 }}
-              className="mx-auto mt-4 max-w-[38rem] text-base leading-relaxed text-slate-600 sm:text-lg"
+            <p
+              className="hero-enter hero-enter-delay-1 mx-auto mt-4 max-w-[38rem] text-base leading-relaxed text-slate-600 sm:text-lg"
             >
               {t("hero.subtitle")}
-            </motion.p>
+            </p>
 
-            <motion.div
-              initial={heroFade.initial}
-              animate={heroFade.animate}
-              transition={{ duration: 0.6, delay: 0.22 }}
-              className="mt-11 flex flex-wrap items-center justify-center gap-4"
+            <div
+              className="hero-enter hero-enter-delay-2 mt-11 flex flex-wrap items-center justify-center gap-4"
             >
-              <motion.div whileHover={{ y: -2 }} whileTap={{ scale: 0.98 }}>
+              <div className="transition duration-200 hover:-translate-y-0.5 active:scale-[0.98]">
                 <Link
                   href="#enquire"
                   className="btn btn-lg"
@@ -233,7 +195,7 @@ export default function HomePage() {
                 >
                   {t("hero.cta")}
                 </Link>
-              </motion.div>
+              </div>
               <Link
                 href="#tutors"
                 className="btn-ghost"
@@ -241,13 +203,16 @@ export default function HomePage() {
               >
                 {t("hero.ctaSecondary")}
               </Link>
-            </motion.div>
+            </div>
           </div>
         </section>
 
-        <section id="services" className="scroll-mt-16 bg-white pb-10 pt-6 sm:pb-16 sm:pt-10">
-          <div className="mx-auto w-full max-w-[1440px] px-3 sm:px-6">
-            <div className="rounded-[2rem] bg-[#2455C2] px-6 py-8 sm:rounded-[3rem] sm:px-12 sm:py-12 lg:px-14">
+        <section
+          id="services"
+          className="scroll-mt-28 flex min-h-[calc(100svh-var(--header-h))] flex-col justify-center bg-white py-6 [--header-h:7rem] sm:py-10"
+        >
+          <div className="mx-auto flex w-full max-w-[1440px] flex-1 flex-col px-3 sm:px-6">
+            <div className="flex flex-1 flex-col justify-center rounded-[2rem] bg-[#2455C2] px-6 py-8 sm:rounded-[3rem] sm:px-12 sm:py-12 lg:px-14">
               <div className="mx-auto w-full max-w-[1280px]">
                 <MotionInView>
                   <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl lg:text-[2.75rem]">
@@ -269,12 +234,8 @@ export default function HomePage() {
                         href={serviceLinks[index] ?? "/programs"}
                         className="block h-full rounded-[1.4rem] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
                       >
-                        <motion.div
-                          whileHover={{
-                            y: -5,
-                            boxShadow: "0 22px 45px rgba(10,33,89,0.18)",
-                          }}
-                          className="h-full min-h-[200px] rounded-[1.4rem] border border-white/70 bg-[#F7FAFF] p-6 shadow-[0_12px_28px_rgba(10,33,89,0.1)] transition-colors hover:border-blue-200 sm:p-7"
+                        <div
+                          className="h-full min-h-[200px] rounded-[1.4rem] border border-white/70 bg-[#F7FAFF] p-6 shadow-[0_12px_28px_rgba(10,33,89,0.1)] transition duration-300 hover:-translate-y-[5px] hover:border-blue-200 hover:shadow-[0_22px_45px_rgba(10,33,89,0.18)] sm:p-7"
                         >
                           <ServiceCardIcon
                             icon={serviceIcons[index] ?? ChartLineUp}
@@ -285,7 +246,7 @@ export default function HomePage() {
                           <p className="mt-3 text-base leading-relaxed text-slate-600">
                             {service.copy}
                           </p>
-                        </motion.div>
+                        </div>
                       </Link>
                     </MotionInView>
                   ))}
@@ -293,7 +254,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="mt-4 rounded-[2rem] bg-[#EDF4FF] px-6 py-8 sm:mt-5 sm:rounded-[3rem] sm:px-12 sm:py-12 lg:px-14">
+            <div className="mt-4 flex flex-1 flex-col justify-center rounded-[2rem] bg-[#EDF4FF] px-6 py-8 sm:mt-5 sm:rounded-[3rem] sm:px-12 sm:py-12 lg:px-14">
               <div className="mx-auto w-full max-w-[1280px]">
                 <MotionInView>
                   <h3 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl lg:text-[2.75rem]">
@@ -315,12 +276,8 @@ export default function HomePage() {
                         href={groupLinks[index] ?? "/programs"}
                         className="block h-full rounded-[1.4rem] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2455C2]"
                       >
-                        <motion.div
-                          whileHover={{
-                            y: -5,
-                            boxShadow: "0 22px 45px rgba(35,66,130,0.12)",
-                          }}
-                          className="h-full min-h-[190px] rounded-[1.4rem] border border-blue-200/80 bg-white/90 p-6 shadow-[0_10px_24px_rgba(35,66,130,0.07)] transition-colors sm:p-7"
+                        <div
+                          className="h-full min-h-[190px] rounded-[1.4rem] border border-blue-200/80 bg-white/90 p-6 shadow-[0_10px_24px_rgba(35,66,130,0.07)] transition duration-300 hover:-translate-y-[5px] hover:shadow-[0_22px_45px_rgba(35,66,130,0.12)] sm:p-7"
                         >
                           <ServiceCardIcon
                             icon={groupIcons[index] ?? ChalkboardTeacher}
@@ -331,7 +288,7 @@ export default function HomePage() {
                           <p className="mt-3 text-base leading-relaxed text-slate-600">
                             {item.copy}
                           </p>
-                        </motion.div>
+                        </div>
                       </Link>
                     </MotionInView>
                   ))}
@@ -458,12 +415,8 @@ export default function HomePage() {
           <div className="grid gap-6 lg:grid-cols-3">
             {howItWorksSteps.map((step, index) => (
               <MotionInView key={step.title} delay={index * 0.08}>
-                <motion.div
-                  whileHover={{
-                    y: -4,
-                    boxShadow: "0 20px 40px rgba(15,23,42,0.08)",
-                  }}
-                  className="h-full rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm"
+                <div
+                  className="h-full rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.08)]"
                 >
                   <p className="text-7xl font-semibold text-blue-500/20">
                     {step.step}
@@ -472,7 +425,7 @@ export default function HomePage() {
                     {step.title}
                   </h3>
                   <p className="mt-3 text-sm text-slate-600">{step.copy}</p>
-                </motion.div>
+                </div>
               </MotionInView>
             ))}
           </div>
@@ -497,17 +450,7 @@ export default function HomePage() {
         >
           <div className="w-full">
             <MotionInView>
-              <Suspense
-                fallback={
-                  <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-                    <p className="text-sm text-slate-600">
-                      {t("enquireSection.loading")}
-                    </p>
-                  </div>
-                }
-              >
-                <EnquiryForm />
-              </Suspense>
+              <DeferredEnquiryForm />
             </MotionInView>
           </div>
         </Section>

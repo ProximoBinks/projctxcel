@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useReducedMotion } from "framer-motion";
+import Image from "next/image";
 
 export type OfferImage = {
   src: string;
@@ -43,10 +43,18 @@ export default function OfferCarousel({ items }: { items: OfferImage[] }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const [broken, setBroken] = useState<Set<string>>(new Set());
-  const prefersReducedMotion = useReducedMotion();
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   const visible = items.filter((item) => !broken.has(item.src));
   const count = visible.length;
+
+  useEffect(() => {
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const updatePreference = () => setPrefersReducedMotion(query.matches);
+    updatePreference();
+    query.addEventListener("change", updatePreference);
+    return () => query.removeEventListener("change", updatePreference);
+  }, []);
 
   useEffect(() => {
     if (paused || prefersReducedMotion || count <= 1) return;
@@ -118,7 +126,7 @@ export default function OfferCarousel({ items }: { items: OfferImage[] }) {
               {/* The wrapper is the card and does the clipping, so `zoom` can
                   scale the image inside it without escaping the rounded edge. */}
               <span
-                className="block aspect-[4/3] w-full overflow-hidden rounded-2xl bg-white"
+                className="relative block aspect-[4/3] w-full overflow-hidden rounded-2xl bg-white"
                 style={{
                   boxShadow:
                     distance === 0
@@ -126,11 +134,11 @@ export default function OfferCarousel({ items }: { items: OfferImage[] }) {
                       : "0 18px 40px -16px rgba(15,23,42,0.22)",
                 }}
               >
-                <img
+                <Image
                   src={item.src}
                   alt=""
-                  loading={index < 3 ? "eager" : "lazy"}
-                  decoding="async"
+                  fill
+                  sizes="(min-width: 1024px) 620px, (min-width: 640px) 460px, 290px"
                   onError={() => markBroken(item.src)}
                   className="h-full w-full object-cover"
                   style={{
@@ -146,22 +154,6 @@ export default function OfferCarousel({ items }: { items: OfferImage[] }) {
             </button>
           );
         })}
-      </div>
-
-      <div className="mt-6 flex items-center justify-center gap-2">
-        {visible.map((item, index) => (
-          <button
-            key={`dot-${item.src}`}
-            type="button"
-            onClick={() => setActive(index)}
-            aria-label={`Show ${item.alt}`}
-            className={`h-1.5 rounded-full transition-all duration-300 ${
-              index === active
-                ? "w-7 bg-slate-800"
-                : "w-1.5 bg-slate-300 hover:bg-slate-400"
-            }`}
-          />
-        ))}
       </div>
 
       <span className="sr-only" aria-live="polite">

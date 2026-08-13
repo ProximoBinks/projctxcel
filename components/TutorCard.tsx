@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import Image from "next/image";
 import { useTranslation } from "../i18n/LanguageContext";
 
 type TutorStat = { label: string; value: string };
@@ -59,39 +59,28 @@ export default function TutorCard({
   };
 
   return (
-    <motion.div
-      whileHover={{
-        y: -4,
-        boxShadow: "0 20px 40px rgba(15,23,42,0.08)",
-      }}
-      transition={{ type: "spring", stiffness: 220, damping: 20 }}
+    <div
       /* min-w-0: as a grid/flex item the card defaults to min-width:auto, so the
          nowrap name inside `truncate` would stretch the whole track on narrow
          phones instead of letting the name ellipsis. */
-      className="group relative h-full min-w-0 rounded-2xl border border-black/5 bg-white shadow-sm"
+      className="group relative h-full min-w-0 rounded-2xl border border-black/5 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.08)]"
     >
       <div className="pointer-events-none absolute inset-0 rounded-2xl bg-white/60 opacity-0 transition duration-300 group-hover:opacity-100 backdrop-blur" />
       <div className="relative flex h-full flex-col p-6">
         <div className="flex items-center gap-4">
           <div className="relative h-16 w-16 overflow-hidden rounded-full border border-slate-200 bg-slate-100">
-            <img
+            <Image
               src={
                 tutor.photoFile
                   ? `/images/tutors/${tutor.photoFile}`
                   : "/images/tutors/default.webp"
               }
               alt={tutor.name}
+              fill
+              sizes="64px"
               className="h-full w-full object-cover"
               style={tutor.photoZoom ? { transform: `scale(${tutor.photoZoom})` } : undefined}
               loading="lazy"
-              onError={(event) => {
-                if (
-                  event.currentTarget.src.includes("/images/tutors/default.webp")
-                ) {
-                  return;
-                }
-                event.currentTarget.src = "/images/tutors/default.webp";
-              }}
             />
             <div className="absolute inset-0 bg-linear-to-tr from-blue-500/20 via-sky-400/10 to-transparent" />
           </div>
@@ -100,9 +89,11 @@ export default function TutorCard({
                 reserving its own column and squeezing the name. */}
             <h3 className="text-lg font-semibold text-slate-950">
               {tutor.name}
-              <img
+              <Image
                 src="/images/checkmark.png"
                 alt="Verified"
+                width={16}
+                height={16}
                 className="ml-1.5 inline-block h-4 w-4 align-[-0.1em]"
               />
             </h3>
@@ -143,6 +134,6 @@ export default function TutorCard({
           ))}
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { JsonLd } from "../../../components/JsonLd";
 import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
@@ -186,9 +187,12 @@ export default function UCATPage() {
               {/* Lochie Siow */}
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <img
+                  <Image
                     src="/images/tutors/lochie-siow.jpg"
                     alt="Lochie Siow"
+                    width={64}
+                    height={64}
+                    sizes="64px"
                     className="h-16 w-16 rounded-full object-cover"
                   />
                   <div>
@@ -218,9 +222,12 @@ export default function UCATPage() {
               {/* Joey Fitzgerald */}
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">
                 <div className="flex items-center gap-4">
-                  <img
-                    src="/images/tutors/joey-fitzgerald.jpg"
+                  <Image
+                    src="/images/tutors/joey-fitzgerald.webp"
                     alt="Joey Fitzgerald"
+                    width={64}
+                    height={64}
+                    sizes="64px"
                     className="h-16 w-16 rounded-full object-cover"
                   />
                   <div>

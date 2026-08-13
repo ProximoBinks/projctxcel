@@ -1,55 +1,43 @@
 "use client";
 
-import { useCallback, useMemo } from "react";
-import { ConvexProviderWithAuth, ConvexReactClient } from "convex/react";
+import { lazy, Suspense } from "react";
+import { usePathname } from "next/navigation";
 import { LanguageProvider } from "../i18n/LanguageContext";
-import { AuthProvider, useAuth } from "../contexts/AuthContext";
 
-const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-if (!convexUrl) {
-  console.warn("NEXT_PUBLIC_CONVEX_URL is not set.");
-}
-
-const convex = new ConvexReactClient(convexUrl ?? "");
-
-// Adapts our session (httpOnly cookie, surfaced via AuthContext) to the shape
-// Convex's auth integration expects. The Convex token is fetched on demand from
-// /api/auth/convex-token, which reads the httpOnly cookie server-side.
-function useConvexAuthFromSession() {
-  const { session, isLoading } = useAuth();
-
-  const fetchAccessToken = useCallback(
-    async (_args: { forceRefreshToken: boolean }): Promise<string | null> => {
-      try {
-        const res = await fetch("/api/auth/convex-token", { cache: "no-store" });
-        if (!res.ok) return null;
-        const data = (await res.json()) as { token?: string };
-        return data.token ?? null;
-      } catch {
-        return null;
-      }
-    },
-    [],
-  );
-
-  return useMemo(
-    () => ({
-      isLoading,
-      isAuthenticated: session !== null,
-      fetchAccessToken,
-    }),
-    [isLoading, session, fetchAccessToken],
-  );
-}
+const ConvexProvider = lazy(() => import("./convex-provider"));
+const PortalProviders = lazy(() => import("./portal-providers"));
+const AuthProvider = lazy(() => import("./auth-provider"));
 
 export default function Providers({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const pathname = usePathname();
+  const needsPortalAuth = ["/student", "/tutor", "/admin"].includes(pathname);
+  const needsAuth = [
+    "/student/login",
+    "/tutor/login",
+    "/admin/login",
+  ].includes(pathname);
+  const needsPublicConvex =
+    pathname === "/interview" || pathname === "/student/signup";
+
   return (
-    <AuthProvider>
-      <ConvexProviderWithAuth client={convex} useAuth={useConvexAuthFromSession}>
-        <LanguageProvider>{children}</LanguageProvider>
-      </ConvexProviderWithAuth>
-    </AuthProvider>
+    <LanguageProvider>
+      {needsPortalAuth ? (
+        <Suspense fallback={null}>
+          <PortalProviders>{children}</PortalProviders>
+        </Suspense>
+      ) : needsAuth ? (
+        <Suspense fallback={null}>
+          <AuthProvider>{children}</AuthProvider>
+        </Suspense>
+      ) : needsPublicConvex ? (
+        <Suspense fallback={null}>
+          <ConvexProvider>{children}</ConvexProvider>
+        </Suspense>
+      ) : (
+        children
+      )}
+    </LanguageProvider>
   );
 }

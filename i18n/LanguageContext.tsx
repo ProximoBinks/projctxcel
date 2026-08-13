@@ -1,12 +1,9 @@
 "use client";
 
-import { createContext, useCallback, useContext, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import en from "./en.json";
-import zh from "./zh.json";
 
 type Lang = "en" | "zh";
-
-const dictionaries: Record<Lang, Record<string, unknown>> = { en, zh };
 
 type LanguageContextValue = {
   lang: Lang;
@@ -28,10 +25,27 @@ function getNestedValue(obj: unknown, path: string): unknown {
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [lang, setLang] = useState<Lang>("en");
+  const [zh, setZh] = useState<Record<string, unknown> | null>(null);
+
+  const dictionaries = useMemo(
+    () => ({ en, zh: zh ?? en }),
+    [zh],
+  );
 
   const toggleLang = useCallback(() => {
-    setLang((prev) => (prev === "en" ? "zh" : "en"));
-  }, []);
+    if (lang === "zh") {
+      setLang("en");
+      return;
+    }
+    if (zh) {
+      setLang("zh");
+      return;
+    }
+    void import("./zh.json").then((module) => {
+      setZh(module.default);
+      setLang("zh");
+    });
+  }, [lang, zh]);
 
   const t = useCallback(
     (key: string): string => {
@@ -42,7 +56,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       if (typeof fallback === "string") return fallback;
       return key;
     },
-    [lang],
+    [dictionaries, lang],
   );
 
   const tArray = useCallback(
@@ -53,7 +67,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
       if (Array.isArray(fallback)) return fallback as T[];
       return [];
     },
-    [lang],
+    [dictionaries, lang],
   );
 
   return (

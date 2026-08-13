@@ -2,6 +2,7 @@
 
 import { useState, useEffect, type CSSProperties } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "../i18n/LanguageContext";
 
@@ -73,9 +74,12 @@ export default function Header() {
             { "--logo-nudge": `${clampNudge(LOGO_NUDGE)}px` } as CSSProperties
           }
         >
-          <img
+          <Image
             src="/images/simple-text-black.svg"
             alt="Simple Tuition"
+            width={116}
+            height={68}
+            priority
             className={`max-w-full transition-all duration-300 ${
               navCompact ? "h-14" : "h-[68px]"
             }`}
