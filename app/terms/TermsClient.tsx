@@ -14,7 +14,7 @@ export default function TermsClient() {
       <Header />
 
       <main className="mx-auto w-full max-w-3xl px-6 py-16 sm:px-10">
-        <p className="text-xs uppercase tracking-[0.3em] text-blue-500">
+        <p className="text-xs font-bold uppercase tracking-[0.3em] text-blue-500">
           {t("terms.eyebrow")}
         </p>
         <h1 className="mt-4 text-3xl font-semibold text-slate-950 sm:text-4xl">

@@ -43,3 +43,8 @@ yarn-error.log*
 certificates
 tailwindcss-31736.log
 next-env.d.ts
+
+# local QA/design screenshots (working artifacts, not product code)
+/audits/
+/form-typography-comparison.png
+/implementation-form-typography.png

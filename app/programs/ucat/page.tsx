@@ -156,7 +156,7 @@ export default function UCATPage() {
         <main className="mx-auto w-full max-w-[1200px] px-6 sm:px-10">
           {/* Hero */}
           <section className="py-16 sm:py-20">
-            <p className="text-xs uppercase tracking-[0.3em] text-blue-500">
+            <p className="text-xs font-bold uppercase tracking-[0.3em] text-blue-500">
               Our services
             </p>
             <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-950 sm:text-5xl">

@@ -63,6 +63,35 @@ export default defineSchema({
     status: v.optional(v.string()),
   }).index("by_createdAt", ["createdAt"]),
 
+  // Paid one-off course signups (e.g. the Medicine & Dentistry Interview
+  // Intensive). Separate from `enquiries` because these carry a payment
+  // lifecycle rather than being a lead to follow up.
+  courseEnrollments: defineTable({
+    name: v.string(),
+    email: v.string(),
+    phone: v.string(),
+    program: v.string(), // "medicine" | "dentistry" | "both"
+    interviewDate: v.optional(v.string()),
+    consent: v.boolean(),
+    sourcePage: v.optional(v.string()),
+    utm: v.optional(
+      v.object({
+        source: v.optional(v.string()),
+        medium: v.optional(v.string()),
+        campaign: v.optional(v.string()),
+        term: v.optional(v.string()),
+        content: v.optional(v.string()),
+      })
+    ),
+    status: v.string(), // "pending_payment" | "paid" | "failed"
+    amountCents: v.number(),
+    stripeCheckoutSessionId: v.optional(v.string()),
+    stripePaymentIntentId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_createdAt", ["createdAt"])
+    .index("by_checkoutSession", ["stripeCheckoutSessionId"]),
+
   // Tutor accounts for dashboard login
   tutorAccounts: defineTable({
     email: v.string(),

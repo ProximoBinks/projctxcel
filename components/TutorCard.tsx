@@ -16,7 +16,13 @@ export type TutorCardData = {
   stats: TutorStat[];
 };
 
-export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
+export default function TutorCard({
+  tutor,
+  hideSubjects,
+}: {
+  tutor: TutorCardData;
+  hideSubjects?: boolean;
+}) {
   const { t } = useTranslation();
 
   const displayBio = (() => {
@@ -59,7 +65,10 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
         boxShadow: "0 20px 40px rgba(15,23,42,0.08)",
       }}
       transition={{ type: "spring", stiffness: 220, damping: 20 }}
-      className="group relative h-full rounded-2xl border border-black/5 bg-white shadow-sm"
+      /* min-w-0: as a grid/flex item the card defaults to min-width:auto, so the
+         nowrap name inside `truncate` would stretch the whole track on narrow
+         phones instead of letting the name ellipsis. */
+      className="group relative h-full min-w-0 rounded-2xl border border-black/5 bg-white shadow-sm"
     >
       <div className="pointer-events-none absolute inset-0 rounded-2xl bg-white/60 opacity-0 transition duration-300 group-hover:opacity-100 backdrop-blur" />
       <div className="relative flex h-full flex-col p-6">
@@ -86,17 +95,17 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
             />
             <div className="absolute inset-0 bg-linear-to-tr from-blue-500/20 via-sky-400/10 to-transparent" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <h3 className="text-xl font-semibold text-slate-950">
-                {tutor.name}
-              </h3>
+          <div className="min-w-0 flex-1">
+            {/* The badge sits inline so it trails the last word instead of
+                reserving its own column and squeezing the name. */}
+            <h3 className="text-lg font-semibold text-slate-950">
+              {tutor.name}
               <img
                 src="/images/checkmark.png"
                 alt="Verified"
-                className="h-4 w-4"
+                className="ml-1.5 inline-block h-4 w-4 align-[-0.1em]"
               />
-            </div>
+            </h3>
             {tutor.headline && (
               <p className="mt-1 text-sm text-slate-500">{tutor.headline}</p>
             )}
@@ -105,20 +114,27 @@ export default function TutorCard({ tutor }: { tutor: TutorCardData }) {
         <div className="mt-5 min-h-16">
           <p className="text-sm text-slate-600">{displayBio}</p>
         </div>
-        <div className="mt-5 flex flex-wrap gap-2">
-          {tutor.subjects.map((subject) => (
-            <span
-              key={subject}
-              className={`rounded-full border px-3 py-1 text-xs font-medium ${getSubjectStyle(subject)}`}
-            >
-              {subject}
-            </span>
-          ))}
-        </div>
+        {hideSubjects ? null : (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {tutor.subjects.map((subject) => (
+              <span
+                key={subject}
+                className={`rounded-full border px-3 py-1 text-xs font-medium ${getSubjectStyle(subject)}`}
+              >
+                {subject}
+              </span>
+            ))}
+          </div>
+        )}
         <div className="flex-1 min-h-4" aria-hidden="true" />
-        <div className="mt-4 grid grid-cols-3 gap-3 border-t border-slate-100 pt-4">
-          {tutor.stats.slice(0, 3).map((stat) => (
-            <div key={stat.label}>
+        {/* min-w-0 lets the labels wrap on narrow phones instead of forcing the
+            card wider than its column. */}
+        <div className="mt-4 flex justify-between gap-2 border-t border-slate-100 pt-4">
+          {tutor.stats.slice(0, 3).map((stat, index) => (
+            <div
+              key={stat.label}
+              className={`min-w-0 ${index === 1 ? "ml-3" : ""}`}
+            >
               <p className="text-base font-semibold text-slate-900">
                 {stat.value}
               </p>

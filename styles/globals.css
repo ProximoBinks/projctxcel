@@ -50,7 +50,7 @@
 
 @layer components {
     .btn {
-        @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-300 hover:shadow-[0_14px_30px_rgba(5,8,109,0.4)] active:scale-[0.98];
+        @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition duration-300 hover:shadow-[0_8px_20px_rgba(5,8,109,0.18)] active:scale-[0.98];
         background: linear-gradient(135deg, #05086d 0%, #1232c3 48%, #3da5ff 100%);
     }
 

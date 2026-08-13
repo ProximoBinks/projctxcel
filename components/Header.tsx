@@ -83,6 +83,13 @@ export default function Header() {
         </Link>
         <nav className="hidden items-center gap-1 rounded-full bg-slate-50/90 p-1.5 text-base text-slate-600 ring-1 ring-slate-200/60 lg:flex">
           <Link
+            href={getNavHref("services")}
+            className={navLinkClass}
+            onClick={isHomePage ? createScrollHandler("services") : undefined}
+          >
+            {t("nav.services")}
+          </Link>
+          <Link
             href={getNavHref("tutors")}
             className={navLinkClass}
             onClick={isHomePage ? createScrollHandler("tutors") : undefined}
@@ -176,6 +183,17 @@ export default function Header() {
       {menuOpen ? (
         <div className="border-t border-slate-100 bg-white lg:hidden">
           <div className="flex w-full flex-col gap-4 px-6 py-6 text-base text-slate-700 sm:px-10 lg:px-14">
+            <Link
+              href={getNavHref("services")}
+              onClick={(event) => {
+                if (isHomePage) {
+                  createScrollHandler("services")(event);
+                }
+                setMenuOpen(false);
+              }}
+            >
+              {t("nav.services")}
+            </Link>
             <Link
               href={getNavHref("tutors")}
               onClick={(event) => {

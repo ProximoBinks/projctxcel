@@ -124,16 +124,46 @@
     "name": "Yousif Shibeeb",
     "slug": "yousif-shibeeb",
     "photoFile": "yousif-shibeeb.jpg",
-    "headline": "Tutor",
-    "bioShort": "A high-achieving student, Yousif nailed his interview and earned a first-round offer for medicine at the University of Adelaide.",
+    "headline": "Interview Tutor",
+    "bioShort": "Yousif applied without a top-percentile ATAR or UCAT, but his interview performance changed the equation. He went on to receive 6+ medical offers nationwide, including a first-round offer from the University of Adelaide.",
     "subjects": ["Maths Methods", "Biology", "Chemistry", "Physics", "Interview Prep"],
     "stats": [
       { "label": "ATAR", "value": "99.60" },
-      { "label": "All Subjects", "value": "A+" },
-      { "label": "Med Student", "value": "1st Year" }
+      { "label": "percentile UCAT", "value": "85th" },
+      { "label": "Med Offers", "value": "6+" }
     ],
     "active": false,
     "sortOrder": 12
+  },
+  {
+    "name": "Lachlan Escort-Hughes",
+    "slug": "lachlan-escort-hughes",
+    "photoFile": "lachlan-escort-hughes.jpg",
+    "headline": "Interview Tutor",
+    "bioShort": "Without exceptional stats, Lachie knew his interview would be critical. A strong performance helped him convert that opportunity into a first-round medical offer from the University of Adelaide.",
+    "subjects": ["Interview Prep"],
+    "stats": [
+      { "label": "ATAR", "value": "99.75" },
+      { "label": "percentile UCAT", "value": "86th" },
+      { "label": "Med Offer", "value": "1st Round" }
+    ],
+    "active": false,
+    "sortOrder": 13
+  },
+  {
+    "name": "Anhong Do",
+    "slug": "anhong-do",
+    "photoFile": "anhong-do.jpg",
+    "headline": "Interview Tutor",
+    "bioShort": "Anhong turned a 79th-percentile UCAT into multiple dentistry offers through an incredible interview performance. She now studies dentistry at the University of Adelaide.",
+    "subjects": ["Interview Prep"],
+    "stats": [
+      { "label": "ATAR", "value": "98.95" },
+      { "label": "percentile UCAT", "value": "79th" },
+      { "label": "Dent Offers", "value": "2+" }
+    ],
+    "active": false,
+    "sortOrder": 14
   },
   {
     "name": "Bal Gilhotra",
