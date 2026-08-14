@@ -77,6 +77,17 @@ export const createPending = mutation({
       program: args.program,
     });
 
+    await ctx.scheduler.runAfter(0, internal.googleSheets.appendEnrollment, {
+      enrollmentId,
+      name,
+      email,
+      phone,
+      program: args.program,
+      status: "pending_payment",
+      amountCents: INTERVIEW_COURSE_AMOUNT_CENTS,
+      createdAt: Date.now(),
+    });
+
     return enrollmentId;
   },
 });
@@ -225,14 +236,14 @@ export const markPaid = internalMutation({
 
 export const markFailed = internalMutation({
   args: { enrollmentId: v.id("courseEnrollments") },
-  returns: v.null(),
+  returns: v.object({ amountCents: v.number() }),
   handler: async (ctx, { enrollmentId }) => {
     const row = await ctx.db.get(enrollmentId);
     // Never downgrade a paid enrollment — an expiry event can arrive late.
     if (row && row.status !== "paid") {
       await ctx.db.patch(enrollmentId, { status: "failed" });
     }
-    return null;
+    return { amountCents: row?.amountCents ?? 0 };
   },
 });
 

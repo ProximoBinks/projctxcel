@@ -21,6 +21,7 @@ import type * as dashboard from "../dashboard.js";
 import type * as discord from "../discord.js";
 import type * as enquiries from "../enquiries.js";
 import type * as enquiryNotifications from "../enquiryNotifications.js";
+import type * as googleSheets from "../googleSheets.js";
 import type * as http from "../http.js";
 import type * as identity from "../identity.js";
 import type * as migrations from "../migrations.js";
@@ -55,6 +56,7 @@ declare const fullApi: ApiFromModules<{
   discord: typeof discord;
   enquiries: typeof enquiries;
   enquiryNotifications: typeof enquiryNotifications;
+  googleSheets: typeof googleSheets;
   http: typeof http;
   identity: typeof identity;
   migrations: typeof migrations;

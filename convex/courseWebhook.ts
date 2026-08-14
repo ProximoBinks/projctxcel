@@ -158,6 +158,12 @@ export const handleStripeEvent = internalAction({
           amountCents: result.amountCents,
         });
 
+        await ctx.runAction(internal.googleSheets.updateEnrollmentStatus, {
+          enrollmentId,
+          status: "paid",
+          amountCents: result.amountCents,
+        });
+
         return { ok: true, message: "Enrollment marked paid" };
       }
 
@@ -166,9 +172,17 @@ export const handleStripeEvent = internalAction({
         if (!enrollmentId) {
           return { ok: true, message: "No enrollmentId in metadata; ignored" };
         }
-        await ctx.runMutation(internal.courseEnrollments.markFailed, {
+        const failedResult = await ctx.runMutation(
+          internal.courseEnrollments.markFailed,
+          { enrollmentId },
+        );
+
+        await ctx.runAction(internal.googleSheets.updateEnrollmentStatus, {
           enrollmentId,
+          status: "failed",
+          amountCents: failedResult.amountCents,
         });
+
         return { ok: true, message: `Enrollment marked failed (${event.type})` };
       }
 
