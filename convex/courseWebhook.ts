@@ -1,6 +1,7 @@
 "use node";
 
 import Stripe from "stripe";
+import { createHash } from "crypto";
 import { internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
@@ -69,6 +70,91 @@ async function sendConfirmationEmail(fields: {
     }
   } catch (error) {
     console.error("Failed to send enrollment confirmation email", error);
+  }
+}
+
+const META_GRAPH_VERSION = "v21.0";
+
+/**
+ * The pixel the Conversions API reports to. Must be the same pixel the browser
+ * initialises via NEXT_PUBLIC_META_PIXEL_ID — if the two drift apart, the
+ * shared event_id stops deduplicating and each pixel sees half the picture.
+ */
+function getMetaPixelId(): string | undefined {
+  return process.env.META_PIXEL_ID;
+}
+
+/** Meta requires user identifiers to be SHA-256 of the normalised value. */
+function hashForMeta(value: string): string {
+  return createHash("sha256").update(value.trim().toLowerCase()).digest("hex");
+}
+
+/**
+ * Server-side Purchase event via Meta's Conversions API.
+ *
+ * `eventId` is the Stripe Checkout Session id, which the browser also sends on
+ * the success page — Meta collapses the pair into one conversion. Sending both
+ * is deliberate: the server call still lands when an ad blocker or an
+ * abandoned redirect stops the browser one.
+ *
+ * Like the confirmation email, a failure here must never fail the webhook. The
+ * payment has already succeeded; Stripe must not retry over analytics.
+ */
+async function sendMetaPurchaseEvent(fields: {
+  eventId: string;
+  email: string;
+  amountCents: number;
+  eventSourceUrl: string;
+}): Promise<void> {
+  const accessToken = process.env.META_CAPI_ACCESS_TOKEN;
+  if (!accessToken) {
+    // TODO: set META_CAPI_ACCESS_TOKEN (System User token from Meta Events
+    // Manager) with: npx convex env set META_CAPI_ACCESS_TOKEN <token>
+    console.warn(
+      "META_CAPI_ACCESS_TOKEN not set — skipping Conversions API Purchase event",
+    );
+    return;
+  }
+
+  const pixelId = getMetaPixelId();
+  if (!pixelId) {
+    console.warn("META_PIXEL_ID not set — skipping Conversions API Purchase event");
+    return;
+  }
+
+  try {
+    const response = await fetch(
+      `https://graph.facebook.com/${META_GRAPH_VERSION}/${pixelId}/events`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          access_token: accessToken,
+          data: [
+            {
+              event_name: "Purchase",
+              event_time: Math.floor(Date.now() / 1000),
+              event_id: fields.eventId,
+              event_source_url: fields.eventSourceUrl,
+              action_source: "website",
+              user_data: { em: [hashForMeta(fields.email)] },
+              custom_data: {
+                value: fields.amountCents / 100,
+                currency: "AUD",
+                content_name: "Interview Intensive",
+              },
+            },
+          ],
+        }),
+      },
+    );
+
+    const body = await response.text();
+    if (!response.ok) {
+      console.error(`Meta Conversions API returned ${response.status}`, body);
+    }
+  } catch (error) {
+    console.error("Failed to send Meta Conversions API Purchase event", error);
   }
 }
 
@@ -156,6 +242,17 @@ export const handleStripeEvent = internalAction({
           email: result.email,
           program: result.program,
           amountCents: result.amountCents,
+        });
+
+        await sendMetaPurchaseEvent({
+          // Shared with the browser-side Purchase on /interview/success, which
+          // reads this same id from the `session_id` query parameter.
+          eventId: session.id,
+          email: result.email,
+          amountCents: result.amountCents,
+          eventSourceUrl: `${
+            process.env.SITE_URL ?? "https://simpletuition.com.au"
+          }/interview/success`,
         });
 
         await ctx.runAction(internal.googleSheets.updateEnrollmentStatus, {

@@ -8,6 +8,8 @@ import { JsonLd } from "../components/JsonLd";
 const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
 
+const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+
 const inter = Inter({
   subsets: ["latin"],
   display: "swap",
@@ -108,6 +110,10 @@ export default function RootLayout({
   return (
     <html lang="en" data-scroll-behavior="smooth">
       <head>
+        <meta
+          name="facebook-domain-verification"
+          content="obbe5dhql5e10pzaqcpo4xmks3ym6q"
+        />
         <JsonLd data={websiteSchema} />
         <JsonLd data={organizationSchema} />
         <Script
@@ -122,6 +128,37 @@ export default function RootLayout({
             gtag('config', 'G-J81WF7WXDD');
           `}
         </Script>
+        {/* Meta Pixel. Deliberately `afterInteractive`, unlike the GA4 tags
+            above: paid traffic bounces fast, and `lazyOnload` waits for the
+            window load event, which can miss a visitor entirely. */}
+        {META_PIXEL_ID ? (
+          <>
+            <Script id="meta-pixel" strategy="afterInteractive">
+              {`
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window,document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '${META_PIXEL_ID}');
+                fbq('track', 'PageView');
+              `}
+            </Script>
+            <noscript>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                height="1"
+                width="1"
+                style={{ display: "none" }}
+                alt=""
+                src={`https://www.facebook.com/tr?id=${META_PIXEL_ID}&ev=PageView&noscript=1`}
+              />
+            </noscript>
+          </>
+        ) : null}
       </head>
       <body className={`${inter.variable} bg-white font-sans text-slate-950 antialiased`}>
         <Providers>{children}</Providers>

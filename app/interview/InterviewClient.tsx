@@ -12,6 +12,7 @@ import OfferCarousel, {
 } from "../../components/OfferCarousel";
 import TutorCard from "../../components/TutorCard";
 import { useTranslation } from "../../i18n/LanguageContext";
+import { trackFb } from "../../lib/fbq";
 import tutorsData from "../../data/tutors.json";
 
 const interviewTutorSlugs = [
@@ -143,6 +144,14 @@ export default function InterviewClient() {
       const { url } = await createCheckoutSession({
         enrollmentId,
         origin: window.location.origin,
+      });
+
+      // Fired before the redirect, while our own page is still loaded — once we
+      // hand off to Stripe's domain the pixel is out of reach.
+      trackFb("InitiateCheckout", {
+        value: 399,
+        currency: "AUD",
+        content_name: "Interview Intensive",
       });
 
       // Full navigation, not router.push — Checkout is on Stripe's domain.

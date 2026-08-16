@@ -4,10 +4,30 @@ import Header from "../../../components/Header";
 import Footer from "../../../components/Footer";
 import Confetti from "../../../components/Confetti";
 import { useTranslation } from "../../../i18n/LanguageContext";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import { useSearchParams } from "next/navigation";
+import { trackFb } from "../../../lib/fbq";
 
 export default function SuccessClient() {
   const { t } = useTranslation();
+  const searchParams = useSearchParams();
+  const purchaseTracked = useRef(false);
+
+  // This page only renders after Stripe's success redirect, so reaching it is
+  // the client-side signal of a completed purchase. The Stripe session id is
+  // the shared event id: the Conversions API sends the same Purchase with the
+  // same id, and Meta keeps one of the two.
+  useEffect(() => {
+    if (purchaseTracked.current) return;
+    purchaseTracked.current = true;
+
+    const sessionId = searchParams.get("session_id") ?? undefined;
+    trackFb(
+      "Purchase",
+      { value: 399, currency: "AUD", content_name: "Interview Intensive" },
+      sessionId,
+    );
+  }, [searchParams]);
 
   const confettiOptions = useMemo(
     () => ({
