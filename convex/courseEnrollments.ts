@@ -34,6 +34,10 @@ export const createPending = mutation({
         content: v.optional(v.string()),
       })
     ),
+    // Meta attribution, read in the browser — see the schema comment.
+    metaFbp: v.optional(v.string()),
+    metaFbc: v.optional(v.string()),
+    metaUserAgent: v.optional(v.string()),
   },
   returns: v.id("courseEnrollments"),
   handler: async (ctx, args) => {
@@ -63,6 +67,9 @@ export const createPending = mutation({
       consent: args.consent,
       sourcePage: args.sourcePage,
       utm: args.utm,
+      metaFbp: args.metaFbp,
+      metaFbc: args.metaFbc,
+      metaUserAgent: args.metaUserAgent,
       status: "pending_payment",
       amountCents: INTERVIEW_COURSE_AMOUNT_CENTS,
       createdAt: Date.now(),
@@ -196,9 +203,13 @@ export const markPaid = internalMutation({
     updated: v.boolean(),
     name: v.string(),
     email: v.string(),
+    phone: v.string(),
     program: v.string(),
     amountCents: v.number(),
     interviewDate: v.optional(v.string()),
+    metaFbp: v.optional(v.string()),
+    metaFbc: v.optional(v.string()),
+    metaUserAgent: v.optional(v.string()),
   }),
   handler: async (ctx, { enrollmentId, stripePaymentIntentId, amountCents }) => {
     const row = await ctx.db.get(enrollmentId);
@@ -206,15 +217,19 @@ export const markPaid = internalMutation({
 
     const finalAmount = amountCents ?? row.amountCents;
 
+    const attribution = {
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      program: row.program,
+      interviewDate: row.interviewDate,
+      metaFbp: row.metaFbp,
+      metaFbc: row.metaFbc,
+      metaUserAgent: row.metaUserAgent,
+    };
+
     if (row.status === "paid") {
-      return {
-        updated: false,
-        name: row.name,
-        email: row.email,
-        program: row.program,
-        amountCents: row.amountCents,
-        interviewDate: row.interviewDate,
-      };
+      return { updated: false, ...attribution, amountCents: row.amountCents };
     }
 
     await ctx.db.patch(enrollmentId, {
@@ -223,14 +238,7 @@ export const markPaid = internalMutation({
       amountCents: finalAmount,
     });
 
-    return {
-      updated: true,
-      name: row.name,
-      email: row.email,
-      program: row.program,
-      amountCents: finalAmount,
-      interviewDate: row.interviewDate,
-    };
+    return { updated: true, ...attribution, amountCents: finalAmount };
   },
 });
 

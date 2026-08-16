@@ -12,7 +12,7 @@ import OfferCarousel, {
 } from "../../components/OfferCarousel";
 import TutorCard from "../../components/TutorCard";
 import { useTranslation } from "../../i18n/LanguageContext";
-import { trackFb } from "../../lib/fbq";
+import { getMetaAttribution, trackFb } from "../../lib/fbq";
 import tutorsData from "../../data/tutors.json";
 
 const interviewTutorSlugs = [
@@ -131,6 +131,10 @@ export default function InterviewClient() {
     try {
       const sourcePage = `${window.location.pathname}${window.location.search}`;
 
+      // Read here rather than in the webhook: the Conversions API call is
+      // server-to-server and never sees this visitor's cookies.
+      const meta = getMetaAttribution();
+
       const enrollmentId = await createPending({
         name,
         email,
@@ -139,6 +143,9 @@ export default function InterviewClient() {
         consent,
         sourcePage,
         utm,
+        metaFbp: meta.fbp,
+        metaFbc: meta.fbc,
+        metaUserAgent: meta.userAgent,
       });
 
       const { url } = await createCheckoutSession({

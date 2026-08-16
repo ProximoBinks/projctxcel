@@ -33,6 +33,38 @@ function getPriceId(): string {
  * `origin` comes from the caller so the success/cancel URLs work across
  * localhost, Netlify previews and production without another env var.
  */
+/**
+ * The amount Stripe actually collected for a Checkout Session, in cents.
+ *
+ * Used by the success page so the browser's Meta Purchase reports the real
+ * figure rather than assuming list price — with promotion codes enabled the
+ * two diverge, and Meta keeps whichever Purchase it receives first, which is
+ * normally the browser's.
+ *
+ * Stripe is the source of truth here rather than our own row: the webhook that
+ * writes the paid amount can land after the success page has already rendered.
+ *
+ * Safe to expose — the session id is unguessable, only sessions we created for
+ * this course are answered, and it returns nothing but an amount.
+ */
+export const getPaidAmountCents = action({
+  args: { sessionId: v.string() },
+  returns: v.union(v.number(), v.null()),
+  handler: async (_ctx, { sessionId }): Promise<number | null> => {
+    if (!/^cs_(test|live)_[A-Za-z0-9]+$/.test(sessionId)) return null;
+
+    try {
+      const session = await getStripe().checkout.sessions.retrieve(sessionId);
+      if (session.metadata?.course !== "interview_intensive") return null;
+      if (session.payment_status !== "paid") return null;
+      return session.amount_total ?? null;
+    } catch (error) {
+      console.error("Could not retrieve Checkout Session amount", error);
+      return null;
+    }
+  },
+});
+
 export const createCheckoutSession = action({
   args: {
     enrollmentId: v.id("courseEnrollments"),

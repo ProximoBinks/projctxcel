@@ -87,6 +87,12 @@ export default defineSchema({
     amountCents: v.number(),
     stripeCheckoutSessionId: v.optional(v.string()),
     stripePaymentIntentId: v.optional(v.string()),
+    // Meta attribution signals, captured in the browser at form submit and
+    // replayed by the Stripe webhook's Conversions API call — that call is
+    // server-to-server and can never see the visitor's cookies itself.
+    metaFbp: v.optional(v.string()), // _fbp cookie (browser/session id)
+    metaFbc: v.optional(v.string()), // _fbc, derived from the ad click's fbclid
+    metaUserAgent: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_createdAt", ["createdAt"])

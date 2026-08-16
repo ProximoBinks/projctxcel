@@ -6,12 +6,18 @@ import Confetti from "../../../components/Confetti";
 import { useTranslation } from "../../../i18n/LanguageContext";
 import { useEffect, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
+import { useAction } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 import { trackFb } from "../../../lib/fbq";
+
+/** Fallback only — the real figure comes from Stripe. */
+const LIST_PRICE_AUD = 399;
 
 export default function SuccessClient() {
   const { t } = useTranslation();
   const searchParams = useSearchParams();
   const purchaseTracked = useRef(false);
+  const getPaidAmountCents = useAction(api.courseCheckout.getPaidAmountCents);
 
   // This page only renders after Stripe's success redirect, so reaching it is
   // the client-side signal of a completed purchase. The Stripe session id is
@@ -22,12 +28,25 @@ export default function SuccessClient() {
     purchaseTracked.current = true;
 
     const sessionId = searchParams.get("session_id") ?? undefined;
-    trackFb(
-      "Purchase",
-      { value: 399, currency: "AUD", content_name: "Interview Intensive" },
-      sessionId,
-    );
-  }, [searchParams]);
+
+    const fire = (value: number) =>
+      trackFb(
+        "Purchase",
+        { value, currency: "AUD", content_name: "Interview Intensive" },
+        sessionId,
+      );
+
+    // Ask Stripe what was actually collected, so a promotion code doesn't get
+    // reported as full price. Falls back to list price if that lookup fails —
+    // a slightly wrong value beats losing the conversion entirely.
+    if (!sessionId) {
+      fire(LIST_PRICE_AUD);
+      return;
+    }
+    getPaidAmountCents({ sessionId })
+      .then((cents) => fire(cents === null ? LIST_PRICE_AUD : cents / 100))
+      .catch(() => fire(LIST_PRICE_AUD));
+  }, [searchParams, getPaidAmountCents]);
 
   const confettiOptions = useMemo(
     () => ({

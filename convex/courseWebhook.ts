@@ -103,8 +103,12 @@ function hashForMeta(value: string): string {
 async function sendMetaPurchaseEvent(fields: {
   eventId: string;
   email: string;
+  phone?: string;
   amountCents: number;
   eventSourceUrl: string;
+  fbp?: string;
+  fbc?: string;
+  userAgent?: string;
 }): Promise<void> {
   const accessToken = process.env.META_CAPI_ACCESS_TOKEN;
   if (!accessToken) {
@@ -137,7 +141,19 @@ async function sendMetaPurchaseEvent(fields: {
               event_id: fields.eventId,
               event_source_url: fields.eventSourceUrl,
               action_source: "website",
-              user_data: { em: [hashForMeta(fields.email)] },
+              // fbp/fbc are sent raw — Meta requires those unhashed, unlike
+              // the personal identifiers. Undefined keys are dropped below.
+              user_data: {
+                em: [hashForMeta(fields.email)],
+                ...(fields.phone
+                  ? { ph: [hashForMeta(fields.phone.replace(/[^0-9]/g, ""))] }
+                  : {}),
+                ...(fields.fbp ? { fbp: fields.fbp } : {}),
+                ...(fields.fbc ? { fbc: fields.fbc } : {}),
+                ...(fields.userAgent
+                  ? { client_user_agent: fields.userAgent }
+                  : {}),
+              },
               custom_data: {
                 value: fields.amountCents / 100,
                 currency: "AUD",
@@ -208,9 +224,13 @@ export const handleStripeEvent = internalAction({
           updated: boolean;
           name: string;
           email: string;
+          phone: string;
           program: string;
           amountCents: number;
           interviewDate?: string;
+          metaFbp?: string;
+          metaFbc?: string;
+          metaUserAgent?: string;
         } = await ctx.runMutation(internal.courseEnrollments.markPaid, {
           enrollmentId,
           stripePaymentIntentId: paymentIntentId,
@@ -249,7 +269,11 @@ export const handleStripeEvent = internalAction({
           // reads this same id from the `session_id` query parameter.
           eventId: session.id,
           email: result.email,
+          phone: result.phone,
           amountCents: result.amountCents,
+          fbp: result.metaFbp,
+          fbc: result.metaFbc,
+          userAgent: result.metaUserAgent,
           eventSourceUrl: `${
             process.env.SITE_URL ?? "https://simpletuition.com.au"
           }/interview/success`,
