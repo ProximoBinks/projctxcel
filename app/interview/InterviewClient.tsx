@@ -186,7 +186,7 @@ export default function InterviewClient() {
           <div className="noise-overlay" aria-hidden="true" />
           <div className="relative z-10 mx-auto w-full max-w-[1200px] px-6 sm:px-10">
             <MotionInView>
-              <h1 className="max-w-5xl text-[clamp(1.75rem,5.5vw,4.5rem)] font-semibold leading-[1.15] tracking-tight text-slate-950 [text-wrap:balance] sm:leading-[1.1]">
+              <h1 className="max-w-5xl text-[2.25rem] sm:text-[clamp(1.75rem,5.5vw,4.5rem)] font-semibold leading-[1.15] tracking-tight text-slate-950 [text-wrap:balance] sm:leading-[1.1]">
                 <span className="block">{t("interview.title")}</span>
                 <span className="block">{t("interview.titleLine2")}</span>
                 <span className="gradient-text block">
