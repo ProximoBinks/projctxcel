@@ -193,8 +193,20 @@ export default function InterviewClient() {
                   {t("interview.titleAccent")}
                 </span>
               </h1>
+              {/* Split on the pipes so each fact gets its own line on phones.
+                  From sm up the parts run inline with the separators restored,
+                  and locales that don't use pipes (zh) fall through unchanged. */}
               <p className="mt-6 max-w-none text-base text-slate-600 lg:whitespace-nowrap lg:text-lg">
-                {t("interview.subhead")}
+                {t("interview.subhead")
+                  .split(/\s*\|\s*/)
+                  .map((part, index) => (
+                    <span key={part} className="block sm:inline">
+                      {index > 0 ? (
+                        <span className="hidden sm:inline"> | </span>
+                      ) : null}
+                      {part}
+                    </span>
+                  ))}
               </p>
             </MotionInView>
           </div>
