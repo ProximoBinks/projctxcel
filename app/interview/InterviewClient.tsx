@@ -399,7 +399,7 @@ export default function InterviewClient() {
                 {t("interview.priceIncludes")}
               </p>
               <p className="mt-2 text-sm font-semibold text-[#2455C2]">
-                {t("interview.guaranteeShort")}
+                {t("interview.flexibilityShort")}
               </p>
             </MotionInView>
 
@@ -522,7 +522,7 @@ export default function InterviewClient() {
                 </button>
 
                 <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-600">
-                  {t("interview.guarantee")}
+                  {t("interview.flexibility")}
                 </p>
 
                 <p className="text-center text-xs text-slate-400">
