@@ -398,6 +398,9 @@ export default function InterviewClient() {
               <p className="mt-4 text-slate-600">
                 {t("interview.priceIncludes")}
               </p>
+              <p className="mt-2 text-sm font-semibold text-[#2455C2]">
+                {t("interview.guaranteeShort")}
+              </p>
             </MotionInView>
 
             <MotionInView>
@@ -472,7 +475,7 @@ export default function InterviewClient() {
                   </div>
                 </div>
 
-                <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
+                <label className="flex items-start gap-3 text-sm text-slate-600">
                   <input
                     type="checkbox"
                     checked={consent}
@@ -480,7 +483,18 @@ export default function InterviewClient() {
                     className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-200"
                     required
                   />
-                  <span>{t("interview.consent")}</span>
+                  <span>
+                    {t("interview.consent")}{" "}
+                    <a
+                      href="/terms"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="font-semibold text-slate-700 underline decoration-slate-300 underline-offset-2 transition hover:text-[#2455C2] hover:decoration-[#2455C2]"
+                    >
+                      {t("interview.consentLinkText")}
+                    </a>
+                    .
+                  </span>
                 </label>
 
                 <label className="hidden">
@@ -506,6 +520,10 @@ export default function InterviewClient() {
                     ? t("interview.redirecting")
                     : t("interview.closingCta")}
                 </button>
+
+                <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-600">
+                  {t("interview.guarantee")}
+                </p>
 
                 <p className="text-center text-xs text-slate-400">
                   {t("interview.securedByStripe")}

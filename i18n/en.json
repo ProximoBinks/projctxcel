@@ -155,7 +155,10 @@
     "programMedicine": "Medicine",
     "programDentistry": "Dentistry",
     "programBoth": "Both",
-    "consent": "I understand all sales are final.",
+    "consent": "I agree to the",
+    "consentLinkText": "terms and conditions",
+    "guarantee": "If the first session isn't right for you, email us before the second and we'll refund you in full.",
+    "guaranteeShort": "Full refund if the first session isn't right for you.",
     "closingCta": "Reserve Your Spot",
     "redirecting": "Redirecting to secure checkout...",
     "errorRequired": "Please complete all required fields and agree to the terms.",
@@ -266,6 +269,7 @@
         "body": "We use the details you provide to recommend suitable tutors. We do not guarantee availability or outcomes, but we aim to make the best match possible."
       },
       { "heading": "Payments and pricing", "body": "Pricing varies by tutor experience and subject. Fees, scheduling, and cancellations are agreed directly between you and the tutor." },
+      { "heading": "Interview Crash Course", "body": "Enrolment is confirmed once payment is received, and sessions run online on the advertised dates. If the first session is not right for you, email us before the second session and we will refund you in full. Places are limited. If you cannot attend, your place may be transferred to another student at any time by contacting us." },
       { "heading": "Tutor applicants", "body": "Applications are assessed on merit and fit. We may request additional information during the review process." },
       { "heading": "Liability", "body": "We make reasonable efforts to match families with tutors but are not liable for outcomes, availability, or actions taken by independent tutors." },
       { "heading": "Contact", "body": "For questions about these terms, contact" }
