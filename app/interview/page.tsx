@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import InterviewClient from "./InterviewClient";
+import { JsonLd } from "../../components/JsonLd";
+import en from "../../i18n/en.json";
 
 const BASE_URL =
   process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.com.au";
@@ -44,10 +46,28 @@ export const metadata: Metadata = {
   },
 };
 
+/**
+ * FAQ structured data, generated from the same i18n entries the page renders
+ * so the schema can never drift from what a visitor actually sees — which is
+ * what Google checks before showing the questions in search results.
+ */
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  mainEntity: en.interview.faq.map((item) => ({
+    "@type": "Question",
+    name: item.question,
+    acceptedAnswer: { "@type": "Answer", text: item.answer },
+  })),
+};
+
 export default function InterviewPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
-      <InterviewClient />
-    </Suspense>
+    <>
+      {en.interview.faq.length > 0 ? <JsonLd data={faqSchema} /> : null}
+      <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
+        <InterviewClient />
+      </Suspense>
+    </>
   );
 }
