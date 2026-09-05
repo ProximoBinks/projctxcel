@@ -143,6 +143,14 @@
     ],
     "coversTitle": "Course Content",
     "coversLead": "Four 2 hour sessions across the week.",
+    "faqTitle": "Common questions",
+    "faq": [
+      { "question": "Yousif had an 85th percentile UCAT. How did he get six offers?", "answer": "Yousif's UCAT just cleared the threshold for an interview, and what happened in the interview earned the offers. At most medical and dental schools, UCAT carries the least weight, with greater emphasis placed on ATAR and interview performance." },
+      { "question": "Which universities does this course cover?", "answer": "The course is built around the MMI format, which most Australian medical and dental schools use, including Adelaide, Monash, UNSW, Western Sydney and University of Queensland. We teach the method rather than school-specific preparation since universities don't publish their station formats or exact scoring metrics." },
+      { "question": "Where is the course located?", "answer": "The course runs online on Google Meet and is open to students anywhere in Australia." },
+      { "question": "Is there 1-on-1 time, and how many students are there?", "answer": "The group is capped at 30. In the final session, the cohort is split into small groups with a tutor each, giving each student the chance to simulate a mock interview and get personalised feedback on their own answers. Dedicated 1-on-1 sessions are available separately." },
+      { "question": "What time do the sessions run, and are they recorded?", "answer": "10am to 12pm Adelaide time on all four days. Every session is recorded and can be sent to you if you miss one." }
+    ],
     "pricingTitle": "Pricing",
     "priceName": "Simple Tuition Interview Crash Course 2026",
     "priceAmount": "$399",

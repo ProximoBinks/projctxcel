@@ -89,6 +89,8 @@ export default function InterviewClient() {
   const [company, setCompany] = useState("");
   const [status, setStatus] = useState<"idle" | "loading">("idle");
   const [error, setError] = useState<string | null>(null);
+  // Indices the reader has collapsed; everything starts expanded.
+  const [closedFaqs, setClosedFaqs] = useState<number[]>([]);
 
   const coverSessions = tArray<{
     label: string;
@@ -97,6 +99,9 @@ export default function InterviewClient() {
     copy: string[];
   }>("interview.coversSessions");
   const stakesParagraphs = tArray<string>("interview.stakesParagraphs");
+  const faqItems = tArray<{ question: string; answer: string }>(
+    "interview.faq"
+  );
   const whyParagraphs = tArray<string>("interview.whyParagraphs");
   const wasCancelled = searchParams.get("checkout") === "cancelled";
 
@@ -374,6 +379,71 @@ export default function InterviewClient() {
               </div>
             </MotionInView>
           </div>
+        </section>
+
+        {/* Answers the questions people email us before booking. Deliberately
+            ahead of the price: these are the doubts that stop someone paying,
+            so they land before the number does.
+
+            Styled after the VerifAI FAQ (glass panels, rotating +, answer
+            under a hairline), but every panel starts open — the answers are
+            the selling points, so nothing is hidden on arrival. The toggle is
+            there for anyone who wants to collapse what they've read. */}
+        <section className="mx-auto w-full max-w-[1200px] px-6 py-16 sm:px-10 sm:py-24">
+          <MotionInView>
+            <div className="mb-10 sm:mb-14">
+              <h2 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl">
+                {t("interview.faqTitle")}
+              </h2>
+            </div>
+            {/* A flat rule-separated list rather than cards: the hairlines
+                span the full width, so five short questions read as a
+                deliberate index instead of a sparse grid of boxes. */}
+            <div className="border-t border-slate-200">
+              {faqItems.map((item, index) => {
+                const open = !closedFaqs.includes(index);
+                return (
+                  <div
+                    key={item.question}
+                    className="group border-b border-slate-200"
+                  >
+                    <button
+                      type="button"
+                      aria-expanded={open}
+                      aria-controls={`faq-answer-${index}`}
+                      onClick={() =>
+                        setClosedFaqs((previous) =>
+                          previous.includes(index)
+                            ? previous.filter((i) => i !== index)
+                            : [...previous, index]
+                        )
+                      }
+                      className="flex w-full cursor-pointer items-center justify-between gap-6 py-5 text-left focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-400"
+                    >
+                      <span className="text-base font-semibold text-slate-950 sm:text-lg">
+                        {item.question}
+                      </span>
+                      <span
+                        aria-hidden="true"
+                        className={`shrink-0 text-xl leading-none text-slate-400 transition-transform duration-200 group-hover:text-slate-600 ${
+                          open ? "rotate-45" : ""
+                        }`}
+                      >
+                        +
+                      </span>
+                    </button>
+                    {open ? (
+                      <div id={`faq-answer-${index}`} className="pb-6">
+                        <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
+                          {item.answer}
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
+            </div>
+          </MotionInView>
         </section>
 
         {/* Pricing + form */}
