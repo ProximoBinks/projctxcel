@@ -1,7 +1,7 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
+import Link from "next/link";
 import { useAction, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import Header from "../../components/Header";
@@ -73,9 +73,37 @@ const OFFER_IMAGES: OfferImage[] = [
 
 type Program = "medicine" | "dentistry" | "both";
 
+const FAQ_INTERNAL_LINKS = [
+  { phrase: "medical and dental schools", href: "/programs/medicine" },
+  { phrase: "UCAT", href: "/programs/ucat" },
+];
+
+function renderFaqAnswer(text: string) {
+  const match = FAQ_INTERNAL_LINKS.map((link) => ({
+    ...link,
+    index: text.indexOf(link.phrase),
+  }))
+    .filter((link) => link.index >= 0)
+    .sort((a, b) => a.index - b.index)[0];
+
+  if (!match) return text;
+
+  return (
+    <>
+      {text.slice(0, match.index)}
+      <Link
+        href={match.href}
+        className="text-inherit underline decoration-transparent underline-offset-2 transition hover:decoration-current"
+      >
+        {match.phrase}
+      </Link>
+      {text.slice(match.index + match.phrase.length)}
+    </>
+  );
+}
+
 export default function InterviewClient() {
   const { t, tArray } = useTranslation();
-  const searchParams = useSearchParams();
   const createPending = useMutation(api.courseEnrollments.createPending);
   const createCheckoutSession = useAction(
     api.courseCheckout.createCheckoutSession
@@ -89,6 +117,7 @@ export default function InterviewClient() {
   const [company, setCompany] = useState("");
   const [status, setStatus] = useState<"idle" | "loading">("idle");
   const [error, setError] = useState<string | null>(null);
+  const [wasCancelled, setWasCancelled] = useState(false);
   // Indices the reader has collapsed; everything starts expanded.
   const [closedFaqs, setClosedFaqs] = useState<number[]>([]);
 
@@ -103,18 +132,11 @@ export default function InterviewClient() {
     "interview.faq"
   );
   const whyParagraphs = tArray<string>("interview.whyParagraphs");
-  const wasCancelled = searchParams.get("checkout") === "cancelled";
 
-  const utm = useMemo(
-    () => ({
-      source: searchParams.get("utm_source") || undefined,
-      medium: searchParams.get("utm_medium") || undefined,
-      campaign: searchParams.get("utm_campaign") || undefined,
-      term: searchParams.get("utm_term") || undefined,
-      content: searchParams.get("utm_content") || undefined,
-    }),
-    [searchParams]
-  );
+  useEffect(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    setWasCancelled(searchParams.get("checkout") === "cancelled");
+  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -135,6 +157,14 @@ export default function InterviewClient() {
     setStatus("loading");
     try {
       const sourcePage = `${window.location.pathname}${window.location.search}`;
+      const searchParams = new URLSearchParams(window.location.search);
+      const utm = {
+        source: searchParams.get("utm_source") || undefined,
+        medium: searchParams.get("utm_medium") || undefined,
+        campaign: searchParams.get("utm_campaign") || undefined,
+        term: searchParams.get("utm_term") || undefined,
+        content: searchParams.get("utm_content") || undefined,
+      };
 
       // Read here rather than in the webhook: the Conversions API call is
       // server-to-server and never sees this visitor's cookies.
@@ -435,7 +465,7 @@ export default function InterviewClient() {
                     {open ? (
                       <div id={`faq-answer-${index}`} className="pb-6">
                         <p className="text-sm leading-relaxed text-slate-600 sm:text-base">
-                          {item.answer}
+                          {renderFaqAnswer(item.answer)}
                         </p>
                       </div>
                     ) : null}

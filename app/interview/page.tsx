@@ -1,25 +1,24 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import InterviewClient from "./InterviewClient";
+import PublicConvexProvider from "../convex-provider";
 import { JsonLd } from "../../components/JsonLd";
+import { SITE_URL } from "../../lib/site";
 import en from "../../i18n/en.json";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.com.au";
-
-const TITLE = "Medicine & Dentistry Interview Intensive | Simple Tuition";
+const CANONICAL_URL = `${SITE_URL}/interview`;
+const TITLE = "Medicine & Dentistry Interview Prep Adelaide | Simple Tuition";
 const DESCRIPTION =
-  "A four-day Medicine & Dentistry interview intensive, online, 6–9 October 2026. Four live sessions, mock MMI stations, and group feedback — coached by students who got their offer on the strength of the interview.";
+  "Adelaide Medicine and Dentistry interview preparation from Simple Tuition, with live MMI practice, mock interviews and personalised feedback.";
 
 export const metadata: Metadata = {
-  title: "Medicine & Dentistry Interview Intensive",
+  title: "Medicine & Dentistry Interview Prep Adelaide",
   description: DESCRIPTION,
   keywords: [
-    "medicine interview preparation",
-    "MMI practice",
-    "dentistry interview coaching",
-    "multiple mini interview adelaide",
-    "medical school interview course",
+    "medicine interview preparation Adelaide",
+    "dentistry interview preparation Adelaide",
+    "medical interview tutoring Adelaide",
+    "MMI preparation Adelaide",
+    "medicine mock interview Adelaide",
   ],
   alternates: {
     canonical: "/interview",
@@ -27,7 +26,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: TITLE,
     description: DESCRIPTION,
-    url: `${BASE_URL}/interview`,
+    url: CANONICAL_URL,
     type: "website",
     images: [
       {
@@ -61,13 +60,73 @@ const faqSchema = {
   })),
 };
 
+const courseSchema = {
+  "@context": "https://schema.org",
+  "@type": "Course",
+  "@id": `${CANONICAL_URL}#course`,
+  name: en.interview.priceName,
+  description: DESCRIPTION,
+  url: CANONICAL_URL,
+  provider: {
+    "@type": "EducationalOrganization",
+    "@id": `${SITE_URL}/#organization`,
+    name: "Simple Tuition",
+    url: SITE_URL,
+  },
+  hasCourseInstance: {
+    "@type": "CourseInstance",
+    name: en.interview.priceName,
+    courseMode: "Online",
+    inLanguage: "en-AU",
+    startDate: "2026-10-06T10:00:00+10:30",
+    endDate: "2026-10-09T12:00:00+10:30",
+    duration: "PT8H",
+    location: {
+      "@type": "VirtualLocation",
+      url: CANONICAL_URL,
+    },
+    instructor: [
+      { "@type": "Person", name: "Yousif Shibeeb" },
+      { "@type": "Person", name: "Lachlan Escort-Hughes" },
+      { "@type": "Person", name: "An Do" },
+    ],
+    offers: {
+      "@type": "Offer",
+      url: `${CANONICAL_URL}#reserve`,
+      price: "399",
+      priceCurrency: "AUD",
+    },
+  },
+};
+
+const breadcrumbSchema = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    {
+      "@type": "ListItem",
+      position: 1,
+      name: "Home",
+      item: SITE_URL,
+    },
+    {
+      "@type": "ListItem",
+      position: 2,
+      name: en.interview.priceName,
+      item: CANONICAL_URL,
+    },
+  ],
+};
+
 export default function InterviewPage() {
   return (
     <>
       {en.interview.faq.length > 0 ? <JsonLd data={faqSchema} /> : null}
-      <Suspense fallback={<div className="min-h-screen bg-slate-50" />}>
+      <JsonLd data={courseSchema} />
+      <JsonLd data={breadcrumbSchema} />
+      <PublicConvexProvider>
         <InterviewClient />
-      </Suspense>
+      </PublicConvexProvider>
     </>
   );
 }

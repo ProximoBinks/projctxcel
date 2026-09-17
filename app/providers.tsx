@@ -18,8 +18,7 @@ export default function Providers({
     "/tutor/login",
     "/admin/login",
   ].includes(pathname);
-  const needsPublicConvex =
-    pathname === "/interview" || pathname === "/student/signup";
+  const needsPublicConvex = pathname === "/student/signup";
 
   return (
     <LanguageProvider>

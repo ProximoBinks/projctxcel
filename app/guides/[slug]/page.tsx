@@ -8,7 +8,7 @@ import blogPosts from "../../../data/blog-posts.json";
 import HowToGetIntoMedicine from "./articles/HowToGetIntoMedicine";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.com.au";
 
 type BlogPost = {
   slug: string;

@@ -16,7 +16,10 @@ export default function MotionInView({
   y = 24,
 }: MotionInViewProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
+  // Render visible by default so content remains usable and crawlable without
+  // JavaScript. Sections below the initial viewport are hidden only after
+  // hydration, then revealed as they approach the viewport.
+  const [hiddenUntilInView, setHiddenUntilInView] = useState(false);
 
   useEffect(() => {
     const element = ref.current;
@@ -25,14 +28,20 @@ export default function MotionInView({
       window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
       !("IntersectionObserver" in window)
     ) {
-      setVisible(true);
       return;
     }
+
+    const rect = element.getBoundingClientRect();
+    const alreadyNearViewport =
+      rect.top <= window.innerHeight + 80 && rect.bottom >= -80;
+    if (alreadyNearViewport) return;
+
+    setHiddenUntilInView(true);
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
-        setVisible(true);
+        setHiddenUntilInView(false);
         observer.disconnect();
       },
       { rootMargin: "80px 0px", threshold: 0.05 },
@@ -46,8 +55,8 @@ export default function MotionInView({
       ref={ref}
       className={className}
       style={{
-        opacity: visible ? 1 : 0,
-        transform: visible ? "translateY(0)" : `translateY(${y}px)`,
+        opacity: hiddenUntilInView ? 0 : 1,
+        transform: hiddenUntilInView ? `translateY(${y}px)` : "translateY(0)",
         transition: `opacity 600ms ease-out ${delay}s, transform 600ms ease-out ${delay}s`,
       }}
     >

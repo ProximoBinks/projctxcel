@@ -7,7 +7,7 @@ import BlogCard from "../../components/BlogCard";
 import blogPosts from "../../data/blog-posts.json";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.com.au";
 
 export const metadata: Metadata = {
   title: "Guides — Insights & Guides for Students and Parents",

@@ -1,8 +1,7 @@
 import type { MetadataRoute } from "next";
 import tutorsData from "../data/tutors.json";
 import blogPosts from "../data/blog-posts.json";
-
-const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+import { SITE_URL } from "../lib/site";
 
 type TutorRecord = {
   slug: string;
@@ -25,7 +24,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const blogPages = (blogPosts as BlogPostRecord[])
     .filter((post) => post.active)
     .map((post) => ({
-      url: `${BASE_URL}/guides/${post.slug}`,
+      url: `${SITE_URL}/guides/${post.slug}`,
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.8,
@@ -34,7 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const tutorPages = (tutorsData as TutorRecord[])
     .filter((tutor) => tutor.active)
     .map((tutor) => ({
-      url: `${BASE_URL}/tutors/${tutor.slug}`,
+      url: `${SITE_URL}/tutors/${tutor.slug}`,
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.7,
@@ -42,65 +41,71 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     {
-      url: BASE_URL,
+      url: SITE_URL,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 1.0,
     },
     {
-      url: `${BASE_URL}/programs/sace`,
+      url: `${SITE_URL}/programs/sace`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/enquire`,
+      url: `${SITE_URL}/enquire`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.8,
     },
     {
-      url: `${BASE_URL}/privacy`,
+      url: `${SITE_URL}/privacy`,
       lastModified: now,
       changeFrequency: "yearly",
       priority: 0.2,
     },
     {
-      url: `${BASE_URL}/terms`,
+      url: `${SITE_URL}/terms`,
       lastModified: now,
       changeFrequency: "yearly",
       priority: 0.2,
     },
 
     {
-      url: `${BASE_URL}/programs/accelerate`,
+      url: `${SITE_URL}/programs/accelerate`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/programs/medicine`,
+      url: `${SITE_URL}/programs/medicine`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/programs/ucat`,
+      url: `${SITE_URL}/programs/ucat`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/programs/classes`,
+      url: `${SITE_URL}/programs/classes`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.9,
     },
     {
-      url: `${BASE_URL}/guides`,
+      url: `${SITE_URL}/guides`,
       lastModified: now,
       changeFrequency: "weekly",
       priority: 0.8,
+    },
+    {
+      url: `${SITE_URL}/interview`,
+      lastModified: now,
+      changeFrequency: "monthly",
+      priority: 0.9,
     },
     ...blogPages,
     ...tutorPages,

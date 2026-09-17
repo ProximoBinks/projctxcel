@@ -136,7 +136,7 @@ export default function OfferCarousel({ items }: { items: OfferImage[] }) {
               >
                 <Image
                   src={item.src}
-                  alt=""
+                  alt={item.alt}
                   fill
                   sizes="(min-width: 1024px) 620px, (min-width: 640px) 460px, 290px"
                   onError={() => markBroken(item.src)}

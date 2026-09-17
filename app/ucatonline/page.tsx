@@ -5,7 +5,7 @@ import Footer from "../../components/Footer";
 import UcatSignupForm from "./UcatSignupForm";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.com.au";
 
 export const metadata: Metadata = {
   title: "Sign Up — Meducate UCAT Program | Simple Tuition",

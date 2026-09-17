@@ -7,7 +7,7 @@ import Footer from "../../../components/Footer";
 /* ── SEO Metadata ──────────────────────────────────────────── */
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.com.au";
 
 export const metadata: Metadata = {
   title: "Year 4–10 Tutoring Adelaide — Build Strong Foundations",

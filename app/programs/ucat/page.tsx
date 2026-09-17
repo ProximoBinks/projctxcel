@@ -8,7 +8,7 @@ import Footer from "../../../components/Footer";
 /* ── SEO Metadata ──────────────────────────────────────────── */
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.com.au";
 
 export const metadata: Metadata = {
   title: "UCAT Tutoring Adelaide — Expert UCAT Preparation",

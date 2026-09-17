@@ -4,7 +4,7 @@ import tutorsDataRaw from "../../../data/tutors.json";
 import TutorDetailClient from "./TutorDetailClient";
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.com.au";
 
 type TutorRecord = {
   name: string;

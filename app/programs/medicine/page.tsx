@@ -7,7 +7,7 @@ import Footer from "../../../components/Footer";
 /* ── SEO Metadata ──────────────────────────────────────────── */
 
 const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.com.au";
 
 export const metadata: Metadata = {
   title: "Medicine Pathway Tutoring Adelaide — UCAT & Interview Prep",
@@ -244,7 +244,12 @@ export default function MedicinePathwayPage() {
                   Interview
                 </span>
                 <h3 className="mt-4 text-xl font-semibold text-slate-950">
-                  Interview Preparation
+                  <Link
+                    href="/interview"
+                    className="transition hover:text-blue-600"
+                  >
+                    Interview Preparation
+                  </Link>
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
                   In-depth MMI preparation with mock interviews, scenario walkthroughs, and personalised feedback from tutors who have successfully sat the same interviews.

@@ -4,9 +4,7 @@ import { Inter } from "next/font/google";
 import "../styles/globals.css";
 import Providers from "./providers";
 import { JsonLd } from "../components/JsonLd";
-
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://simpletuition.au";
+import { SITE_URL } from "../lib/site";
 
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
@@ -17,7 +15,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(BASE_URL),
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "Simple Tuition | Top 1% ATAR & UCAT Tutors in Adelaide",
     template: "%s | Simple Tuition",
@@ -46,7 +44,7 @@ export const metadata: Metadata = {
     title: "Simple Tuition | Top 1% ATAR & UCAT Tutors in Adelaide",
     description:
       "Private tuition in Adelaide from top 1% ATAR achievers. SACE, UCAT, and medicine prep for Year 4-12 students.",
-    url: BASE_URL,
+    url: SITE_URL,
     images: [
       {
         url: "/images/banner.webp",
@@ -75,17 +73,19 @@ export const metadata: Metadata = {
 const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": `${SITE_URL}/#website`,
   name: "Simple Tuition",
   alternateName: "Simple Tuition Adelaide",
-  url: BASE_URL,
+  url: SITE_URL,
 };
 
 const organizationSchema = {
   "@context": "https://schema.org",
   "@type": "EducationalOrganization",
+  "@id": `${SITE_URL}/#organization`,
   name: "Simple Tuition",
-  url: BASE_URL,
-  logo: `${BASE_URL}/images/logo.png`,
+  url: SITE_URL,
+  logo: `${SITE_URL}/images/logo.png`,
   description:
     "Private tuition in Adelaide from top 1% ATAR achievers for Year 4-12 students. SACE, UCAT, and medicine interview preparation.",
   email: "admin@simpletuition.com.au",

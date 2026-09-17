@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import ArticleCTA from "../../../../components/ArticleCTA";
 
 const TOC_ITEMS = [
@@ -369,7 +370,12 @@ export default function HowToGetIntoMedicine() {
           id="interview-preparation"
           className="mt-16 text-2xl font-semibold text-slate-950 sm:text-3xl"
         >
-          Interview Preparation
+          <Link
+            href="/interview"
+            className="transition hover:text-blue-600"
+          >
+            Interview Preparation
+          </Link>
         </h2>
         <p className="mt-4">
           Most Australian medical schools use the Multiple Mini Interview (MMI)
