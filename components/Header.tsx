@@ -131,10 +131,12 @@ export default function Header() {
           }
         >
           <div className="hidden items-center gap-3 xl:flex">
+            {/* nowrap: CJK can break between any two characters, so on a
+                tight laptop-width header "中文" otherwise stacks in two. */}
             <button
               type="button"
               onClick={toggleLang}
-              className="rounded-full px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+              className="whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
             >
               {lang === "en" ? "中文" : "EN"}
             </button>
