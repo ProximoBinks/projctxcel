@@ -274,7 +274,7 @@ export default function InterviewClient() {
                 {/* On phones the heading is 1.5rem, easing down only on the
                     narrowest screens (~320px) so it never drops "this." onto
                     a line of its own. */}
-                <h2 className="mx-auto max-w-3xl text-[length:min(1.5rem,(100vw_-_3rem)/11.75)] font-semibold tracking-tight text-slate-950 sm:text-5xl">
+                <h2 className="mx-auto max-w-3xl text-[length:min(1.5rem,(100vw_-_3rem)/11.75)] font-semibold tracking-tight text-slate-950 sm:text-3xl">
                   {t("interview.offersTitle")}
                 </h2>
                 <p className="mx-auto mt-4 max-w-2xl text-base text-slate-600 sm:mt-5 sm:text-xl">
