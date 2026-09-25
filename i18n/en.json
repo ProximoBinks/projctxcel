@@ -14,21 +14,21 @@
     "tailoredPrefix": "tailored to future ",
     "tailoredSuffix": "",
     "careers": ["doctors", "dentists", "engineers", "lawyers", "scientists", "teachers"],
-    "subtitle": "Simple Tuition connects students with high-achieving tutors for SACE subjects, UCAT, and medicine interview preparation.",
+    "subtitle": "Simple Tuition connects students with high-\nachieving tutors for SACE subjects, UCAT, and\nmedicine interview preparation.",
     "cta": "Enquire now",
     "ctaSecondary": "View tutors"
   },
   "focusAreas": {},
   "services": {
     "title": "One-on-one programs for every stage",
-    "subtitle": "From primary school foundations to medical school admissions. Click on the cards to find out more.",
+    "subtitle": "From primary school foundations to medical school admissions.\nClick on the cards to find out more.",
     "items": [
       { "title": "Year 4–10 Acceleration Program", "copy": "Strong foundations across core subjects, built through tailored mentoring to set students up for academic success." },
       { "title": "SACE Program", "copy": "Targeted support for Year 11–12 students across all SACE subjects, focused on maximising ATAR results." },
       { "title": "UCAT & Interview Program", "copy": "Specialist preparation for UCAT and interview prep, guided by tutors who've earned several medical offers themselves." }
     ],
     "groupTitle": "Small group programs",
-    "groupSubtitle": "Structured sessions designed to prepare students for every step of their learning journey.",
+    "groupSubtitle": "Structured sessions designed to prepare\nstudents for every step of their learning journey.",
     "groupItems": [
       { "title": "Subject Classes", "copy": "Intensive group classes aimed at rapidly build understanding and exam readiness in a short timeframe." },
       { "title": "Meducate UCAT Program", "copy": "Led by two 99th-percentile scorers, excel in all UCAT sections with strategy workshops and custom mocks to maximise your score." },
@@ -166,7 +166,6 @@
     "consent": "I agree to the",
     "consentLinkText": "terms and conditions",
     "flexibilityShort": "Can't make a session? Every session is recorded, and your spot is transferable.",
-    "flexibility": "Can't make a session? Every session is recorded so you won't miss anything, and your spot can be transferred to someone else at any time — just email us.",
     "closingCta": "Reserve Your Spot",
     "redirecting": "Redirecting to secure checkout...",
     "errorRequired": "Please complete all required fields and agree to the terms.",

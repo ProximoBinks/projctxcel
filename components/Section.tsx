@@ -6,6 +6,8 @@ type SectionProps = {
   eyebrow?: string;
   title: string;
   subtitle?: React.ReactNode;
+  /** Extra classes for the subtitle paragraph, e.g. alignment. */
+  subtitleClassName?: string;
   children?: React.ReactNode;
   className?: string;
   /** "dark" inverts the heading colours for sections on a dark background. */
@@ -18,6 +20,7 @@ export default function Section({
   eyebrow,
   title,
   subtitle,
+  subtitleClassName,
   children,
   className,
   tone = "light",
@@ -57,7 +60,7 @@ export default function Section({
             <p
               className={`mt-4 text-base sm:text-lg ${
                 dark ? "text-blue-100/80" : "text-slate-600"
-              }`}
+              } ${subtitleClassName ?? ""}`}
             >
               {subtitle}
             </p>

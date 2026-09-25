@@ -219,25 +219,43 @@ export default function InterviewClient() {
         {/* Hero */}
         <section className="relative overflow-hidden bg-white pb-20 pt-32 sm:pb-28 sm:pt-40">
           <div className="noise-overlay" aria-hidden="true" />
-          <div className="relative z-10 mx-auto w-full max-w-[1200px] px-6 sm:px-10">
+          {/* @container so the type below can size off the text column's
+              width (cqw) rather than the viewport, which would also count the
+              side padding and any desktop scrollbar. */}
+          <div className="@container relative z-10 mx-auto w-full max-w-[1200px] px-6 sm:px-10">
             <MotionInView>
-              <h1 className="max-w-5xl text-[2.25rem] sm:text-[clamp(1.75rem,5.5vw,4.5rem)] font-semibold leading-[1.15] tracking-tight text-slate-950 [text-wrap:balance] sm:leading-[1.1]">
+              {/* Sized so the widest line, "don't have to be perfect.", fills
+                  the column exactly: every phone and tablet gets the same three
+                  lines, just scaled. The divisor is that line's width in ems
+                  plus a sliver of slack; retune it if the copy changes.
+                  opsz is pinned to Inter's display cut because below 32px the
+                  auto optical size switches to the wider text cut, and the
+                  line would outgrow the column on the smallest phones. */}
+              <h1 className="max-w-5xl text-[length:min(100cqw/10.25,4.5rem)] font-semibold leading-[1.15] tracking-[-0.035em] text-slate-950 [font-variation-settings:'opsz'_32] [text-wrap:balance] sm:leading-[1.1]">
                 <span className="block">{t("interview.title")}</span>
                 <span className="block">{t("interview.titleLine2")}</span>
-                <span className="gradient-text block">
+                {/* Gradient held still: the shifting colour pulled the eye away
+                    from the copy. Only the darker half of the brand gradient
+                    (navy to primary blue), dropping its light-blue end. w-fit
+                    so it spans the words rather than the whole column. */}
+                <span className="gradient-text block w-fit animate-none bg-[linear-gradient(135deg,#05086d,#1232c3)] bg-size-[100%_100%]">
                   {t("interview.titleAccent")}
                 </span>
               </h1>
-              {/* Split on the pipes so each fact gets its own line on phones.
-                  From sm up the parts run inline with the separators restored,
-                  and locales that don't use pipes (zh) fall through unchanged. */}
-              <p className="mt-6 max-w-none text-base text-slate-600 lg:whitespace-nowrap lg:text-lg">
+              {/* Split on the pipes so each fact gets its own line on phones
+                  and tablets. The cutoff is 1100px (68.75rem) because iPad Pro
+                  portrait is 1024–1032px; it's in rem so Tailwind can order it
+                  after sm. Past that the parts run inline with the separators
+                  restored, and locales that don't use pipes (zh) fall through
+                  unchanged. Below sm the size steps down just enough that the
+                  longest part never wraps on a narrow phone. */}
+              <p className="mt-6 max-w-none text-[length:min(1rem,100cqw/20)] text-slate-600 sm:text-xl min-[68.75rem]:whitespace-nowrap min-[68.75rem]:text-lg">
                 {t("interview.subhead")
                   .split(/\s*\|\s*/)
                   .map((part, index) => (
-                    <span key={part} className="block sm:inline">
+                    <span key={part} className="block min-[68.75rem]:inline">
                       {index > 0 ? (
-                        <span className="hidden sm:inline"> | </span>
+                        <span className="hidden min-[68.75rem]:inline"> | </span>
                       ) : null}
                       {part}
                     </span>
@@ -253,10 +271,13 @@ export default function InterviewClient() {
           <section className="overflow-hidden bg-[#F5F8FF] py-16 sm:py-24 lg:py-28">
             <div className="mx-auto w-full max-w-[1680px] px-6 text-center sm:px-10">
               <MotionInView>
-                <h2 className="mx-auto max-w-3xl text-3xl font-semibold tracking-tight text-slate-950 sm:text-5xl">
+                {/* On phones the heading is 1.5rem, easing down only on the
+                    narrowest screens (~320px) so it never drops "this." onto
+                    a line of its own. */}
+                <h2 className="mx-auto max-w-3xl text-[length:min(1.5rem,(100vw_-_3rem)/11.75)] font-semibold tracking-tight text-slate-950 sm:text-5xl">
                   {t("interview.offersTitle")}
                 </h2>
-                <p className="mx-auto mt-5 max-w-2xl text-lg text-slate-600 sm:text-xl">
+                <p className="mx-auto mt-4 max-w-2xl text-base text-slate-600 sm:mt-5 sm:text-xl">
                   {t("interview.offersSubtitle")}
                 </p>
               </MotionInView>
@@ -357,13 +378,13 @@ export default function InterviewClient() {
                     <tr className="bg-slate-50">
                       <th
                         scope="col"
-                        className="w-[22%] px-5 py-4 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 sm:w-[16%] sm:px-7"
+                        className="w-[22%] py-4 pl-5 pr-2 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 sm:w-[14%] sm:pl-7 sm:pr-3"
                       >
                         {t("interview.coversHeadSession")}
                       </th>
                       <th
                         scope="col"
-                        className="px-5 py-4 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 sm:px-7"
+                        className="py-4 pl-4 pr-5 text-xs font-bold uppercase tracking-[0.14em] text-slate-500 sm:pr-7"
                       >
                         {t("interview.coversHeadContent")}
                       </th>
@@ -377,16 +398,19 @@ export default function InterviewClient() {
                       >
                         <th
                           scope="row"
-                          className="px-5 py-6 text-left font-normal sm:px-7"
+                          className="py-6 pl-5 pr-2 text-left font-normal sm:pl-7 sm:pr-3"
                         >
-                          <p className="text-5xl font-semibold text-blue-500/20">
+                          {/* Kept only a step above the session title so it
+                              reads as a marker rather than outweighing the
+                              content beside it. */}
+                          <p className="text-3xl font-semibold text-blue-500/20 sm:text-4xl">
                             {String(index + 1).padStart(2, "0")}
                           </p>
                           <span className="mt-2 block text-xs font-medium text-slate-500">
                             {session.date}
                           </span>
                         </th>
-                        <td className="px-5 py-6 text-base leading-relaxed text-slate-600 sm:px-7">
+                        <td className="py-6 pl-4 pr-5 text-base leading-relaxed text-slate-600 sm:pr-7">
                           <span className="block text-xl font-semibold leading-snug tracking-tight text-slate-950">
                             {session.title}
                           </span>
@@ -397,7 +421,29 @@ export default function InterviewClient() {
                                   className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-slate-400"
                                   aria-hidden="true"
                                 />
-                                <span>{point}</span>
+                                {/* "Topic + model answers": on phones the
+                                    add-on drops to its own line so the topics
+                                    stay short and line up down the list. From
+                                    sm up there's room to keep it inline. */}
+                                <span>
+                                  {point.split(" + ").map((part, partIndex) => (
+                                    <span
+                                      key={partIndex}
+                                      className="block sm:inline"
+                                    >
+                                      {partIndex > 0 ? (
+                                        <>
+                                          <span className="hidden sm:inline">
+                                            {" "}
+                                          </span>
+                                          + {part}
+                                        </>
+                                      ) : (
+                                        part
+                                      )}
+                                    </span>
+                                  ))}
+                                </span>
                               </li>
                             ))}
                           </ul>
@@ -498,7 +544,7 @@ export default function InterviewClient() {
               <p className="mt-4 text-slate-600">
                 {t("interview.priceIncludes")}
               </p>
-              <p className="mt-2 text-sm font-semibold text-[#2455C2]">
+              <p className="mt-5 text-xs font-semibold text-[#2455C2] sm:mt-2 sm:text-sm">
                 {t("interview.flexibilityShort")}
               </p>
             </MotionInView>
@@ -620,10 +666,6 @@ export default function InterviewClient() {
                     ? t("interview.redirecting")
                     : t("interview.closingCta")}
                 </button>
-
-                <p className="rounded-2xl border border-slate-200 bg-slate-50 p-4 text-center text-sm text-slate-600">
-                  {t("interview.flexibility")}
-                </p>
 
                 <p className="text-center text-xs text-slate-400">
                   {t("interview.securedByStripe")}

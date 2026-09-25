@@ -3,6 +3,13 @@
 @theme {
     --color-primary: #1232c3;
     --color-primary-content: #ffffff;
+}
+
+/* `inline` so `font-sans` emits this stack directly instead of
+   var(--font-sans). next/font defines --font-inter on <body>, not :root, so a
+   :root variable referencing it resolves empty and every device silently falls
+   back to its own system font. */
+@theme inline {
     --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
         'Noto Color Emoji';
 }
@@ -34,6 +41,16 @@
 
     a:not(.btn) {
         @apply no-underline transition hover:text-slate-900;
+    }
+
+    /* Opt-in tidy wrapping for a page's copy: headings balance into even
+       lines, paragraphs avoid ending on a lone word. In `base`, so a
+       `text-balance`/`text-pretty` utility on an element still wins. */
+    .tidy-wrap :where(h1, h2, h3) {
+        text-wrap: balance;
+    }
+    .tidy-wrap :where(p) {
+        text-wrap: pretty;
     }
 }
 

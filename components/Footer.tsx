@@ -9,12 +9,19 @@ export default function Footer() {
   return (
     <footer className="relative border-t border-slate-100 bg-white py-12">
       <div className="noise-overlay" aria-hidden="true" />
-      <div className="relative z-10 mx-auto flex w-full max-w-[1200px] flex-col gap-4 px-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:px-10">
-        <p>© {new Date().getFullYear()} Simple Tuition. {t("footer.rights")}</p>
-        <div className="flex items-center gap-6">
-          <Link href="/privacy">{t("footer.privacy")}</Link>
-          <Link href="/terms">{t("footer.terms")}</Link>
-          <div className="ml-2 flex items-center gap-4">
+      {/* Same `xl` cutoff as the header's desktop layout. Below it the links
+          and the icons sit under the copyright as two groups pinned to either
+          edge; from it they share the copyright's line, right-aligned. */}
+      <div className="relative z-10 mx-auto flex w-full max-w-[1200px] flex-col gap-4 px-6 text-sm text-slate-500 sm:px-10 xl:flex-row xl:items-center xl:justify-between">
+        <p className="text-balance">
+          © {new Date().getFullYear()} Simple Tuition. {t("footer.rights")}
+        </p>
+        <div className="flex items-center justify-between xl:justify-start xl:gap-8">
+          <div className="flex items-center gap-6">
+            <Link href="/privacy">{t("footer.privacy")}</Link>
+            <Link href="/terms">{t("footer.terms")}</Link>
+          </div>
+          <div className="flex items-center gap-6">
             <a
               href="https://www.facebook.com/simpletuition.au"
               target="_blank"

@@ -12,6 +12,9 @@ const inter = Inter({
   subsets: ["latin"],
   display: "swap",
   variable: "--font-inter",
+  // Optical sizing, as the old Google Fonts import had: large headlines get
+  // Inter's tighter display cut.
+  axes: ["opsz"],
 });
 
 export const metadata: Metadata = {

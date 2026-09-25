@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useTranslation } from "../i18n/LanguageContext";
+import { keepLastWordsTogether } from "../lib/typography";
 
 type TutorStat = { label: string; value: string };
 
@@ -103,7 +104,9 @@ export default function TutorCard({
           </div>
         </div>
         <div className="mt-5 min-h-16">
-          <p className="text-sm text-slate-600">{displayBio}</p>
+          <p className="text-sm text-slate-600">
+            {keepLastWordsTogether(displayBio)}
+          </p>
         </div>
         {hideSubjects ? null : (
           <div className="mt-5 flex flex-wrap gap-2">

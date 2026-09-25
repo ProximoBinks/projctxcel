@@ -58,12 +58,13 @@ export default function Header() {
           : "border-b border-transparent bg-white/70 backdrop-blur-sm"
       }`}
     >
-      {/* Three columns with equal 1fr sides, so the auto-width nav column lands
-          dead centre on the page while still reserving its own space — the logo
-          and actions cannot slide underneath it the way they could when the nav
-          was absolutely positioned. */}
+      {/* From `xl`: three columns with equal 1fr sides, so the auto-width nav
+          column lands dead centre on the page while still reserving its own
+          space — the logo and actions cannot slide underneath it the way they
+          could when the nav was absolutely positioned. Below `xl` the nav is
+          hidden, so a plain flex row pins the logo left and the actions right. */}
       <div
-        className={`grid w-full grid-cols-[1fr_auto_1fr] items-center gap-4 px-6 transition-all duration-300 sm:px-10 lg:px-14 ${
+        className={`flex w-full items-center justify-between gap-4 px-6 transition-all duration-300 sm:px-10 lg:px-14 xl:grid xl:grid-cols-[1fr_auto_1fr] ${
           navCompact ? "py-4" : "py-6"
         }`}
       >
@@ -80,12 +81,12 @@ export default function Header() {
             width={116}
             height={68}
             priority
-            className={`max-w-full transition-all duration-300 ${
-              navCompact ? "h-14" : "h-[68px]"
+            className={`w-auto max-w-full transition-all duration-300 ${
+              navCompact ? "h-9 sm:h-14" : "h-10 sm:h-[68px]"
             }`}
           />
         </Link>
-        <nav className="hidden items-center gap-1 rounded-full bg-slate-50/90 p-1.5 text-base text-slate-600 ring-1 ring-slate-200/60 lg:flex">
+        <nav className="hidden items-center gap-1 rounded-full bg-slate-50/90 p-1.5 text-base text-slate-600 ring-1 ring-slate-200/60 xl:flex">
           <Link
             href={getNavHref("services")}
             className={navLinkClass}
@@ -119,16 +120,17 @@ export default function Header() {
           </Link>
         </nav>
         {/* Both action clusters share the third column so the grid keeps exactly
-            three children at every breakpoint. */}
+            three children at every breakpoint. `shrink-0` keeps the mobile
+            buttons at full width on the narrowest phones; the logo gives way. */}
         <div
-          className="flex items-center justify-self-end xl:mr-[var(--actions-nudge)]"
+          className="flex shrink-0 items-center justify-self-end xl:mr-[var(--actions-nudge)]"
           style={
             {
               "--actions-nudge": `${clampNudge(ACTIONS_NUDGE)}px`,
             } as CSSProperties
           }
         >
-          <div className="hidden items-center gap-3 lg:flex">
+          <div className="hidden items-center gap-3 xl:flex">
             <button
               type="button"
               onClick={toggleLang}
@@ -150,8 +152,8 @@ export default function Header() {
               {t("nav.enquire")}
             </Link>
           </div>
-          {/* Mobile + tablet: Language toggle + Login + Hamburger menu */}
-          <div className="flex items-center gap-3 lg:hidden">
+          {/* Phones + tablets (incl. iPad Pro portrait): Language toggle + Login + Hamburger menu */}
+          <div className="flex items-center gap-3 xl:hidden">
             <button
               type="button"
               onClick={toggleLang}
@@ -185,7 +187,7 @@ export default function Header() {
         </div>
       </div>
       {menuOpen ? (
-        <div className="border-t border-slate-100 bg-white lg:hidden">
+        <div className="border-t border-slate-100 bg-white xl:hidden">
           <div className="flex w-full flex-col gap-4 px-6 py-6 text-base text-slate-700 sm:px-10 lg:px-14">
             <Link
               href={getNavHref("services")}
@@ -237,23 +239,12 @@ export default function Header() {
             >
               {t("nav.blog")}
             </Link>
-            <button
-              type="button"
-              onClick={toggleLang}
-              className="w-fit rounded-full border border-slate-200 px-3 py-1 text-xs font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
-            >
-              {lang === "en" ? "中" : "EN"}
-            </button>
-            <Link
-              href="/student/login"
-              className="w-fit rounded-full border border-slate-200 px-4 py-1.5 text-sm font-semibold text-slate-600 transition hover:border-blue-300 hover:text-blue-600"
-              onClick={() => setMenuOpen(false)}
-            >
-              Login
-            </Link>
+            {/* Language and Login live in the bar above, so the menu ends on
+                the one action it adds: a compact Enquire pill, left-aligned
+                with the links. */}
             <Link
               href={getNavHref("enquire")}
-              className="btn w-full justify-center"
+              className="btn w-fit px-7"
               onClick={(event) => {
                 if (isHomePage) {
                   createScrollHandler("enquire")(event);
