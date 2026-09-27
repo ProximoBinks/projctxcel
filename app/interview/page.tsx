@@ -88,7 +88,6 @@ const courseSchema = {
     instructor: [
       { "@type": "Person", name: "Yousif Shibeeb" },
       { "@type": "Person", name: "Lachlan Escort-Hughes" },
-      { "@type": "Person", name: "An Do" },
     ],
     offers: {
       "@type": "Offer",

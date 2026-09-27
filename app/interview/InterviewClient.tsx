@@ -18,7 +18,6 @@ import tutorsData from "../../data/tutors.json";
 const interviewTutorSlugs = [
   "yousif-shibeeb",
   "lachlan-escort-hughes",
-  "anhong-do",
 ];
 const interviewTutors = interviewTutorSlugs.map(
   (slug) => tutorsData.find((tutor) => tutor.slug === slug)!
