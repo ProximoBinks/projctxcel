@@ -78,8 +78,8 @@ const courseSchema = {
     name: en.interview.priceName,
     courseMode: "Online",
     inLanguage: "en-AU",
-    startDate: "2026-10-06T10:00:00+10:30",
-    endDate: "2026-10-09T12:00:00+10:30",
+    startDate: "2026-10-06T10:30:00+10:30",
+    endDate: "2026-10-09T12:30:00+10:30",
     duration: "PT8H",
     location: {
       "@type": "VirtualLocation",
