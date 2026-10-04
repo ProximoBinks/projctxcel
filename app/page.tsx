@@ -107,25 +107,28 @@ function RotatingCareer({
 
 
 /**
- * A programs-card subtitle that sits on exactly two lines at every width.
- * Must render inside an `@container`: sizes are fractions of its width.
+ * A programs-card subtitle that sits on two lines below `lg` and one line on
+ * desktop. Must render inside an `@container`: sizes are fractions of its width.
  *
- * The "\n" in the copy is the break from `sm` up, where each line is its own
- * unbreakable block. On phones the lines run together and balance into two.
- * Each fit is the widest line in em (Inter, with a little slack) for that
- * layout, so the text keeps its normal size (16px phones, 18px up) and only
- * shrinks when that line wouldn't otherwise fit the card. Copy without a "\n"
- * (zh) wraps normally.
+ * The "\n" in the copy is the break from `sm` to `lg`, where each line is its
+ * own unbreakable block. On phones the lines run together and balance into
+ * two; from `lg` up they run together on a single unbreakable line. Each fit
+ * is the widest line in em (Inter, with a little slack) for that layout, so
+ * the text keeps its normal size (16px phones, 18px up) and only shrinks when
+ * that line wouldn't otherwise fit the card. Copy without a "\n" (zh) wraps
+ * normally.
  */
 function TwoLineSubtitle({
   text,
   phoneFitEm,
   wideFitEm,
+  desktopFitEm,
   className,
 }: {
   text: string;
   phoneFitEm: number;
   wideFitEm: number;
+  desktopFitEm: number;
   className: string;
 }) {
   const lines = text.split("\n");
@@ -134,16 +137,17 @@ function TwoLineSubtitle({
   }
   return (
     <p
-      className={`${className} text-[length:min(1rem,calc(100cqw/var(--phone-fit)))] text-balance sm:text-[length:min(1.125rem,calc(100cqw/var(--wide-fit)))]`}
+      className={`${className} text-[length:min(1rem,calc(100cqw/var(--phone-fit)))] text-balance sm:text-[length:min(1.125rem,calc(100cqw/var(--wide-fit)))] lg:max-w-none lg:whitespace-nowrap lg:text-[length:min(1.125rem,calc(100cqw/var(--desktop-fit)))]`}
       style={
         {
           "--phone-fit": phoneFitEm,
           "--wide-fit": wideFitEm,
+          "--desktop-fit": desktopFitEm,
         } as CSSProperties
       }
     >
       {lines.map((line, index) => (
-        <span key={line} className="sm:block sm:whitespace-nowrap">
+        <span key={line} className="sm:block sm:whitespace-nowrap lg:inline">
           {index > 0 ? " " : null}
           {line}
         </span>
@@ -289,12 +293,13 @@ export default function HomePage() {
                     {t("services.title")}
                   </h2>
                   {/* Phones balance to "…medical school / admissions. …"
-                      (24.2em); wider screens break at the full stop, where
-                      the first sentence is 30em. */}
+                      (24.2em); tablets break at the full stop, where the
+                      first sentence is 30em; desktop is one 46em line. */}
                   <TwoLineSubtitle
                     text={t("services.subtitle")}
                     phoneFitEm={24.6}
                     wideFitEm={30.4}
+                    desktopFitEm={46.4}
                     className="mt-3 max-w-4xl text-blue-50/85"
                   />
                 </MotionInView>
@@ -336,12 +341,13 @@ export default function HomePage() {
                   <h3 className="text-3xl font-semibold tracking-tight text-slate-950 sm:text-4xl lg:text-[2.75rem]">
                     {t("services.groupTitle")}
                   </h3>
-                  {/* Phones balance to the same break as wider screens; the
-                      longer line is 22.8em. */}
+                  {/* Phones balance to the same break as tablets; the longer
+                      line is 22.8em. Desktop is one 41.4em line. */}
                   <TwoLineSubtitle
                     text={t("services.groupSubtitle")}
                     phoneFitEm={23.2}
                     wideFitEm={23.2}
+                    desktopFitEm={41.8}
                     className="mt-3 max-w-4xl text-slate-600"
                   />
                 </MotionInView>
