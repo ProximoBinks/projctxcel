@@ -2,6 +2,21 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
+  emailCampaigns: defineTable({
+    adminId: v.id("tutorAccounts"), requestId: v.string(), subject: v.string(),
+    html: v.string(), text: v.string(), from: v.string(), senderName: v.string(),
+    replyTo: v.string(), stream: v.string(),
+    greeting: v.object({ greeting: v.string(), nameStyle: v.union(v.literal("first"), v.literal("full")), fallbackName: v.string() }),
+    status: v.union(v.literal("sending"), v.literal("complete"), v.literal("cancelled")),
+    total: v.number(), accepted: v.number(), failed: v.number(), uncertain: v.number(),
+    isTest: v.boolean(), createdAt: v.number(),
+  }).index("by_request", ["adminId", "requestId"]),
+  emailDeliveries: defineTable({
+    campaignId: v.id("emailCampaigns"), email: v.string(), name: v.string(),
+    fields: v.record(v.string(), v.string()),
+    status: v.union(v.literal("pending"), v.literal("sending"), v.literal("accepted"), v.literal("failed"), v.literal("uncertain")),
+    messageId: v.optional(v.string()), error: v.optional(v.string()), updatedAt: v.number(),
+  }).index("by_campaign_status", ["campaignId", "status"]),
   tutors: defineTable({
     name: v.string(),
     slug: v.string(),

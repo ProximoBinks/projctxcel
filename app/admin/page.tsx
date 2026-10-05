@@ -5,6 +5,8 @@ export const dynamic = 'force-dynamic';
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamicImport from "next/dynamic";
+const EmailComposer = dynamicImport(() => import("../../components/admin/EmailComposer"));
 import { useQuery, useMutation, useAction, useConvexAuth } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useAuth } from "../../contexts/AuthContext";
@@ -158,7 +160,7 @@ function AdminDashboard({
         )}
         {activeTab === "enquiries" && <EnquiriesTab adminId={adminId} />}
         {activeTab === "help" && <HelpTab />}
-        {activeTab === "email" && <EmailTab />}
+        {activeTab === "email" && <EmailComposer />}
         {activeTab === "subjects" && <SubjectsTab />}
       </main>
 
@@ -5290,106 +5292,6 @@ function EnquiriesTab({ adminId }: { adminId: Id<"tutorAccounts"> }) {
           })}
         </div>
       )}
-    </div>
-  );
-}
-
-function EmailTab() {
-  const [input, setInput] = useState("");
-  const [status, setStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  // Split by newlines only — commas are used for "email, Name" format
-  const parseEmails = (raw: string) =>
-    raw
-      .split(/\n+/)
-      .map((e) => e.trim())
-      .filter((e) => e.length > 0);
-
-  const handleSend = async () => {
-    const emails = parseEmails(input);
-    if (emails.length === 0) {
-      setStatus({ type: "error", message: "Enter at least one email address." });
-      return;
-    }
-    setLoading(true);
-    setStatus(null);
-    try {
-      const res = await fetch("/api/send-welcome-email", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ emails }),
-      });
-      const data = (await res.json()) as { message: string; failed?: string[] };
-      if (!res.ok) {
-        setStatus({ type: "error", message: data.message });
-      } else {
-        setStatus({ type: "success", message: data.message });
-        if (!data.failed || data.failed.length === 0) setInput("");
-      }
-    } catch {
-      setStatus({ type: "error", message: "Network error. Please try again." });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const emails = parseEmails(input);
-
-  return (
-    <div className="mx-auto max-w-xl">
-      <div className="mb-6">
-        <h2 className="text-lg font-semibold text-slate-900">Send Welcome Email</h2>
-        <p className="mt-1 text-sm text-slate-500">
-          Sends the welcome email template from{" "}
-          <span className="font-medium text-slate-700">admin@simpletuition.com.au</span>. One email per
-          line. Optionally add a name after a comma:{" "}
-          <span className="font-mono text-xs text-slate-500">email@example.com, Jane</span>
-        </p>
-      </div>
-
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <label className="mb-1.5 block text-sm font-medium text-slate-700">
-          Email address{emails.length > 1 ? "es" : ""}
-          {emails.length > 0 && (
-            <span className="ml-2 text-xs font-normal text-slate-400">
-              {emails.length} recipient{emails.length !== 1 ? "s" : ""}
-            </span>
-          )}
-        </label>
-        <textarea
-          value={input}
-          onChange={(e) => {
-            setInput(e.target.value);
-            setStatus(null);
-          }}
-          placeholder={"john@example.com, John\njane@example.com"}
-          rows={5}
-          className="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-100"
-        />
-
-        {status && (
-          <p
-            className={`mt-3 rounded-lg px-3 py-2 text-sm ${
-              status.type === "success"
-                ? "bg-green-50 text-green-700"
-                : "bg-red-50 text-red-600"
-            }`}
-          >
-            {status.message}
-          </p>
-        )}
-
-        <button
-          onClick={handleSend}
-          disabled={loading || emails.length === 0}
-          className="mt-4 w-full rounded-lg bg-slate-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          {loading
-            ? "Sending…"
-            : `Send welcome email${emails.length > 1 ? ` to ${emails.length} recipients` : ""}`}
-        </button>
-      </div>
     </div>
   );
 }

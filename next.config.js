@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactCompiler: true,
+  outputFileTracingIncludes: { "/api/admin/email": ["./emails/*.html"] },
   async headers() {
     return [
       {

@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "verify:interview-seo": "node scripts/verify-interview-seo.mjs"
+    "verify:interview-seo": "node scripts/verify-interview-seo.mjs",
+    "test:email": "vitest run tests/email.test.ts"
   },
   "dependencies": {
     "@netlify/blobs": "^10.5.0",
@@ -21,28 +22,38 @@
     "canvas-confetti": "^1.9.4",
     "convex": "^1.32.0",
     "framer-motion": "^11.3.8",
+    "html-to-text": "^10.0.1",
     "jose": "^6.1.3",
+    "juice": "^12.2.0",
     "markdown-to-jsx": "^7.7.16",
     "next": "^16.0.8",
     "nodemailer": "^7.0.13",
+    "papaparse": "^5.7.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "sanitize-html": "^2.18.0",
     "stripe": "^20.3.1",
     "unique-names-generator": "^4.7.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.15",
     "@types/canvas-confetti": "^1.9.0",
+    "@types/html-to-text": "^9.0.4",
     "@types/node": "^22.10.2",
     "@types/nodemailer": "^7.0.9",
+    "@types/papaparse": "^5.5.2",
     "@types/react": "^19.0.4",
     "@types/react-dom": "^19.0.2",
+    "@types/sanitize-html": "^2.16.2",
     "babel-plugin-react-compiler": "^1.0.0",
     "baseline-browser-mapping": "^2.10.0",
+    "convex-test": "^0.0.60",
     "eslint": "9.39.2",
     "eslint-config-next": "^16.0.8",
     "postcss": "^8.4.36",
     "tailwindcss": "^4.1.15",
-    "typescript": "^5.7.2"
+    "tsx": "^4.23.15",
+    "typescript": "^5.7.2",
+    "vitest": "^5.0.3"
   }
 }

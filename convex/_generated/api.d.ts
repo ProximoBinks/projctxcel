@@ -19,6 +19,8 @@ import type * as courseWebhook from "../courseWebhook.js";
 import type * as crons from "../crons.js";
 import type * as dashboard from "../dashboard.js";
 import type * as discord from "../discord.js";
+import type * as emailCampaigns from "../emailCampaigns.js";
+import type * as emailDelivery from "../emailDelivery.js";
 import type * as enquiries from "../enquiries.js";
 import type * as enquiryNotifications from "../enquiryNotifications.js";
 import type * as googleSheets from "../googleSheets.js";
@@ -54,6 +56,8 @@ declare const fullApi: ApiFromModules<{
   crons: typeof crons;
   dashboard: typeof dashboard;
   discord: typeof discord;
+  emailCampaigns: typeof emailCampaigns;
+  emailDelivery: typeof emailDelivery;
   enquiries: typeof enquiries;
   enquiryNotifications: typeof enquiryNotifications;
   googleSheets: typeof googleSheets;
