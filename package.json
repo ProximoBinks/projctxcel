@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "verify:interview-seo": "node scripts/verify-interview-seo.mjs",
-    "test:email": "vitest run tests/email.test.ts"
+    "test:email": "vitest run tests/email.test.ts tests/email-api.test.ts"
   },
   "dependencies": {
     "@netlify/blobs": "^10.5.0",

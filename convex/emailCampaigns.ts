@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import { mutation, query, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { assertServerSecret } from "./serverOnly";
@@ -16,7 +16,7 @@ export const create = mutation({
     if (!admin?.active || !admin.roles?.includes("admin")) throw new Error("Unauthorized");
     const existing = await ctx.db.query("emailCampaigns").withIndex("by_request", q => q.eq("adminId", args.adminId).eq("requestId", args.requestId)).unique();
     if (existing) return existing._id;
-    if (!process.env.POSTMARK_SERVER_TOKEN) throw new Error("Postmark is not configured for background sending.");
+    if (!process.env.POSTMARK_SERVER_TOKEN?.trim()) throw new ConvexError({ code: "POSTMARK_NOT_CONFIGURED" });
     if (!args.recipients.length || args.recipients.length > MAX_RECIPIENTS || (args.isTest && args.recipients.length !== 1)) throw new Error("Invalid recipient count.");
     if (args.recipients.some(r => !isEmail(r.email)) || new Set(args.recipients.map(r => r.email.toLowerCase())).size !== args.recipients.length) throw new Error("Invalid or duplicate recipients.");
     if (missingFields(args.subject + args.html, args.recipients, args.greeting).length) throw new Error("Some personalisation fields are missing.");

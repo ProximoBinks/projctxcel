@@ -11,6 +11,7 @@ import { getServerSecret } from "../../../../lib/serverSecret";
 import { getFromEmail } from "../../../../lib/email";
 import { api } from "../../../../convex/_generated/api";
 import type { Id } from "../../../../convex/_generated/dataModel";
+import { ConvexError } from "convex/values";
 
 export const runtime = "nodejs";
 
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
   if (!session) return NextResponse.json({ message: "Admin sign-in required." }, { status: 401 });
   const origin = request.headers.get("origin");
   if (origin && origin !== new URL(request.url).origin && origin !== process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "")) return NextResponse.json({ message: "Invalid request origin." }, { status: 403 });
+  let queueAttempted = false;
   try {
     const raw = await request.text();
     if (Buffer.byteLength(raw) > 1_500_000) return NextResponse.json({ message: "Request is too large. Use up to 5,000 contacts and an HTML file under 250 KB." }, { status: 413 });
@@ -63,6 +65,7 @@ export async function POST(request: Request) {
       if (Buffer.byteLength(personalize(prepared.html, r, options, true)) > MAX_HTML_BYTES) throw new Error("Personalised HTML exceeds 90 KB. Shorten the template or custom fields.");
       if (personalize(subject, r, options).length > 200) throw new Error("A personalised subject exceeds 200 characters.");
     }
+    queueAttempted = true;
     const campaignId = await convex.mutation(api.emailCampaigns.create, {
       serverSecret: getServerSecret(), adminId: session.id as Id<"tutorAccounts">,
       requestId, subject: action === "test" ? `[Test] ${subject.trim()}` : subject.trim(),
@@ -71,7 +74,16 @@ export async function POST(request: Request) {
     });
     return NextResponse.json({ campaignId, message: `${parsed.recipients.length} email${parsed.recipients.length === 1 ? "" : "s"} queued. Progress is saved in campaign history.` });
   } catch (error) {
-    const message = error instanceof SyntaxError ? "Invalid request JSON." : error instanceof Error && !error.message.includes("[Request ID:") ? error.message : "Could not queue the campaign. Check campaign history before trying again.";
+    if (error instanceof ConvexError && error.data?.code === "POSTMARK_NOT_CONFIGURED") {
+      return NextResponse.json({ code: "POSTMARK_NOT_CONFIGURED", message: "Postmark is not configured for email sending. No emails were queued." }, { status: 503 });
+    }
+    if (queueAttempted) {
+      // Never log mutation arguments: they include the server secret and contact list.
+      const requestId = error instanceof Error ? error.message.match(/\[Request ID: ([^\]]+)\]/)?.[1] : undefined;
+      console.error("Admin email queue failed", { requestId: requestId || "unavailable" });
+      return NextResponse.json({ message: "Could not queue the campaign. Check campaign history before trying again." }, { status: 502 });
+    }
+    const message = error instanceof SyntaxError ? "Invalid request JSON." : error instanceof Error ? error.message : "Invalid email request.";
     return NextResponse.json({ message }, { status: 400 });
   }
 }

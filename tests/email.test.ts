@@ -96,6 +96,13 @@ describe("durable campaign queue (Postmark mocked; no emails sent)", () => {
     expect(a).toBe(b);
     expect(await t.run(ctx => ctx.db.query("emailDeliveries").collect())).toHaveLength(2);
   });
+  it.each(["", "   "])("rejects blank Postmark configuration before creating a campaign (%j)", async token => {
+    const { t, args } = await setup();
+    vi.stubEnv("POSTMARK_SERVER_TOKEN", token);
+    await expect(t.mutation(api.emailCampaigns.create, args)).rejects.toMatchObject({ data: { code: "POSTMARK_NOT_CONFIGURED" } });
+    expect(await t.run(ctx => ctx.db.query("emailCampaigns").collect())).toHaveLength(0);
+    expect(await t.run(ctx => ctx.db.query("emailDeliveries").collect())).toHaveLength(0);
+  });
   it("sends individual HTML + text messages and records partial rejection", async () => {
     const { t, admin, args } = await setup();
     const mockedFetch = vi.fn(async (_url: unknown, init: RequestInit) => {
