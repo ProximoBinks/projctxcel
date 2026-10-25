@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "verify:interview-seo": "node scripts/verify-interview-seo.mjs",
     "test:email": "vitest run tests/email.test.ts tests/email-api.test.ts tests/email-transport.test.ts",
-    "test:admin": "vitest run tests/admin.test.ts tests/admin-billing.test.ts tests/billing-operations.test.ts tests/admin-lists.test.ts"
+    "test:admin": "vitest run tests/admin.test.ts tests/admin-billing.test.ts tests/billing-operations.test.ts tests/admin-lists.test.ts tests/billing-review.test.ts tests/billing-summary-discord.test.ts"
   },
   "dependencies": {
     "@netlify/blobs": "^10.5.0",

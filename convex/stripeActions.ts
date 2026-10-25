@@ -7,7 +7,6 @@ import { ConvexError, v } from "convex/values";
 import type { ActionCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { sendDiscordNotification } from "./discord";
-import { adelaideDate, adelaideWeekday } from "../lib/adelaideDate";
 import { requireAdminClaims, requireStudentSelfOrAdminClaims } from "./identity";
 
 function getStripe(): Stripe {
@@ -306,23 +305,9 @@ export const reconcileBillingIntent = internalAction({
   },
 });
 
+// Keep already scheduled legacy continuations harmless after the rollout.
 export const chargeAllActive = internalAction({
   args: { cursor: v.optional(v.union(v.string(), v.null())), chargeDate: v.optional(v.string()), dayOfWeek: v.optional(v.string()) },
   returns: v.null(),
-  handler: async (ctx, args): Promise<null> => {
-    const now = new Date();
-    const chargeDate = args.chargeDate ?? adelaideDate(now);
-    const dayOfWeek = args.dayOfWeek ?? adelaideWeekday(now);
-    const batch = await ctx.runQuery(internal.billingOperations.profileBatch, { cursor: args.cursor ?? null });
-    for (const profile of batch.page) {
-      const operationId: Id<"billingOperations"> | null = await ctx.runMutation(internal.billingOperations.prepareDaily, { billingProfileId: profile._id, chargeDate, dayOfWeek });
-      if (operationId) {
-        // Preparation already schedules recovery, so one provider outage cannot stop the batch.
-        try { await ctx.runAction(internal.stripeActions.processBillingOperation, { operationId }); }
-        catch { console.error("Billing operation requires recovery", { operationId }); }
-      }
-    }
-    if (!batch.isDone) await ctx.scheduler.runAfter(0, internal.stripeActions.chargeAllActive, { cursor: batch.continueCursor, chargeDate, dayOfWeek });
-    return null;
-  },
+  handler: async () => null,
 });

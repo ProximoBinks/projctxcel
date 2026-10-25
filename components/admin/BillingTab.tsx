@@ -9,6 +9,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { adminError } from "./adminError";
 import { LoadMore } from "./LoadMore";
 import { UnresolvedCharges } from "./UnresolvedCharges";
+import { DailyBillingReview } from "./DailyBillingReview";
 import { RevenueChart } from "./RevenueChart";
 import { BulkPauseModal } from "./BulkPauseModal";
 import { BulkUnpauseModal } from "./BulkUnpauseModal";
@@ -23,7 +24,7 @@ export function BillingTab({
   adminId: Id<"tutorAccounts">;
 }) {
   const [actionError, setActionError] = useState("");
-  const [billingSubTab, setBillingSubTab] = useState<"profiles" | "upcoming" | "history" | "pauses">("profiles");
+  const [billingSubTab, setBillingSubTab] = useState<"review" | "profiles" | "upcoming" | "history" | "pauses">("review");
   const [showSetup, setShowSetup] = useState(false);
   const [historyRetrying, setHistoryRetrying] = useState<string | null>(null);
   const [historyRetryResult, setHistoryRetryResult] = useState<{ id: string; success: boolean; error?: string } | null>(null);
@@ -51,14 +52,14 @@ export function BillingTab({
   const upcomingPage = usePaginatedQuery(api.adminLists.upcomingCharges, billingSubTab === "upcoming" ? { adminId } : "skip", { initialNumItems: 10 });
   const historyPage = usePaginatedQuery(api.adminLists.chargeHistory, billingSubTab === "history" ? { adminId } : "skip", { initialNumItems: 50 });
   const eligiblePage = usePaginatedQuery(api.adminLists.studentsWithoutBilling, showSetup ? { adminId } : "skip", { initialNumItems: 50 });
-  const chartPage = usePaginatedQuery(api.billingRevenue.chart, {}, { initialNumItems: 50 });
+  const chartPage = usePaginatedQuery(api.billingRevenue.chart, billingSubTab === "review" ? "skip" : {}, { initialNumItems: 50 });
   const billingProfiles = profilePage.status === "LoadingFirstPage" ? undefined : profilePage.results;
   const pauseRequests = pausePage.status === "LoadingFirstPage" ? undefined : pausePage.results;
   const upcomingCharges = upcomingPage.status === "LoadingFirstPage" ? undefined : upcomingPage.results.flatMap(p => p.charges).sort((a,b) => a.date.localeCompare(b.date));
   const allChargeHistory = historyPage.status === "LoadingFirstPage" ? undefined : historyPage.results;
-  const revenueStats = useQuery(api.billingRevenue.stats);
+  const revenueStats = useQuery(api.billingRevenue.stats, billingSubTab === "review" ? "skip" : {});
   const ensureRevenue = useMutation(api.billingRevenue.ensure);
-  useEffect(() => { void ensureRevenue().catch(error => setActionError(adminError(error, "Unable to prepare revenue totals."))); }, [ensureRevenue]);
+  useEffect(() => { if (billingSubTab === "review") return; void ensureRevenue().catch(error => setActionError(adminError(error, "Unable to prepare revenue totals."))); }, [ensureRevenue, billingSubTab]);
   const createBillingProfile = useMutation(api.billing.createBillingProfile);
   const reviewPause = useMutation(api.billing.reviewPauseRequest);
   const adminUnpause = useMutation(api.billing.adminUnpause);
@@ -143,6 +144,7 @@ export function BillingTab({
         </div>
       </div>
 
+      {billingSubTab !== "review" && <>
       {/* Summary cards */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-5">
         <div className="rounded-2xl border border-slate-200 bg-white p-5">
@@ -190,8 +192,10 @@ export function BillingTab({
       <LoadMore status={chartPage.status} loadMore={chartPage.loadMore} count={chartPage.results.length} label="revenue days" />
       <UnresolvedCharges adminId={adminId} />
 
+      </>}
       {/* Sub-tabs */}
       <div className="flex gap-2 border-b border-slate-200 overflow-x-auto">
+        <button onClick={() => setBillingSubTab("review")} className={`whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium ${billingSubTab === "review" ? "border-slate-900 text-slate-900" : "border-transparent text-slate-500"}`}>Daily review</button>
         <button
           onClick={() => setBillingSubTab("profiles")}
           className={`whitespace-nowrap border-b-2 px-4 py-2 text-sm font-medium transition ${
@@ -238,6 +242,8 @@ export function BillingTab({
           )}
         </button>
       </div>
+
+      {billingSubTab === "review" && <><DailyBillingReview /><UnresolvedCharges adminId={adminId} /></>}
 
       {billingSubTab === "profiles" && (
         <>
@@ -577,8 +583,8 @@ export function BillingTab({
         <div className="space-y-4">
           <p className="text-sm text-slate-500">
             Forecast for loaded billing profiles over the next 4 weeks. Card
-            charges run automatically around 9–10am (Adelaide) on the date shown; cash
-            is collected manually. Amounts are net of any account credit.
+            charges run at 7pm Adelaide time only after daily review approval; cash
+            is collected manually. Forecast amounts are net of available credit and are not approval to charge.
           </p>
           {upcomingCharges && upcomingCharges.length > 0 ? (
             (() => {

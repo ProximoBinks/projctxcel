@@ -3,11 +3,12 @@ import { internal } from "./_generated/api";
 
 const crons = cronJobs();
 
-// Daily at 23:30 UTC = 9:00 AM ACST (Adelaide standard time)
+// Use Adelaide's local clock inside the mutation so daylight saving is handled.
+// The five-minute tick prepares the review from 6pm and dispatches from 7pm.
 crons.cron(
-  "daily billing charge",
-  "30 23 * * *",
-  internal.stripeActions.chargeAllActive,
+  "daily billing review and approved charges",
+  "*/5 * * * *",
+  internal.billingReview.tick,
   {},
 );
 

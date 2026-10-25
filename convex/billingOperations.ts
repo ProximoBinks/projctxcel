@@ -4,12 +4,12 @@ import type { MutationCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { internal } from "./_generated/api";
 import { requireAdmin } from "./identity";
-import { requiredText, validCents, validDate } from "./adminValidation";
-import { calculateDailyRateHelper, getCreditBalanceHelper } from "./billing";
+import { requiredText, validCents } from "./adminValidation";
+import { getCreditBalanceHelper } from "./billing";
 import { recordRevenue } from "./billingRevenue";
 import { adelaideDate } from "../lib/adelaideDate";
 
-async function insertOperation(ctx: MutationCtx, values: Omit<Doc<"billingOperations">, "_id" | "_creationTime" | "status" | "attempts" | "leaseUntil" | "createdAt" | "updatedAt">) {
+export async function insertOperation(ctx: MutationCtx, values: Omit<Doc<"billingOperations">, "_id" | "_creationTime" | "status" | "attempts" | "leaseUntil" | "createdAt" | "updatedAt">) {
   const now = Date.now();
   const id = await ctx.db.insert("billingOperations", { ...values, status: "pending", attempts: 0, leaseUntil: 0, createdAt: now, updatedAt: now });
   // Recovery is committed with the intent, before an action can contact Stripe.
@@ -51,35 +51,11 @@ export const prepareManual = internalMutation({
   },
 });
 
+// Compatibility endpoint for already queued legacy jobs. New daily payments must
+// be created by the approved-review dispatcher, never by the old morning runner.
 export const prepareDaily = internalMutation({
   args: { billingProfileId: v.id("billingProfiles"), chargeDate: v.string(), dayOfWeek: v.string() },
-  handler: async (ctx, { billingProfileId, chargeDate, dayOfWeek }): Promise<Id<"billingOperations"> | null> => {
-    validDate(chargeDate);
-    const key = `daily:${billingProfileId}:${chargeDate}`;
-    const existing = await ctx.db.query("billingOperations").withIndex("by_key", q => q.eq("key", key)).unique();
-    if (existing) return existing._id;
-    const profile = await ctx.db.get(billingProfileId);
-    if (!profile || profile.status !== "active") return null;
-    // The old runner did not record operation IDs. Respect its already processed days.
-    const oldCharge = await ctx.db.query("billingCharges").withIndex("by_billingProfile_and_week", q => q.eq("billingProfileId", billingProfileId).eq("weekStartDate", chargeDate))
-      .filter(q => q.eq(q.field("operationId"), undefined)).first();
-    if (oldCharge) return null;
-    const rate = await calculateDailyRateHelper(ctx, profile.studentId, dayOfWeek, chargeDate);
-    if (rate.totalCents <= 0) return null;
-    validCents(rate.totalCents, true);
-    const balance = await getCreditBalanceHelper(ctx, profile.studentId);
-    const creditCents = Math.min(Math.max(0, balance), rate.totalCents);
-    const student = await ctx.db.get(profile.studentId);
-    if (!student) return null;
-    const details = rate.breakdown.filter(l => !l.paused && l.lineTotalCents > 0).map(l => `${l.subject} — ${l.tutorName}`).join(", ");
-    return await insertOperation(ctx, {
-      key, source: "daily", studentId: profile.studentId, billingProfileId,
-      amountCents: rate.totalCents, creditCents, chargeCents: rate.totalCents - creditCents,
-      paymentType: profile.paymentType, stripeCustomerId: profile.stripeCustomerId, stripePaymentMethodId: profile.stripePaymentMethodId,
-      receiptEmail: student.parentEmail || student.email || undefined,
-      description: `${dayOfWeek} ${chargeDate} — ${details}`, chargeDate,
-    });
-  },
+  handler: async (): Promise<Id<"billingOperations"> | null> => null,
 });
 
 export const prepareRetry = internalMutation({

@@ -1,6 +1,7 @@
 import { createHmac } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { convexTest } from "convex-test";
+import { adelaideTimestamp } from "../lib/adelaideDate";
 import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
 
@@ -25,6 +26,18 @@ async function setup() {
   const admin = t.withIdentity({ subject: ids.adminId, type: "admin", tutorAccountId: ids.adminId, roles: ["admin"] });
   const input = { adminId: ids.adminId, studentId: ids.studentId, amountCents: 3000, description: "Lesson", requestId: "stable-payment-request-001" };
   return { t, admin, input, ...ids };
+}
+
+async function queueReviewedDay(fixture: Awaited<ReturnType<typeof setup>>, date = "2026-10-26") {
+  const { t, admin } = fixture;
+  vi.setSystemTime(adelaideTimestamp(date, "18:00"));
+  const dayId = await admin.mutation(api.billingReview.prepareToday, {});
+  await t.mutation(internal.billingReview.preparePage, { dayId });
+  const rows = (await admin.query(api.billingReview.lessons, { date, paginationOpts: { numItems: 50, cursor: null } })).page;
+  await admin.mutation(api.billingReview.approve, { reviews: rows.map(row => ({ id: row._id, version: row.version })) });
+  vi.setSystemTime(adelaideTimestamp(date));
+  await t.mutation(internal.billingReview.dispatchPage, { dayId });
+  return (await t.run(ctx => ctx.db.query("billingOperations").order("desc").first()))!._id;
 }
 
 describe("durable billing operations", () => {
@@ -87,10 +100,12 @@ describe("durable billing operations", () => {
     expect(await t.run(ctx => ctx.db.query("billingCharges").collect())).toHaveLength(1);
   });
 
-  it("reserves credit across concurrent operations and settles credit and charge exactly once", async () => {
-    const { t, admin, adminId, studentId, profileId } = await setup();
+  it("reserves credit across approved operations and settles credit and charge exactly once", async () => {
+    const fixture = await setup();
+    const { t, admin, adminId, studentId } = fixture;
     await admin.mutation(api.billing.addCredit, { adminId, studentId, amountCents: 5000, description: "Credit" });
-    const [a, b] = await Promise.all(["2026-10-26", "2026-11-02"].map(chargeDate => t.mutation(internal.billingOperations.prepareDaily, { billingProfileId: profileId, chargeDate, dayOfWeek: "Monday" })));
+    const a = await queueReviewedDay(fixture);
+    const b = await queueReviewedDay(fixture, "2026-11-02");
     const operations = await t.run(ctx => ctx.db.query("billingOperations").collect());
     expect(operations.reduce((sum, op) => sum + op.creditCents, 0)).toBe(5000);
     expect(await admin.query(api.billing.getStudentCreditBalance, { studentId })).toBe(0);
@@ -103,12 +118,14 @@ describe("durable billing operations", () => {
     expect(await t.run(ctx => ctx.db.query("billingCharges").collect())).toHaveLength(2);
   });
 
-  it("keeps uncertain credit reserved and repeated daily preparation returns the same operation", async () => {
-    const { t, admin, adminId, studentId, profileId } = await setup();
+  it("keeps uncertain credit reserved and repeated dispatch does not create another operation", async () => {
+    const fixture = await setup();
+    const { t, admin, adminId, studentId } = fixture;
     await admin.mutation(api.billing.addCredit, { adminId, studentId, amountCents: 1000, description: "Credit" });
-    const args = { billingProfileId: profileId, chargeDate: "2026-10-26", dayOfWeek: "Monday" };
-    const operationId = await t.mutation(internal.billingOperations.prepareDaily, args);
-    expect(await t.mutation(internal.billingOperations.prepareDaily, args)).toBe(operationId);
+    const operationId = await queueReviewedDay(fixture);
+    const day = await admin.query(api.billingReview.day, { date: "2026-10-26" });
+    await t.mutation(internal.billingReview.dispatchPage, { dayId: day.summary!._id });
+    expect(await t.run(ctx => ctx.db.query("billingOperations").collect())).toHaveLength(1);
     await t.mutation(internal.billingOperations.finish, { operationId: operationId!, status: "uncertain", error: "Timeout" });
     expect(await admin.query(api.billing.getStudentCreditBalance, { studentId })).toBe(0);
   });
@@ -182,9 +199,10 @@ describe("durable billing operations", () => {
   });
 
   it("retains reserved credit when cancellation cannot confirm a failure", async () => {
-    const { t, admin, adminId, studentId, profileId } = await setup();
+    const fixture = await setup();
+    const { t, admin, adminId, studentId } = fixture;
     await admin.mutation(api.billing.addCredit, { adminId, studentId, amountCents: 1000, description: "Credit" });
-    const operationId = await t.mutation(internal.billingOperations.prepareDaily, { billingProfileId: profileId, chargeDate: "2026-10-26", dayOfWeek: "Monday" });
+    const operationId = await queueReviewedDay(fixture);
     stripe.create.mockImplementationOnce(async args => ({ ...args, id: "pi_unresolved", status: "requires_action" }));
     stripe.cancel.mockRejectedValueOnce(new Error("timeout"));
     expect((await t.action(internal.stripeActions.processBillingOperation, { operationId: operationId! })).status).toBe("uncertain");

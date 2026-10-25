@@ -40,3 +40,33 @@ References: [Stripe idempotency](https://docs.stripe.com/api/idempotent_requests
 Deploy the matching Convex schema/functions and frontend together. Keep the existing Stripe signing secret and configure the existing `/stripe/webhook` endpoint to receive billing PaymentIntent events as well as its course checkout events. A new production deployment and Stripe endpoint configuration were not performed.
 
 Legacy failed charges still need their Stripe history checked before a deliberate new payment. For unresolved new operations whose automatic recovery window has expired, use a matching PaymentIntent reference in the status panel. The system does not assume an unknown payment failed.
+
+## Daily approval workflow
+
+Implemented as a follow-up to the initial deployment:
+
+- At 6pm Adelaide time, prepare a per-student lesson summary from scheduled, billable enrolments. Admins may also prepare or refresh today's summary manually. Paused/off-cycle enrolments are excluded; tutor session logs remain separate from customer billing.
+- In Billing → Daily review, confirm completed lessons, adjust charges with a reason, or hold cancelled lessons. Approval records the verified administrator, time, payment type and exact review revision.
+- At 7pm Adelaide time, group approved lessons per student and reserve credit transactionally before handing payments to the existing durable Stripe processor. The cron uses Adelaide's timezone and handles daylight saving.
+- Only approvals saved before the cutoff qualify for the automatic run. Late approvals and lessons finishing at or after 7pm require the explicit Charge approved action. Nothing unapproved is charged.
+- Editing a review clears approval. Changed rates, enrolment/pause state, payment type or revoked admin access prevent automatic submission. Repeated dispatches and repeated charge actions cannot charge the same reviewed lesson twice.
+- Daily summary preparation and payment dispatch are bounded batches. Current-day refreshes preserve unchanged decisions and never rewrite submitted payments.
+- The old morning cron is removed. Compatibility entry points for previously queued morning jobs are no-ops. Existing payment operations continue their original recovery flow; dates already handled by legacy billing are blocked from review-based re-billing.
+
+### Rollout
+
+Deploy the matching Convex functions/schema and frontend together. The new cron replaces the old morning charge job. There is no approval backfill: newly generated reviews start unapproved. Existing payment/credit history remains unchanged.
+
+### Verification of daily review
+
+95 tests pass across the full suite, including approval permissions, daylight saving, 7pm gating, concurrent dispatches, late approvals, stale review versions, cash billing, retry reconciliation, historical duplicate protection and multi-page summary generation. ESLint (zero warnings), TypeScript, Convex code generation/typechecking, the Node 24 production build and interview SEO verification pass. Interactive browser testing was unavailable. No live charges or notifications were sent during verification.
+
+### Discord daily summary
+
+- When the complete daily review is ready at or after 6pm Adelaide time, queue one summary to the existing server-side `DISCORD_WEBHOOK_URL`. Preparing a review earlier does not send early; refreshing it does not send another message.
+- Include whole-day lesson counts, review statuses, totals before credit, up to 15 lesson lines, the 7pm approval deadline, and a link to Admin → Billing → Daily review. Large days point to the full list in admin. Empty days send a no-lessons summary. The message describes scheduled lessons and does not claim attendance is confirmed.
+- Persist delivery state on the review day and show it in admin. Concurrent deliveries claim the day transactionally. Discord confirmation uses `wait=true` and records the message ID; explicit rate limits retry up to three attempts while respecting the retry delay. Network failures, server errors, and interrupted sends remain unconfirmed rather than blindly reposting. Missing configuration and rejected requests are visible failures. Check Discord before manually resending an unconfirmed message.
+- Disable mentions and bound/sanitize lesson names. The webhook secret never appears in messages or saved errors. Notification delivery never approves lessons or invokes the payment processor.
+- Deploy this addition with the daily approval workflow, retaining the existing webhook environment variable. No live test messages were sent during verification.
+
+The full suite now passes 105 tests, including notification timing, duplicate prevention, preparation/refresh races, large summaries, rate-limit retries, missing configuration and interrupted/ambiguous delivery. TypeScript, ESLint with zero warnings, Convex code generation/typechecking, and the Node 24 production build also pass.

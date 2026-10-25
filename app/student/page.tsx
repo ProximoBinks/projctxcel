@@ -917,7 +917,7 @@ function StudentBillingTab({ studentId }: { studentId: Id<"students"> }) {
             Billing Breakdown
           </h3>
           <p className="mt-0.5 text-xs text-slate-500">
-            Charged around 9am on each class day, at each class&apos;s billing frequency
+            Charged from 7pm Adelaide time after your lessons are reviewed and approved, at each class&apos;s billing frequency
           </p>
           {profile.weeklyRate.breakdown.length > 0 ? (
             <div className="mt-4 space-y-4">

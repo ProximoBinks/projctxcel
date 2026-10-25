@@ -53,10 +53,9 @@ export function HelpTab() {
       q: "When exactly are customers charged?",
       a: (
         <>
-          Automatically once a day at around <strong>9am Adelaide time</strong>.
-          Each student is charged for the classes they have <em>that day</em>
-          (respecting any pause or fortnightly cadence). See the exact upcoming
-          charges under <strong>Billing → Payment Schedule</strong>.
+          After you approve completed lessons in <strong>Billing → Daily review</strong>, at <strong>7pm Adelaide time</strong>.
+          Each student is charged only for approved classes <em>that day</em>
+          (respecting any pause or fortnightly cadence). Unapproved lessons stay on hold; late approvals require a separate charge action. See the forecast under <strong>Billing → Payment Schedule</strong>.
         </>
       ),
     },
@@ -64,9 +63,9 @@ export function HelpTab() {
       q: "How can I see what Stripe will charge, and when?",
       a: (
         <>
-          <strong>Billing → Payment Schedule</strong> lists every upcoming charge
+          <strong>Billing → Payment Schedule</strong> forecasts upcoming charges
           for the next 4 weeks, grouped by date, showing the net amount (after
-          credit) and whether it&apos;s a card (Stripe) or cash collection.
+          credit) and whether it&apos;s a card (Stripe) or cash collection. Forecasts are estimates; daily approval determines what is actually charged.
         </>
       ),
     },

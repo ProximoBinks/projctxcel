@@ -252,6 +252,36 @@ export default defineSchema({
   billingRevenueDaily: defineTable({ date: v.string(), totalCents: v.number(), chargeCount: v.number() }).index("by_date", ["date"]),
   billingRevenueContributions: defineTable({ chargeId: v.id("billingCharges") }).index("by_charge", ["chargeId"]),
 
+  billingReviewDays: defineTable({
+    date: v.string(), status: v.union(v.literal("preparing"), v.literal("ready")),
+    cursor: v.union(v.string(), v.null()),
+    lessonCount: v.number(), pendingCount: v.number(), approvedCount: v.number(), heldCount: v.number(), submittedCount: v.number(),
+    totalCents: v.number(), approvedCents: v.number(),
+    createdAt: v.number(), updatedAt: v.number(),
+    autoFinishedAt: v.optional(v.number()),
+    discord: v.optional(v.object({
+      status: v.union(v.literal("queued"), v.literal("sending"), v.literal("sent"), v.literal("failed"), v.literal("uncertain")),
+      attempts: v.number(), updatedAt: v.number(), retryAt: v.optional(v.number()),
+      sentAt: v.optional(v.number()), messageId: v.optional(v.string()), error: v.optional(v.string()),
+    })),
+  }).index("by_date", ["date"]),
+
+  billingReviews: defineTable({
+    dayId: v.id("billingReviewDays"), date: v.string(),
+    billingProfileId: v.id("billingProfiles"), studentId: v.id("students"), classId: v.id("classes"),
+    studentName: v.string(), className: v.string(), subject: v.string(), tutorName: v.string(),
+    startTime: v.string(), endTime: v.string(), scheduledCents: v.number(), amountCents: v.number(),
+    fingerprint: v.string(), version: v.number(),
+    status: v.union(v.literal("pending"), v.literal("approved"), v.literal("held"), v.literal("submitted")),
+    adjustmentNote: v.optional(v.string()), note: v.optional(v.string()),
+    approvedBy: v.optional(v.id("tutorAccounts")), approvedAt: v.optional(v.number()), approvedPaymentType: v.optional(v.string()),
+    autoChargeEligible: v.boolean(), operationId: v.optional(v.id("billingOperations")),
+    createdAt: v.number(), updatedAt: v.number(),
+  }).index("by_day", ["dayId"])
+    .index("by_day_status_auto", ["dayId", "status", "autoChargeEligible"])
+    .index("by_profile_date", ["billingProfileId", "date"])
+    .index("by_profile_date_class", ["billingProfileId", "date", "classId"]),
+
   billingOperations: defineTable({
     key: v.string(),
     source: v.union(v.literal("manual"), v.literal("daily"), v.literal("retry")),
@@ -260,6 +290,7 @@ export default defineSchema({
     amountCents: v.number(), creditCents: v.number(), chargeCents: v.number(),
     paymentType: v.string(), stripeCustomerId: v.optional(v.string()), stripePaymentMethodId: v.optional(v.string()),
     receiptEmail: v.optional(v.string()), description: v.string(), chargeDate: v.string(),
+    reviewIds: v.optional(v.array(v.id("billingReviews"))),
     createdBy: v.optional(v.id("tutorAccounts")), retryOf: v.optional(v.id("billingCharges")),
     stripePaymentIntentId: v.optional(v.string()), chargeId: v.optional(v.id("billingCharges")),
     error: v.optional(v.string()), attempts: v.number(), leaseUntil: v.number(),

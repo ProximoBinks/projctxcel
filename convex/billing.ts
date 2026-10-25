@@ -1370,11 +1370,13 @@ export async function upcomingForProfile(ctx: QueryCtx, profile: Doc<"billingPro
         const rate = await calculateDailyRateHelper(ctx, profile.studentId, day, dateStr);
         if (rate.totalCents <= 0) continue;
 
-        const summary = rate.breakdown
-          .filter((l) => !l.paused && l.lineTotalCents > 0)
-          .map((l) => `${l.subject} — ${l.tutorName}`)
-          .join(", ");
-        events.push({ date: dateStr, day, grossCents: rate.totalCents, summary });
+        const reviews = await ctx.db.query("billingReviews").withIndex("by_profile_date", q => q.eq("billingProfileId", profile._id).eq("date", dateStr)).collect();
+        const excluded = new Set(reviews.filter(row => row.status === "held" || row.status === "submitted").map(row => row.classId));
+        const billable = rate.breakdown.filter(line => !line.paused && line.lineTotalCents > 0 && !excluded.has(line.classId));
+        const grossCents = billable.reduce((sum, line) => sum + (reviews.find(row => row.classId === line.classId)?.amountCents ?? line.lineTotalCents), 0);
+        if (grossCents <= 0) continue;
+        const summary = billable.map(line => `${line.subject} — ${line.tutorName}`).join(", ");
+        events.push({ date: dateStr, day, grossCents, summary });
       }
 
       // Apply current credit balance across the events in chronological order,
