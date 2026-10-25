@@ -76,7 +76,7 @@ export default defineSchema({
     ),
     createdAt: v.number(),
     status: v.optional(v.string()),
-  }).index("by_createdAt", ["createdAt"]),
+  }).index("by_createdAt", ["createdAt"]).index("by_type_createdAt", ["type", "createdAt"]),
 
   // Paid one-off course signups (e.g. the Medicine & Dentistry Interview
   // Intensive). Separate from `enquiries` because these carry a payment
@@ -248,9 +248,31 @@ export default defineSchema({
     .index("by_studentId", ["studentId"])
     .index("by_status", ["status"]),
 
+  billingRevenueSummary: defineTable({ key: v.string(), totalCents: v.number(), chargeCount: v.number(), legacyChargeCount: v.number(), ready: v.boolean(), cursor: v.union(v.string(), v.null()) }).index("by_key", ["key"]),
+  billingRevenueDaily: defineTable({ date: v.string(), totalCents: v.number(), chargeCount: v.number() }).index("by_date", ["date"]),
+  billingRevenueContributions: defineTable({ chargeId: v.id("billingCharges") }).index("by_charge", ["chargeId"]),
+
+  billingOperations: defineTable({
+    key: v.string(),
+    source: v.union(v.literal("manual"), v.literal("daily"), v.literal("retry")),
+    status: v.union(v.literal("pending"), v.literal("uncertain"), v.literal("succeeded"), v.literal("failed")),
+    studentId: v.id("students"), billingProfileId: v.id("billingProfiles"),
+    amountCents: v.number(), creditCents: v.number(), chargeCents: v.number(),
+    paymentType: v.string(), stripeCustomerId: v.optional(v.string()), stripePaymentMethodId: v.optional(v.string()),
+    receiptEmail: v.optional(v.string()), description: v.string(), chargeDate: v.string(),
+    createdBy: v.optional(v.id("tutorAccounts")), retryOf: v.optional(v.id("billingCharges")),
+    stripePaymentIntentId: v.optional(v.string()), chargeId: v.optional(v.id("billingCharges")),
+    error: v.optional(v.string()), attempts: v.number(), leaseUntil: v.number(),
+    firstAttemptAt: v.optional(v.number()), createdAt: v.number(), updatedAt: v.number(),
+  }).index("by_key", ["key"]).index("by_status", ["status"]).index("by_student_status", ["studentId", "status"]),
+
   billingCharges: defineTable({
     studentId: v.id("students"),
     billingProfileId: v.id("billingProfiles"),
+    operationId: v.optional(v.id("billingOperations")),
+    retryOperationId: v.optional(v.id("billingOperations")),
+    paidCents: v.optional(v.number()),
+    creditAppliedCents: v.optional(v.number()),
     amountCents: v.number(),
     stripePaymentIntentId: v.optional(v.string()),
     status: v.string(), // "succeeded" | "failed" | "cash" | "credit_applied"
@@ -262,7 +284,8 @@ export default defineSchema({
   })
     .index("by_student", ["studentId"])
     .index("by_weekStartDate", ["weekStartDate"])
-    .index("by_billingProfile_and_week", ["billingProfileId", "weekStartDate"]),
+    .index("by_billingProfile_and_week", ["billingProfileId", "weekStartDate"])
+    .index("by_operation", ["operationId"]),
 
   // Per-class pause requests (student requests, admin approves)
   pauseRequests: defineTable({

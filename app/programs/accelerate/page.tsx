@@ -271,7 +271,7 @@ export default function AccelerateProgramPage() {
                   Tailored plans
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-slate-600">
-                  Our tutors adapt their teaching style to each student's needs and build tailored plans to support the best possible outcome.
+                  Our tutors adapt their teaching style to each student&apos;s needs and build tailored plans to support the best possible outcome.
                 </p>
               </div>
               <div className="rounded-2xl border border-slate-200/70 bg-white p-6 shadow-sm">

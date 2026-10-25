@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 
 export type OfferImage = {
@@ -39,22 +39,23 @@ const STEP = [
  * Neighbours stay legible rather than being reduced to slivers behind the
  * front card — the point of the section is how many offers there are.
  */
+const reducedMotionQuery = "(prefers-reduced-motion: reduce)";
+function subscribeMotion(callback: () => void) {
+  const query = window.matchMedia(reducedMotionQuery);
+  query.addEventListener("change", callback);
+  return () => query.removeEventListener("change", callback);
+}
+const reducedMotionSnapshot = () => window.matchMedia(reducedMotionQuery).matches;
+const serverMotionSnapshot = () => true;
+
 export default function OfferCarousel({ items }: { items: OfferImage[] }) {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const [broken, setBroken] = useState<Set<string>>(new Set());
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const prefersReducedMotion = useSyncExternalStore(subscribeMotion, reducedMotionSnapshot, serverMotionSnapshot);
 
   const visible = items.filter((item) => !broken.has(item.src));
   const count = visible.length;
-
-  useEffect(() => {
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const updatePreference = () => setPrefersReducedMotion(query.matches);
-    updatePreference();
-    query.addEventListener("change", updatePreference);
-    return () => query.removeEventListener("change", updatePreference);
-  }, []);
 
   useEffect(() => {
     if (paused || prefersReducedMotion || count <= 1) return;
@@ -65,9 +66,7 @@ export default function OfferCarousel({ items }: { items: OfferImage[] }) {
     return () => clearInterval(id);
   }, [paused, prefersReducedMotion, count]);
 
-  useEffect(() => {
-    if (count > 0 && active >= count) setActive(0);
-  }, [count, active]);
+  const activeIndex = count > 0 ? active % count : 0;
 
   const markBroken = useCallback((src: string) => {
     setBroken((previous) => new Set(previous).add(src));
@@ -75,7 +74,7 @@ export default function OfferCarousel({ items }: { items: OfferImage[] }) {
 
   // Signed distance from the focused card, wrapped so the fan is circular.
   const positionFromActive = (index: number) => {
-    let position = index - active;
+    let position = index - activeIndex;
     if (position > count / 2) position -= count;
     if (position < -count / 2) position += count;
     return position;
@@ -157,7 +156,7 @@ export default function OfferCarousel({ items }: { items: OfferImage[] }) {
       </div>
 
       <span className="sr-only" aria-live="polite">
-        Showing: {visible[active]?.alt}
+        Showing: {visible[activeIndex]?.alt}
       </span>
     </div>
   );

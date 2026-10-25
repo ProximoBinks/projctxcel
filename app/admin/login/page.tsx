@@ -29,7 +29,7 @@ export default function AdminLoginPage() {
       const result = await res.json();
       if (res.ok) {
         loginAdmin(result);
-        router.push("/admin");
+        router.replace("/admin");
       } else {
         setError(result.error || "Invalid email or password");
       }
@@ -42,7 +42,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4 sm:px-6">
+    <div className="flex min-h-dvh items-center justify-center bg-slate-50 px-4 sm:px-6">
       <div className="w-full max-w-md">
         <div className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <div className="mb-8 text-center">
@@ -63,10 +63,13 @@ export default function AdminLoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700">
+              <label htmlFor="admin-email" className="block text-sm font-medium text-slate-700">
                 Email
               </label>
               <input
+                id="admin-email"
+                name="email"
+                autoComplete="username"
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -76,10 +79,13 @@ export default function AdminLoginPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-slate-700">
+              <label htmlFor="admin-password" className="block text-sm font-medium text-slate-700">
                 Password
               </label>
               <input
+                id="admin-password"
+                name="password"
+                autoComplete="current-password"
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -89,7 +95,7 @@ export default function AdminLoginPage() {
             </div>
 
             {error && (
-              <p className="text-sm text-red-600">{error}</p>
+              <p role="alert" className="text-sm text-red-600">{error}</p>
             )}
 
             <button

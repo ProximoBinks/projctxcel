@@ -3,7 +3,7 @@ import { convex } from "../../../../lib/convexServer";
 import { api } from "../../../../convex/_generated/api";
 import { signAuthToken, type AuthRole, type AuthSession } from "../../../../lib/auth";
 import { rateLimit, tooManyRequests } from "../../../../lib/rateLimit";
-import type { Id } from "../../../../convex/_generated/dataModel";
+import { getServerSecret } from "../../../../lib/serverSecret";
 
 const COOKIE_NAME = "auth_token";
 const COOKIE_OPTIONS = {
@@ -25,7 +25,7 @@ export async function POST(req: Request) {
     payload = null;
   }
 
-  if (!payload?.email || !payload.password || !payload.role) {
+  if (typeof payload?.email !== "string" || !payload.email.trim() || typeof payload.password !== "string" || !payload.password || !payload.role) {
     return NextResponse.json(
       { error: "Email, password, and role are required." },
       { status: 400 }
@@ -35,6 +35,7 @@ export async function POST(req: Request) {
   const { email, password, role } = payload;
   if (role === "admin") {
     const adminResult = await convex.mutation(api.auth.loginAdmin, {
+      serverSecret: getServerSecret(),
       email,
       password,
     });
@@ -60,6 +61,7 @@ export async function POST(req: Request) {
 
   if (role === "tutor") {
     const tutorResult = await convex.mutation(api.auth.loginTutor, {
+      serverSecret: getServerSecret(),
       email,
       password,
     });

@@ -1,7 +1,8 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { requireAdmin, requireTutorSelfOrAdmin } from "./identity";
+import { validateClass, validDate } from "./adminValidation";
 
 const classWithTutorValidator = v.object({
   _id: v.id("classes"),
@@ -133,6 +134,7 @@ export const createClass = mutation({
   returns: v.id("classes"),
   handler: async (ctx, { adminId, ...args }) => {
     await assertAdmin(ctx, adminId);
+    validateClass(args);
     return await ctx.db.insert("classes", {
       ...args,
       active: true,
@@ -166,6 +168,7 @@ export const updateClass = mutation({
       if (value !== undefined) patch[key] = value;
     });
 
+    validateClass({ ...cls, ...patch });
     await ctx.db.patch(classId, patch);
     return true;
   },
@@ -206,6 +209,9 @@ export const assignTutorToClass = mutation({
     await assertAdmin(ctx, adminId);
     const cls = await ctx.db.get(classId);
     if (!cls) return false;
+
+    const tutor = await ctx.db.get(tutorId);
+    if (!cls.active || !tutor?.active) throw new ConvexError("Choose an active class and tutor.");
 
     const existingAssignments = await ctx.db
       .query("classAssignments")
@@ -400,6 +406,7 @@ export const setEnrollmentCadence = mutation({
       if (!anchorDate) {
         return { success: false, error: "An anchor (start) date is required for non-weekly billing" };
       }
+      validDate(anchorDate);
       await ctx.db.patch(link._id, {
         billingIntervalWeeks: intervalWeeks,
         billingAnchorDate: anchorDate,
@@ -418,6 +425,9 @@ export const assignStudentToClass = mutation({
   returns: v.boolean(),
   handler: async (ctx, { adminId, classId, studentId }) => {
     await assertAdmin(ctx, adminId);
+    const cls = await ctx.db.get(classId);
+    const student = await ctx.db.get(studentId);
+    if (!cls?.active || !student?.active) throw new ConvexError("Choose an active class and student.");
     const existing = await ctx.db
       .query("classStudents")
       .withIndex("by_student_and_class", (q) =>

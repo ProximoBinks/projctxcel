@@ -1,12 +1,15 @@
 import { mutation, query } from "./_generated/server";
-import { v } from "convex/values";
-import type { Id } from "./_generated/dataModel";
+import { ConvexError, v } from "convex/values";
+import type { QueryCtx } from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel";
 import { requireAdmin } from "./identity";
+import { hashPassword } from "./passwords";
+import { requiredText, validCents, validEmail, validPassword } from "./adminValidation";
 
 // Authorize via the verified ctx.auth identity. The adminId arg is retained for
 // backward compatibility with existing callers but is no longer trusted.
 async function assertAdmin(ctx: any, _adminId: Id<"tutorAccounts">) {
-  await requireAdmin(ctx);
+  return await requireAdmin(ctx);
 }
 
 // List all tutor accounts
@@ -45,7 +48,7 @@ export const updateTutorAccount = mutation({
     tutorId: v.id("tutorAccounts"),
     name: v.optional(v.string()),
     email: v.optional(v.string()),
-    passwordHash: v.optional(v.string()),
+    password: v.optional(v.string()),
     hourlyRate: v.optional(v.number()),
     tutorSlug: v.optional(v.string()),
     active: v.optional(v.boolean()),
@@ -53,9 +56,23 @@ export const updateTutorAccount = mutation({
   },
   returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
   handler: async (ctx, { adminId, tutorId, ...updates }) => {
-    await assertAdmin(ctx, adminId);
+    const actorId = await assertAdmin(ctx, adminId);
     const tutor = await ctx.db.get(tutorId);
     if (!tutor) return { success: false, error: "Tutor not found" };
+
+    if (updates.name !== undefined) updates.name = requiredText(updates.name, "Name");
+    if (updates.email !== undefined) updates.email = validEmail(updates.email);
+    if (updates.hourlyRate !== undefined) validCents(updates.hourlyRate);
+    if (updates.password !== undefined) validPassword(updates.password);
+    if (updates.roles !== undefined) {
+      if (!updates.roles.length || updates.roles.some(role => !["admin", "tutor"].includes(role))) {
+        return { success: false, error: "Choose a valid account role" };
+      }
+      updates.roles = [...new Set(updates.roles)];
+    }
+    if (actorId === tutorId && (updates.active === false || (updates.roles && !updates.roles.includes("admin")))) {
+      return { success: false, error: "You cannot deactivate yourself or remove your own admin access" };
+    }
 
     // Check if email is being changed and if it's already in use
     if (updates.email !== undefined && updates.email !== tutor.email) {
@@ -71,7 +88,7 @@ export const updateTutorAccount = mutation({
     const patch: Partial<typeof tutor> = {};
     if (updates.name !== undefined) patch.name = updates.name;
     if (updates.email !== undefined) patch.email = updates.email;
-    if (updates.passwordHash !== undefined) patch.passwordHash = updates.passwordHash;
+    if (updates.password !== undefined) patch.passwordHash = hashPassword(updates.password);
     if (updates.hourlyRate !== undefined) patch.hourlyRate = updates.hourlyRate;
     if (updates.tutorSlug !== undefined) patch.tutorSlug = updates.tutorSlug;
     if (updates.active !== undefined) patch.active = updates.active;
@@ -110,50 +127,7 @@ export const listStudents = query({
     const students = await ctx.db.query("students").collect();
 
     return Promise.all(
-      students.map(async (s) => {
-        const enrollments = await ctx.db
-          .query("classStudents")
-          .withIndex("by_student", (q) => q.eq("studentId", s._id))
-          .filter((q) => q.eq(q.field("active"), true))
-          .collect();
-
-        const tutorNames = new Map<string, string>();
-        const enrolledClasses: Array<{ classId: Id<"classes">; className: string }> = [];
-
-        for (const enrollment of enrollments) {
-          const cls = await ctx.db.get(enrollment.classId);
-          if (cls) {
-            enrolledClasses.push({ classId: cls._id, className: cls.name });
-          }
-
-          const assignment = await ctx.db
-            .query("classAssignments")
-            .withIndex("by_class", (q) => q.eq("classId", enrollment.classId))
-            .filter((q) => q.eq(q.field("active"), true))
-            .first();
-          if (assignment && !tutorNames.has(assignment.tutorId)) {
-            const tutor = await ctx.db.get(assignment.tutorId);
-            if (tutor) tutorNames.set(assignment.tutorId, tutor.name);
-          }
-        }
-
-        return {
-          _id: s._id,
-          name: s.name,
-          email: s.email,
-          phone: s.phone,
-          parentName: s.parentName,
-          parentEmail: s.parentEmail,
-          parentPhone: s.parentPhone,
-          yearLevel: s.yearLevel,
-          subjects: s.subjects,
-          assignedTutorNames: Array.from(tutorNames.values()),
-          enrolledClasses,
-          notes: s.notes,
-          active: s.active,
-          createdAt: s.createdAt,
-        };
-      })
+      students.map(s => studentAdminRow(ctx, s))
     );
   },
 });
@@ -175,6 +149,10 @@ export const createStudent = mutation({
   returns: v.id("students"),
   handler: async (ctx, { adminId, ...args }) => {
     await assertAdmin(ctx, adminId);
+    args.name = requiredText(args.name, "Name");
+    args.yearLevel = requiredText(args.yearLevel, "Year level");
+    if (args.email) args.email = validEmail(args.email);
+    if (args.parentEmail) args.parentEmail = validEmail(args.parentEmail);
     return await ctx.db.insert("students", {
       ...args,
       active: true,
@@ -205,6 +183,10 @@ export const updateStudent = mutation({
     const student = await ctx.db.get(studentId);
     if (!student) return false;
 
+    if (updates.name !== undefined) updates.name = requiredText(updates.name, "Name");
+    if (updates.yearLevel !== undefined) updates.yearLevel = requiredText(updates.yearLevel, "Year level");
+    if (updates.email) updates.email = validEmail(updates.email);
+    if (updates.parentEmail) updates.parentEmail = validEmail(updates.parentEmail);
     const patch: Record<string, unknown> = {};
     Object.entries(updates).forEach(([key, value]) => {
       if (value !== undefined) patch[key] = value;
@@ -229,6 +211,18 @@ export const deleteStudent = mutation({
     if (!student) {
       return { success: false, error: "Student not found" };
     }
+
+    // Preserve financial references; these students must be deactivated instead.
+    const [profile, charge, credit] = await Promise.all([
+      ctx.db.query("billingProfiles").withIndex("by_studentId", q => q.eq("studentId", studentId)).first(),
+      ctx.db.query("billingCharges").withIndex("by_student", q => q.eq("studentId", studentId)).first(),
+      ctx.db.query("billingCredits").withIndex("by_student", q => q.eq("studentId", studentId)).first(),
+    ]);
+    if (profile || charge || credit) {
+      return { success: false, error: "This student has billing records. Pause their billing and deactivate them instead." };
+    }
+    const pauses = await ctx.db.query("pauseRequests").withIndex("by_student", q => q.eq("studentId", studentId)).collect();
+    for (const pause of pauses) await ctx.db.delete(pause._id);
 
     // Delete related records
     // Delete class enrollments
@@ -290,10 +284,10 @@ export const deleteTutorAccount = mutation({
   },
   returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
   handler: async (ctx, { adminId, tutorId }) => {
-    await assertAdmin(ctx, adminId);
+    const actorId = await assertAdmin(ctx, adminId);
 
-    // Can't delete yourself
-    if (adminId === tutorId) {
+    // Compare against the verified identity, never the caller-supplied adminId.
+    if (actorId === tutorId) {
       return { success: false, error: "Cannot delete your own account" };
     }
 
@@ -413,10 +407,7 @@ export const getEarningsSummary = query({
   ),
   handler: async (ctx, { adminId, startDate, endDate }) => {
     await assertAdmin(ctx, adminId);
-    const sessions = await ctx.db.query("sessions").collect();
-    const filtered = sessions.filter(
-      (s) => s.date >= startDate && s.date <= endDate
-    );
+    const filtered = await ctx.db.query("sessions").withIndex("by_date", q => q.gte("date", startDate).lte("date", endDate)).collect();
 
     // Group by tutor
     const byTutor = new Map<
@@ -466,6 +457,9 @@ export const setSubjectRate = mutation({
   returns: v.boolean(),
   handler: async (ctx, { adminId, tutorId, subject, ratePerHour }) => {
     await assertAdmin(ctx, adminId);
+    validCents(ratePerHour);
+    subject = requiredText(subject, "Subject");
+    if (!(await ctx.db.get(tutorId))) throw new ConvexError("Tutor not found.");
     const existing = await ctx.db
       .query("subjectRates")
       .withIndex("by_tutor_and_subject", (q) =>
@@ -518,3 +512,50 @@ export const deleteSubjectRate = mutation({
     return true;
   },
 });
+
+export async function studentAdminRow(ctx: QueryCtx, s: Doc<"students">) {
+        const enrollments = await ctx.db
+          .query("classStudents")
+          .withIndex("by_student", (q) => q.eq("studentId", s._id))
+          .filter((q) => q.eq(q.field("active"), true))
+          .collect();
+
+        const tutorNames = new Map<string, string>();
+        const enrolledClasses: Array<{ classId: Id<"classes">; className: string }> = [];
+
+        for (const enrollment of enrollments) {
+          const cls = await ctx.db.get(enrollment.classId);
+          if (cls) {
+            enrolledClasses.push({ classId: cls._id, className: cls.name });
+          }
+
+          const assignments = await ctx.db
+            .query("classAssignments")
+            .withIndex("by_class", (q) => q.eq("classId", enrollment.classId))
+            .filter((q) => q.eq(q.field("active"), true))
+            .collect();
+          for (const assignment of assignments) {
+            if (!tutorNames.has(assignment.tutorId)) {
+              const tutor = await ctx.db.get(assignment.tutorId);
+              if (tutor) tutorNames.set(assignment.tutorId, tutor.name);
+            }
+          }
+        }
+
+        return {
+          _id: s._id,
+          name: s.name,
+          email: s.email,
+          phone: s.phone,
+          parentName: s.parentName,
+          parentEmail: s.parentEmail,
+          parentPhone: s.parentPhone,
+          yearLevel: s.yearLevel,
+          subjects: s.subjects,
+          assignedTutorNames: Array.from(tutorNames.values()),
+          enrolledClasses,
+          notes: s.notes,
+          active: s.active,
+          createdAt: s.createdAt,
+        };
+}

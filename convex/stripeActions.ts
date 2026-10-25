@@ -3,9 +3,11 @@
 import Stripe from "stripe";
 import { action, internalAction } from "./_generated/server";
 import { internal } from "./_generated/api";
-import { v } from "convex/values";
-import type { Id } from "./_generated/dataModel";
+import { ConvexError, v } from "convex/values";
+import type { ActionCtx } from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel";
 import { sendDiscordNotification } from "./discord";
+import { adelaideDate, adelaideWeekday } from "../lib/adelaideDate";
 import { requireAdminClaims, requireStudentSelfOrAdminClaims } from "./identity";
 
 function getStripe(): Stripe {
@@ -133,6 +135,11 @@ export const savePaymentMethod = action({
     const pm: Stripe.PaymentMethod = await stripe.paymentMethods.retrieve(
       stripePaymentMethodId,
     );
+    const profile = await ctx.runQuery(internal.billing.getBillingProfileInternal, { studentId });
+    const customerId = typeof pm.customer === "string" ? pm.customer : pm.customer?.id;
+    if (!profile?.stripeCustomerId || customerId !== profile.stripeCustomerId || pm.type !== "card") {
+      throw new ConvexError("This payment method does not belong to the student's billing account.");
+    }
     const cardLast4 = pm.card?.last4 ?? undefined;
     const cardBrand = pm.card?.brand ?? undefined;
 
@@ -158,298 +165,164 @@ export const savePaymentMethod = action({
   },
 });
 
+type BillingResult = { success: boolean; error?: string; operationId?: Id<"billingOperations">; status?: string };
+
+async function operationResult(ctx: ActionCtx, operationId: Id<"billingOperations">): Promise<BillingResult> {
+  const op = await ctx.runQuery(internal.billingOperations.get, { operationId });
+  return { operationId, success: op?.status === "succeeded", status: op?.status,
+    error: op?.status === "succeeded" ? undefined : op?.error ?? "Payment is still being checked. Use Check status rather than creating another charge." };
+}
+
+const billingResult = v.object({ success: v.boolean(), error: v.optional(v.string()), operationId: v.optional(v.id("billingOperations")), status: v.optional(v.string()) });
+
 export const manualCharge = action({
-  args: {
-    adminId: v.id("tutorAccounts"),
-    studentId: v.id("students"),
-    amountCents: v.number(),
-    description: v.string(),
-  },
-  returns: v.object({ success: v.boolean(), error: v.optional(v.string()) }),
-  handler: async (ctx, { adminId, studentId, amountCents, description }): Promise<{ success: boolean; error?: string }> => {
+  args: { adminId: v.id("tutorAccounts"), studentId: v.id("students"), amountCents: v.number(), description: v.string(), requestId: v.string() },
+  returns: billingResult,
+  handler: async (ctx, { adminId: _adminId, ...args }): Promise<BillingResult> => {
     await requireAdminClaims(ctx);
+    if (!Number.isSafeInteger(args.amountCents) || args.amountCents <= 0) return { success: false, error: "Amount must be positive whole cents." };
+    const operationId: Id<"billingOperations"> = await ctx.runMutation(internal.billingOperations.prepareManual, args);
+    return await ctx.runAction(internal.stripeActions.processBillingOperation, { operationId });
+  },
+});
 
-    if (amountCents <= 0) {
-      return { success: false, error: "Amount must be greater than zero" };
-    }
+export const retryCharge = action({
+  args: { chargeId: v.id("billingCharges") },
+  returns: billingResult,
+  handler: async (ctx, args): Promise<BillingResult> => {
+    await requireAdminClaims(ctx);
+    const operationId: Id<"billingOperations"> = await ctx.runMutation(internal.billingOperations.prepareRetry, args);
+    return await ctx.runAction(internal.stripeActions.processBillingOperation, { operationId });
+  },
+});
 
-    type ProfileResult = {
-      _id: Id<"billingProfiles">;
-      stripeCustomerId?: string;
-      stripePaymentMethodId?: string;
-      paymentType: string;
-    } | null;
+export const checkCharge = action({
+  args: { operationId: v.id("billingOperations"), paymentIntentId: v.optional(v.string()) },
+  returns: billingResult,
+  handler: async (ctx, { operationId, paymentIntentId }): Promise<BillingResult> => {
+    await requireAdminClaims(ctx);
+    if (paymentIntentId) {
+      if (!/^pi_[a-zA-Z0-9_]+$/.test(paymentIntentId)) throw new Error("Enter a valid Stripe PaymentIntent ID.");
+      await ctx.runAction(internal.stripeActions.reconcileBillingIntent, { operationId, paymentIntentId });
+      return await operationResult(ctx, operationId);
+    }
+    return await ctx.runAction(internal.stripeActions.processBillingOperation, { operationId });
+  },
+});
 
-    const profile: ProfileResult = await ctx.runQuery(
-      internal.billing.getBillingProfileInternal,
-      { studentId },
-    );
-    if (!profile) {
-      return { success: false, error: "No billing profile found" };
+function validateIntent(op: Doc<"billingOperations">, intent: Stripe.PaymentIntent) {
+  const customer = typeof intent.customer === "string" ? intent.customer : intent.customer?.id;
+  if (intent.amount !== op.chargeCents || intent.currency !== "aud" || customer !== op.stripeCustomerId || intent.metadata.billingOperationId !== op._id) {
+    throw new Error("Payment intent does not match its billing operation.");
+  }
+}
+
+async function settleIntent(ctx: ActionCtx, op: Doc<"billingOperations">, intent: Stripe.PaymentIntent): Promise<void> {
+  validateIntent(op, intent);
+  await ctx.runMutation(internal.billingOperations.finish, {
+    operationId: op._id, paymentIntentId: intent.id,
+    status: intent.status === "succeeded" ? "succeeded" : intent.status === "canceled" ? "failed" : "uncertain",
+    error: intent.status === "succeeded" ? undefined : intent.status === "canceled" ? "Payment was cancelled or declined. A confirmed failed charge can be retried." : `Payment is ${intent.status}. Check its status before taking further action.`,
+  });
+}
+
+export const processBillingOperation = internalAction({
+  args: { operationId: v.id("billingOperations") },
+  returns: billingResult,
+  handler: async (ctx, { operationId }): Promise<BillingResult> => {
+    const op: Doc<"billingOperations"> | null = await ctx.runMutation(internal.billingOperations.claim, { operationId });
+    if (!op) return await operationResult(ctx, operationId);
+    if (op.chargeCents === 0 || op.paymentType === "cash") {
+      await ctx.runMutation(internal.billingOperations.finish, { operationId, status: "succeeded" });
+      return await operationResult(ctx, operationId);
     }
-    if (profile.paymentType !== "card") {
-      return { success: false, error: "Student is on cash billing — cannot charge a card" };
+    if (!op.stripeCustomerId || !op.stripePaymentMethodId) {
+      await ctx.runMutation(internal.billingOperations.finish, { operationId, status: "failed", error: "No payment method on file." });
+      return await operationResult(ctx, operationId);
     }
-    if (!profile.stripeCustomerId || !profile.stripePaymentMethodId) {
-      return { success: false, error: "No card on file for this student" };
+    // Stripe may discard keys after 24 hours. Never create again beyond a conservative 23-hour window.
+    if (!op.stripePaymentIntentId && Date.now() - op.firstAttemptAt! >= 23 * 60 * 60_000) {
+      await ctx.runMutation(internal.billingOperations.finish, { operationId, status: "uncertain", error: "Automatic recovery window expired. Reconcile this operation in Stripe; do not create another charge." });
+      return await operationResult(ctx, operationId);
     }
 
     const stripe = getStripe();
-    const chargeDate = new Date().toISOString().split("T")[0];
-
-    const student: { name: string; email?: string; parentEmail?: string } | null =
-      await ctx.runQuery(internal.billing.getStudentInternal, { studentId });
-    const receiptEmail = student?.parentEmail || student?.email || undefined;
-
+    let intent: Stripe.PaymentIntent | undefined;
+    let providerError: unknown;
     try {
-      const paymentIntent: Stripe.PaymentIntent = await stripe.paymentIntents.create({
-        amount: amountCents,
-        currency: "aud",
-        customer: profile.stripeCustomerId,
-        payment_method: profile.stripePaymentMethodId,
-        off_session: true,
-        confirm: true,
-        receipt_email: receiptEmail,
-        description: `Simple Tuition — ${description}`,
-        metadata: {
-          studentId,
-          billingProfileId: profile._id,
-          chargeDate,
-          type: "manual",
-          description,
-        },
-      });
-
-      const succeeded = paymentIntent.status === "succeeded";
-      const failMsg = succeeded
-        ? undefined
-        : `Payment ${paymentIntent.status}`;
-
-      await ctx.runMutation(internal.billing.recordCharge, {
-        studentId,
-        billingProfileId: profile._id,
-        amountCents,
-        status: succeeded ? "succeeded" : "failed",
-        weekStartDate: chargeDate,
-        stripePaymentIntentId: paymentIntent.id,
-        failureReason: failMsg,
-        description: `Manual: ${description}`,
-      });
-
-      if (succeeded) {
-        await sendDiscordNotification(
-          "Payment Successful",
-          `**Student:** ${student?.name ?? "Unknown"}\n**Amount:** $${(amountCents / 100).toFixed(2)}\n**Description:** ${description}`,
-          0x10b981,
-        );
+      intent = op.stripePaymentIntentId
+        ? await stripe.paymentIntents.retrieve(op.stripePaymentIntentId)
+        : await stripe.paymentIntents.create({
+          amount: op.chargeCents, currency: "aud", customer: op.stripeCustomerId,
+          payment_method: op.stripePaymentMethodId, off_session: true, confirm: true,
+          receipt_email: op.receiptEmail, description: `Simple Tuition — ${op.description}`,
+          metadata: { billingOperationId: op._id, studentId: op.studentId, billingProfileId: op.billingProfileId, chargeDate: op.chargeDate },
+        }, { idempotencyKey: `billing:${operationId}` });
+    } catch (error) {
+      providerError = error;
+      // A decline can still carry an existing PaymentIntent. Retrieve its current state.
+      const embedded = (error as { payment_intent?: string | { id: string }; raw?: { payment_intent?: string | { id: string } } }).payment_intent
+        ?? (error as { raw?: { payment_intent?: string | { id: string } } }).raw?.payment_intent;
+      const id = typeof embedded === "string" ? embedded : embedded?.id;
+      if (id) {
+        try { intent = await stripe.paymentIntents.retrieve(id); }
+        catch {
+          await ctx.runMutation(internal.billingOperations.finish, { operationId, status: "uncertain", paymentIntentId: id, error: "Stripe returned a payment reference but its result could not be confirmed." });
+          return await operationResult(ctx, operationId);
+        }
       }
-
-      return succeeded
-        ? { success: true }
-        : { success: false, error: failMsg };
-    } catch (err: any) {
-      const friendlyError = formatStripeError(err);
-      await ctx.runMutation(internal.billing.recordCharge, {
-        studentId,
-        billingProfileId: profile._id,
-        amountCents,
-        status: "failed",
-        weekStartDate: chargeDate,
-        failureReason: friendlyError,
-        description: `Manual: ${description}`,
-      });
-      return { success: false, error: friendlyError };
     }
+    if (!intent) {
+      const definiteDecline = (providerError as { type?: string })?.type === "StripeCardError";
+      await ctx.runMutation(internal.billingOperations.finish, {
+        operationId, status: definiteDecline ? "failed" : "uncertain",
+        error: definiteDecline ? formatStripeError(providerError) : "Payment outcome is not confirmed. Check status; do not create a new charge.",
+      });
+      return await operationResult(ctx, operationId);
+    }
+    validateIntent(op, intent);
+    // Cancel unconfirmed declined/authentication-required intents before releasing credit or permitting a new attempt.
+    if (["requires_payment_method", "requires_action", "requires_confirmation"].includes(intent.status)) {
+      try { intent = await stripe.paymentIntents.cancel(intent.id); }
+      catch {
+        await ctx.runMutation(internal.billingOperations.finish, { operationId, status: "uncertain", paymentIntentId: intent.id, error: "The incomplete payment could not be cancelled. Check status before retrying." });
+        return await operationResult(ctx, operationId);
+      }
+    }
+    // Deliberately outside the provider catch: a database failure must never become a failed payment.
+    await settleIntent(ctx, op, intent);
+    return await operationResult(ctx, operationId);
+  },
+});
+
+// Called only after Stripe webhook signature verification. Retrieval handles out-of-order events.
+export const reconcileBillingIntent = internalAction({
+  args: { paymentIntentId: v.string(), operationId: v.id("billingOperations") },
+  handler: async (ctx, { paymentIntentId, operationId }): Promise<void> => {
+    const op: Doc<"billingOperations"> | null = await ctx.runQuery(internal.billingOperations.get, { operationId });
+    if (!op || ["succeeded", "failed"].includes(op.status)) return;
+    const intent = await getStripe().paymentIntents.retrieve(paymentIntentId);
+    await settleIntent(ctx, op, intent);
   },
 });
 
 export const chargeAllActive = internalAction({
-  args: {},
+  args: { cursor: v.optional(v.union(v.string(), v.null())), chargeDate: v.optional(v.string()), dayOfWeek: v.optional(v.string()) },
   returns: v.null(),
-  handler: async (ctx) => {
-    const stripe = getStripe();
-
-    type BillingProfile = {
-      _id: Id<"billingProfiles">;
-      studentId: Id<"students">;
-      paymentType: string;
-      stripeCustomerId?: string;
-      stripePaymentMethodId?: string;
-    };
-
-    const profiles: BillingProfile[] = await ctx.runQuery(
-      internal.billing.listActiveBillingProfiles,
-    );
-
-    // Adelaide is UTC+9:30 (ACST). Compute today's date & day-name there.
+  handler: async (ctx, args): Promise<null> => {
     const now = new Date();
-    const adelaideMs = now.getTime() + 9.5 * 60 * 60 * 1000;
-    const adelaideDate = new Date(adelaideMs);
-    const chargeDate: string = adelaideDate.toISOString().split("T")[0];
-    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const dayOfWeek: string = dayNames[adelaideDate.getDay()];
-
-    for (const profile of profiles) {
-      // Idempotency: never charge the same profile twice for the same date.
-      const alreadyCharged: boolean = await ctx.runQuery(
-        internal.billing.getChargeForProfileAndDate,
-        { billingProfileId: profile._id, weekStartDate: chargeDate },
-      );
-      if (alreadyCharged) continue;
-
-      const rate: {
-        totalCents: number;
-        breakdown: Array<{
-          className: string;
-          tutorName: string;
-          subject: string;
-          paused: boolean;
-          lineTotalCents: number;
-        }>;
-      } = await ctx.runQuery(
-        internal.billing.calculateDailyRate,
-        { studentId: profile.studentId, dayOfWeek, referenceDate: chargeDate },
-      );
-
-      const classDetails = rate.breakdown
-        .filter((l) => !l.paused && l.lineTotalCents > 0)
-        .map((l) => `${l.subject} — ${l.tutorName}`)
-        .join(", ");
-
-      if (rate.totalCents <= 0) continue;
-
-      const creditBalance: number = await ctx.runQuery(
-        internal.billing.getCreditBalanceInternal,
-        { studentId: profile.studentId },
-      );
-
-      let amountToCharge: number = rate.totalCents;
-      let creditUsed: number = 0;
-
-      if (creditBalance > 0) {
-        creditUsed = Math.min(creditBalance, amountToCharge);
-        amountToCharge -= creditUsed;
-      }
-
-      if (amountToCharge <= 0) {
-        await ctx.runMutation(internal.billing.recordCharge, {
-          studentId: profile.studentId,
-          billingProfileId: profile._id,
-          amountCents: rate.totalCents,
-          status: "credit_applied",
-          weekStartDate: chargeDate,
-          description: `Auto: ${dayOfWeek} ${chargeDate} — ${classDetails || "credit applied"}`,
-        });
-        await ctx.runMutation(internal.billing.insertCreditEntry, {
-          studentId: profile.studentId,
-          amountCents: -creditUsed,
-          reason: "applied_to_charge",
-          description: `Applied to ${dayOfWeek} ${chargeDate} — ${classDetails}`,
-        });
-        continue;
-      }
-
-      if (profile.paymentType === "cash") {
-        await ctx.runMutation(internal.billing.recordCharge, {
-          studentId: profile.studentId,
-          billingProfileId: profile._id,
-          amountCents: rate.totalCents,
-          status: "cash",
-          weekStartDate: chargeDate,
-          description: `Auto: ${dayOfWeek} ${chargeDate} — ${classDetails || "cash"}`,
-        });
-        if (creditUsed > 0) {
-          await ctx.runMutation(internal.billing.insertCreditEntry, {
-            studentId: profile.studentId,
-            amountCents: -creditUsed,
-            reason: "applied_to_charge",
-            description: `Partial credit applied to ${dayOfWeek} ${chargeDate} — ${classDetails}`,
-          });
-        }
-        continue;
-      }
-
-      if (!profile.stripeCustomerId || !profile.stripePaymentMethodId) {
-        await ctx.runMutation(internal.billing.recordCharge, {
-          studentId: profile.studentId,
-          billingProfileId: profile._id,
-          amountCents: rate.totalCents,
-          status: "failed",
-          weekStartDate: chargeDate,
-          failureReason: "No payment method on file",
-          description: `Auto: ${dayOfWeek} ${chargeDate} — ${classDetails}`,
-        });
-        continue;
-      }
-
-      const student: { name: string; email?: string; parentEmail?: string } | null =
-        await ctx.runQuery(internal.billing.getStudentInternal, { studentId: profile.studentId });
-      const receiptEmail = student?.parentEmail || student?.email || undefined;
-
-      try {
-        const paymentIntent: Stripe.PaymentIntent = await stripe.paymentIntents.create({
-          amount: amountToCharge,
-          currency: "aud",
-          customer: profile.stripeCustomerId,
-          payment_method: profile.stripePaymentMethodId,
-          off_session: true,
-          confirm: true,
-          receipt_email: receiptEmail,
-          description: `Simple Tuition — ${dayOfWeek} ${chargeDate}${student ? ` (${student.name})` : ""}${classDetails ? ` — ${classDetails}` : ""}`,
-          metadata: {
-            studentId: profile.studentId,
-            billingProfileId: profile._id,
-            chargeDate,
-            dayOfWeek,
-            creditApplied: String(creditUsed),
-          },
-        });
-
-        const succeeded: boolean = paymentIntent.status === "succeeded";
-
-        await ctx.runMutation(internal.billing.recordCharge, {
-          studentId: profile.studentId,
-          billingProfileId: profile._id,
-          amountCents: rate.totalCents,
-          status: succeeded ? "succeeded" : "failed",
-          weekStartDate: chargeDate,
-          stripePaymentIntentId: paymentIntent.id,
-          failureReason: succeeded
-            ? undefined
-            : `Payment status: ${paymentIntent.status}`,
-          description: `Auto: ${dayOfWeek} ${chargeDate} — ${classDetails}`,
-        });
-
-        if (succeeded) {
-          await sendDiscordNotification(
-            "Payment Successful",
-            `**Student:** ${student?.name ?? "Unknown"}\n**Amount:** $${(amountToCharge / 100).toFixed(2)}${creditUsed > 0 ? ` (+ $${(creditUsed / 100).toFixed(2)} credit)` : ""}\n**Classes:** ${classDetails || "N/A"}`,
-            0x10b981,
-          );
-        }
-
-        if (succeeded && creditUsed > 0) {
-          await ctx.runMutation(internal.billing.insertCreditEntry, {
-            studentId: profile.studentId,
-            amountCents: -creditUsed,
-            reason: "applied_to_charge",
-            description: `Partial credit applied to ${dayOfWeek} ${chargeDate} — ${classDetails}`,
-          });
-        }
-      } catch (err: any) {
-        const friendlyError = formatStripeError(err);
-        await ctx.runMutation(internal.billing.recordCharge, {
-          studentId: profile.studentId,
-          billingProfileId: profile._id,
-          amountCents: rate.totalCents,
-          status: "failed",
-          weekStartDate: chargeDate,
-          failureReason: friendlyError,
-          description: `Auto: ${dayOfWeek} ${chargeDate} — ${classDetails}`,
-        });
+    const chargeDate = args.chargeDate ?? adelaideDate(now);
+    const dayOfWeek = args.dayOfWeek ?? adelaideWeekday(now);
+    const batch = await ctx.runQuery(internal.billingOperations.profileBatch, { cursor: args.cursor ?? null });
+    for (const profile of batch.page) {
+      const operationId: Id<"billingOperations"> | null = await ctx.runMutation(internal.billingOperations.prepareDaily, { billingProfileId: profile._id, chargeDate, dayOfWeek });
+      if (operationId) {
+        // Preparation already schedules recovery, so one provider outage cannot stop the batch.
+        try { await ctx.runAction(internal.stripeActions.processBillingOperation, { operationId }); }
+        catch { console.error("Billing operation requires recovery", { operationId }); }
       }
     }
-
+    if (!batch.isDone) await ctx.scheduler.runAfter(0, internal.stripeActions.chargeAllActive, { cursor: batch.continueCursor, chargeDate, dayOfWeek });
     return null;
   },
 });

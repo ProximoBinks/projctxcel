@@ -1,17 +1,21 @@
 "use client";
 
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 const EnquiryForm = lazy(() => import("./EnquiryForm"));
 
+const subscribeAvailability = () => () => {};
+const lacksObserver = () => !("IntersectionObserver" in window);
+const serverObserver = () => false;
+
 export default function DeferredEnquiryForm() {
+  const noObserver = useSyncExternalStore(subscribeAvailability, lacksObserver, serverObserver);
   const ref = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const element = ref.current;
     if (!element || !("IntersectionObserver" in window)) {
-      setReady(true);
       return;
     }
     const observer = new IntersectionObserver(
@@ -28,7 +32,7 @@ export default function DeferredEnquiryForm() {
 
   return (
     <div ref={ref} className="min-h-48">
-      {ready ? (
+      {ready || noObserver ? (
         <Suspense fallback={<FormSkeleton />}>
           <EnquiryForm />
         </Suspense>

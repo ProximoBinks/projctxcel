@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useSyncExternalStore, useState } from "react";
 import Link from "next/link";
 import { useAction, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
@@ -101,6 +101,13 @@ function renderFaqAnswer(text: string) {
   );
 }
 
+function subscribeLocation(callback: () => void) {
+  window.addEventListener("popstate", callback);
+  return () => window.removeEventListener("popstate", callback);
+}
+const locationSnapshot = () => window.location.search;
+const serverLocationSnapshot = () => "";
+
 export default function InterviewClient() {
   const { t, tArray } = useTranslation();
   const createPending = useMutation(api.courseEnrollments.createPending);
@@ -116,7 +123,8 @@ export default function InterviewClient() {
   const [company, setCompany] = useState("");
   const [status, setStatus] = useState<"idle" | "loading">("idle");
   const [error, setError] = useState<string | null>(null);
-  const [wasCancelled, setWasCancelled] = useState(false);
+  const search = useSyncExternalStore(subscribeLocation, locationSnapshot, serverLocationSnapshot);
+  const wasCancelled = new URLSearchParams(search).get("checkout") === "cancelled";
   // Indices the reader has collapsed; everything starts expanded.
   const [closedFaqs, setClosedFaqs] = useState<number[]>([]);
 
@@ -131,11 +139,6 @@ export default function InterviewClient() {
     "interview.faq"
   );
   const whyParagraphs = tArray<string>("interview.whyParagraphs");
-
-  useEffect(() => {
-    const searchParams = new URLSearchParams(window.location.search);
-    setWasCancelled(searchParams.get("checkout") === "cancelled");
-  }, []);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

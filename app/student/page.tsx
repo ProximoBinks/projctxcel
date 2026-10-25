@@ -2,7 +2,7 @@
 
 export const dynamic = "force-dynamic";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useMutation, useQuery, useAction, useConvexAuth } from "convex/react";
@@ -1244,18 +1244,14 @@ function AddCardModal({
   const [cardComplete, setCardComplete] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
-  const initSetup = useCallback(async () => {
-    try {
-      const result = await createSetupIntent({ studentId });
-      setClientSecret(result.clientSecret);
-    } catch (err: any) {
-      setError(err.message ?? "Failed to initialize card setup");
-    }
-  }, [createSetupIntent, studentId]);
-
   useEffect(() => {
-    initSetup();
-  }, [initSetup]);
+    let active = true;
+    void createSetupIntent({ studentId }).then(
+      result => { if (active) setClientSecret(result.clientSecret); },
+      error => { if (active) setError(error instanceof Error ? error.message : "Failed to initialize card setup"); },
+    );
+    return () => { active = false; };
+  }, [createSetupIntent, studentId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1389,18 +1385,15 @@ function CardSetupOverlay({ studentId }: { studentId: Id<"students"> }) {
   const [cardComplete, setCardComplete] = useState(false);
   const [clientSecret, setClientSecret] = useState<string | null>(null);
 
-  const initSetup = useCallback(async () => {
-    try {
-      const result = await createSetupIntent({ studentId });
-      setClientSecret(result.clientSecret);
-    } catch (err: any) {
-      setError(err.message ?? "Failed to initialize card setup");
-    }
-  }, [createSetupIntent, studentId]);
-
+  const [setupAttempt, setSetupAttempt] = useState(0);
   useEffect(() => {
-    initSetup();
-  }, [initSetup]);
+    let active = true;
+    void createSetupIntent({ studentId }).then(
+      result => { if (active) setClientSecret(result.clientSecret); },
+      error => { if (active) setError(error instanceof Error ? error.message : "Failed to initialize card setup"); },
+    );
+    return () => { active = false; };
+  }, [createSetupIntent, studentId, setupAttempt]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -1454,7 +1447,7 @@ function CardSetupOverlay({ studentId }: { studentId: Id<"students"> }) {
           Add your payment method
         </h2>
         <p className="mt-1 text-sm text-slate-500">
-          A card on file is required to continue. You'll only be charged for classes you attend.
+          A card on file is required to continue. You&apos;ll only be charged for classes you attend.
         </p>
 
         {!clientSecret && !error && (
@@ -1465,7 +1458,7 @@ function CardSetupOverlay({ studentId }: { studentId: Id<"students"> }) {
           <div className="mt-6 space-y-3">
             <p className="text-sm text-red-600">{error}</p>
             <button
-              onClick={initSetup}
+              onClick={() => { setError(""); setSetupAttempt(attempt => attempt + 1); }}
               className="rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-700"
             >
               Try again

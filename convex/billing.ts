@@ -1,13 +1,16 @@
 import { query, mutation, internalQuery, internalMutation } from "./_generated/server";
-import { v } from "convex/values";
-import type { Id } from "./_generated/dataModel";
+import { ConvexError, v } from "convex/values";
+import type { Doc, Id } from "./_generated/dataModel";
 import type { QueryCtx, MutationCtx } from "./_generated/server";
 import { requireAdmin, requireStudentSelfOrAdmin } from "./identity";
+import { requiredText, validCents, validDate } from "./adminValidation";
+import { recordRevenue } from "./billingRevenue";
+import { adelaideDate, adelaideWeekday } from "../lib/adelaideDate";
 
 // Authorize via the verified ctx.auth identity. The adminId arg is retained for
 // backward compatibility with existing callers but is no longer trusted.
 async function assertAdmin(ctx: any, _adminId: Id<"tutorAccounts">) {
-  await requireAdmin(ctx);
+  return await requireAdmin(ctx);
 }
 
 // ---------------------------------------------------------------------------
@@ -66,7 +69,7 @@ type WeeklyRate = {
  * for weekly-only or mixed cadences (UI then shows a per-week average). Shared by
  * the admin list and the student dashboard so both display the same thing.
  */
-function uniformIntervalWeeks(rate: WeeklyRate): number | null {
+export function uniformIntervalWeeks(rate: WeeklyRate): number | null {
   const active = rate.breakdown.filter((l) => !l.paused && l.lineTotalCents > 0);
   if (active.length === 0) return null;
   const intervals = new Set(active.map((l) => l.intervalWeeks));
@@ -76,17 +79,11 @@ function uniformIntervalWeeks(rate: WeeklyRate): number | null {
 }
 
 function getTodayAdelaide(): string {
-  // ACST is UTC+9:30; close enough for date calculation
-  const now = new Date();
-  const adelaideMs = now.getTime() + (9.5 * 60 * 60 * 1000);
-  return new Date(adelaideMs).toISOString().split("T")[0];
+  return adelaideDate();
 }
 
 function getDayOfWeekAdelaide(): string {
-  const now = new Date();
-  const adelaideMs = now.getTime() + (9.5 * 60 * 60 * 1000);
-  const d = new Date(adelaideMs);
-  return DAY_ORDER[d.getDay() === 0 ? 6 : d.getDay() - 1];
+  return adelaideWeekday();
 }
 
 /**
@@ -360,27 +357,7 @@ export const listAllBillingProfiles = query({
     const profiles = await ctx.db.query("billingProfiles").collect();
 
     const results = await Promise.all(
-      profiles.map(async (profile) => {
-        const student = await ctx.db.get(profile.studentId);
-        const weeklyRate = await calculateWeeklyRateHelper(ctx, profile.studentId);
-        const creditBalanceCents = await getCreditBalanceHelper(ctx, profile.studentId);
-        return {
-          _id: profile._id,
-          studentId: profile.studentId,
-          studentName: student?.name ?? "Unknown",
-          paymentType: profile.paymentType,
-          cardLast4: profile.cardLast4,
-          cardBrand: profile.cardBrand,
-          status: profile.status,
-          pausedAt: profile.pausedAt,
-          pausedBy: profile.pausedBy,
-          pauseReason: profile.pauseReason,
-          weeklyRateCents: weeklyRate.effectiveWeeklyCents,
-          cadenceIntervalWeeks: uniformIntervalWeeks(weeklyRate) ?? undefined,
-          creditBalanceCents,
-          createdAt: profile.createdAt,
-        };
-      }),
+      profiles.map(profile => billingProfileRow(ctx, profile)),
     );
 
     return results;
@@ -396,6 +373,8 @@ export const createBillingProfile = mutation({
   returns: v.id("billingProfiles"),
   handler: async (ctx, { adminId, studentId, paymentType }) => {
     await assertAdmin(ctx, adminId);
+    if (!["card", "cash"].includes(paymentType)) throw new ConvexError("Choose card or cash billing.");
+    if (!(await ctx.db.get(studentId))) throw new ConvexError("Student not found.");
 
     const existing = await ctx.db
       .query("billingProfiles")
@@ -423,6 +402,7 @@ export const updatePaymentType = mutation({
   returns: v.boolean(),
   handler: async (ctx, { adminId, studentId, paymentType }) => {
     await assertAdmin(ctx, adminId);
+    if (!["card", "cash"].includes(paymentType)) throw new ConvexError("Choose card or cash billing.");
 
     const profile = await ctx.db
       .query("billingProfiles")
@@ -445,6 +425,11 @@ export const deleteBillingProfile = mutation({
     await assertAdmin(ctx, adminId);
     const profile = await ctx.db.get(billingProfileId);
     if (!profile) return false;
+    const charge = await ctx.db.query("billingCharges").withIndex("by_billingProfile_and_week", q => q.eq("billingProfileId", billingProfileId)).first();
+    if (charge) throw new ConvexError("This profile has charge history. Pause billing instead of deleting it.");
+    const pending = await ctx.db.query("billingOperations").withIndex("by_student_status", q => q.eq("studentId", profile.studentId).eq("status", "pending")).first();
+    const uncertain = await ctx.db.query("billingOperations").withIndex("by_student_status", q => q.eq("studentId", profile.studentId).eq("status", "uncertain")).first();
+    if (pending || uncertain) throw new ConvexError("Reconcile outstanding payments before deleting this profile.");
     await ctx.db.delete(billingProfileId);
     return true;
   },
@@ -463,6 +448,7 @@ export const updateBillingStatus = mutation({
     const profile = await ctx.db.get(billingProfileId);
     if (!profile) return false;
 
+    if (!["active", "paused"].includes(status)) throw new ConvexError("Choose active or paused billing.");
     const patch: Record<string, unknown> = { status };
     if (status === "active") {
       patch.pausedAt = undefined;
@@ -580,16 +566,14 @@ export const getRevenueStats = query({
   handler: async (ctx, { adminId }) => {
     await assertAdmin(ctx, adminId);
 
-    const now = new Date();
-    const adelaideMs = now.getTime() + 9.5 * 60 * 60 * 1000;
-    const adelaide = new Date(adelaideMs);
+    const adelaide = new Date(`${adelaideDate()}T00:00:00Z`);
 
-    const monthStart = `${adelaide.getFullYear()}-${String(adelaide.getMonth() + 1).padStart(2, "0")}-01`;
+    const monthStart = `${adelaide.getUTCFullYear()}-${String(adelaide.getUTCMonth() + 1).padStart(2, "0")}-01`;
 
-    const jsDay = adelaide.getDay();
+    const jsDay = adelaide.getUTCDay();
     const mondayOffset = jsDay === 0 ? 6 : jsDay - 1;
     const weekStart = new Date(adelaide);
-    weekStart.setDate(weekStart.getDate() - mondayOffset);
+    weekStart.setUTCDate(weekStart.getUTCDate() - mondayOffset);
     const weekStartStr = weekStart.toISOString().split("T")[0];
 
     let allTimeCents = 0;
@@ -608,10 +592,10 @@ export const getRevenueStats = query({
 
       for (const charge of page.page) {
         if (charge.status !== "succeeded") continue;
-        allTimeCents += charge.amountCents;
+        allTimeCents += (charge.paidCents ?? charge.amountCents);
         chargeCount++;
-        if (charge.weekStartDate >= monthStart) thisMonthCents += charge.amountCents;
-        if (charge.weekStartDate >= weekStartStr) thisWeekCents += charge.amountCents;
+        if (charge.weekStartDate >= monthStart) thisMonthCents += (charge.paidCents ?? charge.amountCents);
+        if (charge.weekStartDate >= weekStartStr) thisWeekCents += (charge.paidCents ?? charge.amountCents);
       }
 
       done = page.isDone;
@@ -646,7 +630,7 @@ export const getRevenueChartData = query({
       for (const charge of page.page) {
         if (charge.status !== "succeeded") continue;
         const date = charge.weekStartDate;
-        byDate.set(date, (byDate.get(date) ?? 0) + charge.amountCents);
+        byDate.set(date, (byDate.get(date) ?? 0) + (charge.paidCents ?? charge.amountCents));
       }
 
       done = page.isDone;
@@ -779,6 +763,12 @@ export const requestClassPause = mutation({
   returns: v.id("pauseRequests"),
   handler: async (ctx, { studentId, classId, reason, startDate, endDate }) => {
     await requireStudentSelfOrAdmin(ctx, studentId);
+    validDate(startDate);
+    if (endDate) {
+      validDate(endDate);
+      if (endDate < startDate) throw new ConvexError("End date must not precede start date.");
+    }
+    reason = requiredText(reason, "Pause reason");
     const enrollment = await ctx.db
       .query("classStudents")
       .withIndex("by_student_and_class", (q) =>
@@ -818,10 +808,11 @@ export const reviewPauseRequest = mutation({
   },
   returns: v.boolean(),
   handler: async (ctx, { adminId, requestId, decision, reviewNote }) => {
-    await assertAdmin(ctx, adminId);
+    adminId = await assertAdmin(ctx, adminId);
     const request = await ctx.db.get(requestId);
     if (!request || request.status !== "pending") return false;
 
+    if (!["approved", "rejected"].includes(decision)) throw new ConvexError("Choose approved or rejected.");
     await ctx.db.patch(requestId, {
       status: decision,
       reviewedBy: adminId,
@@ -856,7 +847,7 @@ export const adminUnpause = mutation({
   },
   returns: v.boolean(),
   handler: async (ctx, { adminId, requestId }) => {
-    await assertAdmin(ctx, adminId);
+    adminId = await assertAdmin(ctx, adminId);
     const request = await ctx.db.get(requestId);
     if (!request || request.status !== "approved") return false;
 
@@ -963,7 +954,7 @@ export const getMyPauseRequests = query({
 // Credit system
 // ---------------------------------------------------------------------------
 
-async function getCreditBalanceHelper(
+export async function getCreditBalanceHelper(
   ctx: QueryCtx,
   studentId: Id<"students">,
 ): Promise<number> {
@@ -971,7 +962,9 @@ async function getCreditBalanceHelper(
     .query("billingCredits")
     .withIndex("by_student", (q) => q.eq("studentId", studentId))
     .collect();
-  return credits.reduce((sum, c) => sum + c.amountCents, 0);
+  const pending = await ctx.db.query("billingOperations").withIndex("by_student_status", q => q.eq("studentId", studentId).eq("status", "pending")).collect();
+  const uncertain = await ctx.db.query("billingOperations").withIndex("by_student_status", q => q.eq("studentId", studentId).eq("status", "uncertain")).collect();
+  return credits.reduce((sum, c) => sum + c.amountCents, 0) - [...pending, ...uncertain].reduce((sum, op) => sum + op.creditCents, 0);
 }
 
 export const getStudentCreditBalance = query({
@@ -1053,8 +1046,10 @@ export const addCredit = mutation({
   },
   returns: v.id("billingCredits"),
   handler: async (ctx, { adminId, studentId, amountCents, description }) => {
-    await assertAdmin(ctx, adminId);
-    if (amountCents <= 0) throw new Error("Credit amount must be positive");
+    adminId = await assertAdmin(ctx, adminId);
+    validCents(amountCents, true);
+    description = requiredText(description, "Credit description");
+    if (!(await ctx.db.get(studentId))) throw new ConvexError("Student not found.");
 
     return await ctx.db.insert("billingCredits", {
       studentId,
@@ -1113,9 +1108,8 @@ export const getUpcomingCharges = query({
       .withIndex("by_status", (q) => q.eq("status", "active"))
       .collect();
 
-    const now = new Date();
-    const adelaideDate = new Date(now.getTime() + 9.5 * 60 * 60 * 1000);
-    const todayStr = adelaideDate.toISOString().split("T")[0];
+    const todayStr = adelaideDate();
+    const localDate = new Date(`${todayStr}T00:00:00Z`);
 
     type Row = {
       studentId: Id<"students">;
@@ -1133,57 +1127,7 @@ export const getUpcomingCharges = query({
     const rows: Row[] = [];
 
     for (const profile of profiles) {
-      const student = await ctx.db.get(profile.studentId);
-      if (!student) continue;
-
-      // Collect this student's upcoming charge events in date order.
-      const events: Array<{ date: string; day: string; grossCents: number; summary: string }> = [];
-      for (let dayOffset = 0; dayOffset < horizon; dayOffset++) {
-        const futureDate = new Date(adelaideDate);
-        futureDate.setDate(futureDate.getDate() + dayOffset);
-        const dateStr = futureDate.toISOString().split("T")[0];
-        const jsDay = futureDate.getDay();
-        const day = DAY_ORDER[jsDay === 0 ? 6 : jsDay - 1];
-
-        // Skip if already charged for this day.
-        const existing = await ctx.db
-          .query("billingCharges")
-          .withIndex("by_billingProfile_and_week", (q) =>
-            q.eq("billingProfileId", profile._id).eq("weekStartDate", dateStr),
-          )
-          .first();
-        if (existing) continue;
-
-        const rate = await calculateDailyRateHelper(ctx, profile.studentId, day, dateStr);
-        if (rate.totalCents <= 0) continue;
-
-        const summary = rate.breakdown
-          .filter((l) => !l.paused && l.lineTotalCents > 0)
-          .map((l) => `${l.subject} — ${l.tutorName}`)
-          .join(", ");
-        events.push({ date: dateStr, day, grossCents: rate.totalCents, summary });
-      }
-
-      // Apply current credit balance across the events in chronological order,
-      // mirroring how the daily cron consumes credit, to show the real card hit.
-      let remainingCredit = await getCreditBalanceHelper(ctx, profile.studentId);
-      for (const ev of events) {
-        const applied = Math.max(0, Math.min(remainingCredit, ev.grossCents));
-        remainingCredit -= applied;
-        rows.push({
-          studentId: profile.studentId,
-          studentName: student.name,
-          date: ev.date,
-          dayOfWeek: ev.day,
-          isToday: ev.date === todayStr,
-          grossCents: ev.grossCents,
-          creditAppliedCents: applied,
-          netChargeCents: ev.grossCents - applied,
-          paymentType: profile.paymentType,
-          hasCard: !!profile.stripePaymentMethodId,
-          classesSummary: ev.summary,
-        });
-      }
+      rows.push(...await upcomingForProfile(ctx, profile, horizon));
     }
 
     rows.sort((a, b) => (a.date === b.date ? a.studentName.localeCompare(b.studentName) : a.date.localeCompare(b.date)));
@@ -1328,7 +1272,7 @@ export const recordCharge = internalMutation({
   },
   returns: v.null(),
   handler: async (ctx, args) => {
-    await ctx.db.insert("billingCharges", {
+    const chargeId = await ctx.db.insert("billingCharges", {
       studentId: args.studentId,
       billingProfileId: args.billingProfileId,
       amountCents: args.amountCents,
@@ -1339,6 +1283,7 @@ export const recordCharge = internalMutation({
       description: args.description,
       createdAt: Date.now(),
     });
+    await recordRevenue(ctx, (await ctx.db.get(chargeId))!);
     return null;
   },
 });
@@ -1372,3 +1317,85 @@ export const insertCreditEntry = internalMutation({
     return null;
   },
 });
+
+export async function billingProfileRow(ctx: QueryCtx, profile: Doc<"billingProfiles">) {
+        const student = await ctx.db.get(profile.studentId);
+        const weeklyRate = await calculateWeeklyRateHelper(ctx, profile.studentId);
+        const creditBalanceCents = await getCreditBalanceHelper(ctx, profile.studentId);
+        return {
+          _id: profile._id,
+          studentId: profile.studentId,
+          studentName: student?.name ?? "Unknown",
+          paymentType: profile.paymentType,
+          cardLast4: profile.cardLast4,
+          cardBrand: profile.cardBrand,
+          status: profile.status,
+          pausedAt: profile.pausedAt,
+          pausedBy: profile.pausedBy,
+          pauseReason: profile.pauseReason,
+          weeklyRateCents: weeklyRate.effectiveWeeklyCents,
+          cadenceIntervalWeeks: uniformIntervalWeeks(weeklyRate) ?? undefined,
+          creditBalanceCents,
+          createdAt: profile.createdAt,
+        };
+}
+
+export async function upcomingForProfile(ctx: QueryCtx, profile: Doc<"billingProfiles">, horizon = 28) {
+    const todayStr = adelaideDate();
+    const localDate = new Date(`${todayStr}T00:00:00Z`);
+    const rows: Array<{ studentId: Id<"students">; studentName: string; date: string; dayOfWeek: string; isToday: boolean; grossCents: number; creditAppliedCents: number; netChargeCents: number; paymentType: string; hasCard: boolean; classesSummary: string }> = [];
+      const student = await ctx.db.get(profile.studentId);
+      if (!student) return [];
+
+      // Collect this student's upcoming charge events in date order.
+      const events: Array<{ date: string; day: string; grossCents: number; summary: string }> = [];
+      for (let dayOffset = 0; dayOffset < horizon; dayOffset++) {
+        const futureDate = new Date(localDate);
+        futureDate.setUTCDate(futureDate.getUTCDate() + dayOffset);
+        const dateStr = futureDate.toISOString().split("T")[0];
+        const jsDay = futureDate.getUTCDay();
+        const day = DAY_ORDER[jsDay === 0 ? 6 : jsDay - 1];
+
+        // Skip if already charged for this day.
+        const existing = await ctx.db
+          .query("billingCharges")
+          .withIndex("by_billingProfile_and_week", (q) =>
+            q.eq("billingProfileId", profile._id).eq("weekStartDate", dateStr),
+          )
+          .first();
+        if (existing) continue;
+        const operation = await ctx.db.query("billingOperations").withIndex("by_key", q => q.eq("key", `daily:${profile._id}:${dateStr}`)).unique();
+        if (operation) continue;
+
+        const rate = await calculateDailyRateHelper(ctx, profile.studentId, day, dateStr);
+        if (rate.totalCents <= 0) continue;
+
+        const summary = rate.breakdown
+          .filter((l) => !l.paused && l.lineTotalCents > 0)
+          .map((l) => `${l.subject} — ${l.tutorName}`)
+          .join(", ");
+        events.push({ date: dateStr, day, grossCents: rate.totalCents, summary });
+      }
+
+      // Apply current credit balance across the events in chronological order,
+      // mirroring how the daily cron consumes credit, to show the real card hit.
+      let remainingCredit = await getCreditBalanceHelper(ctx, profile.studentId);
+      for (const ev of events) {
+        const applied = Math.max(0, Math.min(remainingCredit, ev.grossCents));
+        remainingCredit -= applied;
+        rows.push({
+          studentId: profile.studentId,
+          studentName: student.name,
+          date: ev.date,
+          dayOfWeek: ev.day,
+          isToday: ev.date === todayStr,
+          grossCents: ev.grossCents,
+          creditAppliedCents: applied,
+          netChargeCents: ev.grossCents - applied,
+          paymentType: profile.paymentType,
+          hasCard: !!profile.stripePaymentMethodId,
+          classesSummary: ev.summary,
+        });
+      }
+    return rows;
+}

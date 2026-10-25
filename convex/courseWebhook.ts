@@ -193,6 +193,13 @@ export const handleStripeEvent = internalAction({
       return { ok: false, message: `Signature verification failed: ${error?.message ?? "unknown"}` };
     }
 
+    if (event.type.startsWith("payment_intent.")) {
+      const intent = event.data.object as Stripe.PaymentIntent;
+      const operationId = intent.metadata?.billingOperationId as Id<"billingOperations"> | undefined;
+      if (operationId) await ctx.runAction(internal.stripeActions.reconcileBillingIntent, { operationId, paymentIntentId: intent.id });
+      return { ok: true, message: "Billing payment event reconciled" };
+    }
+
     const session = event.data.object as Stripe.Checkout.Session;
     const enrollmentId = session.metadata?.enrollmentId as
       | Id<"courseEnrollments">

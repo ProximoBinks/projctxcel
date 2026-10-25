@@ -8,6 +8,7 @@ import {
 } from "./passwords";
 import { assertServerSecret } from "./serverOnly";
 import { requireAdmin } from "./identity";
+import { requiredText, validCents, validEmail, validPassword } from "./adminValidation";
 
 // Authorize via the verified ctx.auth identity. The adminId arg is retained for
 // backward compatibility with existing callers but is no longer trusted.
@@ -20,6 +21,7 @@ export const loginTutor = mutation({
   args: {
     email: v.string(),
     password: v.string(),
+    serverSecret: v.string(),
   },
   returns: v.union(
     v.object({
@@ -34,7 +36,8 @@ export const loginTutor = mutation({
       error: v.string(),
     })
   ),
-  handler: async (ctx, { email, password }) => {
+  handler: async (ctx, { email, password, serverSecret }) => {
+    assertServerSecret(serverSecret);
     const tutor = await ctx.db
       .query("tutorAccounts")
       .withIndex("by_email", (q) => q.eq("email", normalizeEmail(email)))
@@ -75,6 +78,7 @@ export const loginAdmin = mutation({
   args: {
     email: v.string(),
     password: v.string(),
+    serverSecret: v.string(),
   },
   returns: v.union(
     v.object({
@@ -89,7 +93,8 @@ export const loginAdmin = mutation({
       error: v.string(),
     })
   ),
-  handler: async (ctx, { email, password }) => {
+  handler: async (ctx, { email, password, serverSecret }) => {
+    assertServerSecret(serverSecret);
     const admin = await ctx.db
       .query("tutorAccounts")
       .withIndex("by_email", (q) => q.eq("email", normalizeEmail(email)))
@@ -125,7 +130,7 @@ export const loginAdmin = mutation({
   },
 });
 
-// Create tutor account (admin only - we'll check auth on frontend)
+// Create tutor account (verified admin or trusted signup server).
 export const createTutorAccount = mutation({
   args: {
     email: v.string(),
@@ -160,6 +165,10 @@ export const createTutorAccount = mutation({
       return { success: false as const, error: "Email already exists" };
     }
 
+    email = validEmail(email);
+    name = requiredText(name, "Name");
+    validCents(hourlyRate);
+    if (adminId) validPassword(password);
     const passwordHash = hashPassword(password);
 
     const tutorId = await ctx.db.insert("tutorAccounts", {
@@ -344,4 +353,11 @@ export const getTutorAccount = internalQuery({
       active: tutor.active,
     };
   },
+});
+
+// Used by actions so revoked admin sessions cannot continue external operations.
+export const validateAdminAccess = internalQuery({
+  args: {},
+  returns: v.id("tutorAccounts"),
+  handler: async (ctx): Promise<Id<"tutorAccounts">> => requireAdmin(ctx),
 });

@@ -6,6 +6,8 @@
 // that verified identity — never from client-supplied arguments — which closes
 // the IDOR where anyone could pass another studentId/adminId.
 
+import { internal } from "./_generated/api";
+import type { ActionCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 
 // Works for queries, mutations, and actions (all expose ctx.auth).
@@ -37,7 +39,7 @@ export async function requireAdmin(ctx: DbCtx): Promise<Id<"tutorAccounts">> {
 
   // Defense in depth: confirm the account still holds the admin role.
   const account = await ctx.db.get(adminId);
-  if (!account || !account.roles?.includes("admin")) throw new ForbiddenError();
+  if (!account?.active || !account.roles?.includes("admin")) throw new ForbiddenError();
   return adminId;
 }
 
@@ -49,7 +51,7 @@ export async function requireTutor(ctx: DbCtx): Promise<Id<"tutorAccounts">> {
     throw new ForbiddenError();
   }
   const account = await ctx.db.get(tutorId);
-  if (!account) throw new ForbiddenError();
+  if (!account?.active) throw new ForbiddenError();
   return tutorId;
 }
 
@@ -93,33 +95,36 @@ export async function requireTutorSelfOrAdmin(
   }
   if (identity.type === "tutor" && identity.tutorAccountId === tutorId) {
     const account = await ctx.db.get(tutorId);
-    if (!account) throw new ForbiddenError();
+    if (!account?.active) throw new ForbiddenError();
     return;
   }
   throw new ForbiddenError();
 }
 
 // ---------------------------------------------------------------------------
-// Claims-only variants (no ctx.db) for use inside actions, which expose
-// ctx.auth but not ctx.db. The token is RS256-signed and minted from a
-// DB-verified login session, so trusting its claims here is sound.
+// Actions must recheck current access in the database as well as token claims.
+// A signed token can outlive a deactivation or role change.
 // ---------------------------------------------------------------------------
 
-export async function requireAdminClaims(ctx: AuthCtx): Promise<Id<"tutorAccounts">> {
+export async function requireAdminClaims(ctx: ActionCtx): Promise<Id<"tutorAccounts">> {
   const identity = await identityOrThrow(ctx);
   const adminId = identity.tutorAccountId as Id<"tutorAccounts"> | undefined;
   if (identity.type !== "admin" || !adminId || !(identity.roles ?? []).includes("admin")) {
     throw new ForbiddenError();
   }
+  await ctx.runQuery(internal.auth.validateAdminAccess, {});
   return adminId;
 }
 
 export async function requireStudentSelfOrAdminClaims(
-  ctx: AuthCtx,
+  ctx: ActionCtx,
   studentId: Id<"students">,
 ): Promise<void> {
   const identity = await identityOrThrow(ctx);
   if (identity.type === "student" && identity.studentId === studentId) return;
-  if (identity.type === "admin" && (identity.roles ?? []).includes("admin")) return;
+  if (identity.type === "admin") {
+    await requireAdminClaims(ctx);
+    return;
+  }
   throw new ForbiddenError();
 }

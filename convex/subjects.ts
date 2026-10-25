@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
+import { requireAdmin } from "./identity";
 
 // Default subject catalogue — one entry per base subject, with optional tags
 const defaultSubjects: { name: string; tags: string[] }[] = [
@@ -84,6 +85,7 @@ export const listSubjectsGrouped = query({
     })
   ),
   handler: async (ctx) => {
+    await requireAdmin(ctx);
     const subjects = await ctx.db.query("subjects").collect();
     return subjects
       .sort((a, b) => a.name.localeCompare(b.name))
@@ -103,6 +105,7 @@ export const addSubject = mutation({
   args: { name: v.string() },
   returns: v.id("subjects"),
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
     const name = args.name.trim();
     if (!name) throw new ConvexError("Subject name is required.");
     const existing = await ctx.db.query("subjects").collect();
@@ -118,6 +121,7 @@ export const renameSubject = mutation({
   args: { id: v.id("subjects"), name: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
     const name = args.name.trim();
     if (!name) throw new ConvexError("Subject name is required.");
     const existing = await ctx.db.query("subjects").collect();
@@ -133,6 +137,7 @@ export const addTag = mutation({
   args: { id: v.id("subjects"), tag: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
     const tag = args.tag.trim();
     if (!tag) throw new ConvexError("Tag cannot be empty.");
     const subject = await ctx.db.get(args.id);
@@ -148,6 +153,7 @@ export const removeTag = mutation({
   args: { id: v.id("subjects"), tag: v.string() },
   returns: v.null(),
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
     const subject = await ctx.db.get(args.id);
     if (!subject) throw new ConvexError("Subject not found.");
     await ctx.db.patch(args.id, { tags: (subject.tags ?? []).filter((t) => t !== args.tag) });
@@ -159,6 +165,7 @@ export const deleteSubject = mutation({
   args: { id: v.id("subjects") },
   returns: v.null(),
   handler: async (ctx, args) => {
+    await requireAdmin(ctx);
     await ctx.db.delete(args.id);
     return null;
   },
@@ -170,6 +177,7 @@ export const seedSubjects = mutation({
   args: {},
   returns: v.null(),
   handler: async (ctx) => {
+    await requireAdmin(ctx);
     const existing = await ctx.db.query("subjects").collect();
     if (existing.length > 0) return null;
     let order = 0;
@@ -186,6 +194,7 @@ export const syncSubjects = mutation({
   args: {},
   returns: v.null(),
   handler: async (ctx) => {
+    await requireAdmin(ctx);
     const existing = await ctx.db.query("subjects").collect();
 
     // Detect old-format docs (they have no `tags` array — field will be undefined at runtime)

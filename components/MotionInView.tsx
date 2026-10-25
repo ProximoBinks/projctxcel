@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 type MotionInViewProps = {
   children: React.ReactNode;
@@ -19,7 +19,6 @@ export default function MotionInView({
   // Render visible by default so content remains usable and crawlable without
   // JavaScript. Sections below the initial viewport are hidden only after
   // hydration, then revealed as they approach the viewport.
-  const [hiddenUntilInView, setHiddenUntilInView] = useState(false);
 
   useEffect(() => {
     const element = ref.current;
@@ -36,27 +35,40 @@ export default function MotionInView({
       rect.top <= window.innerHeight + 80 && rect.bottom >= -80;
     if (alreadyNearViewport) return;
 
-    setHiddenUntilInView(true);
+    element.style.opacity = "0";
+    element.style.transform = `translateY(${y}px)`;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (!entry.isIntersecting) return;
-        setHiddenUntilInView(false);
+        element.style.opacity = "1";
+        element.style.transform = "translateY(0)";
         observer.disconnect();
       },
       { rootMargin: "80px 0px", threshold: 0.05 },
     );
     observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const reveal = () => {
+      if (reduced.matches) {
+        element.style.opacity = "1"; element.style.transform = "translateY(0)";
+        observer.disconnect();
+      }
+    };
+    reduced.addEventListener("change", reveal);
+    return () => {
+      observer.disconnect(); reduced.removeEventListener("change", reveal);
+      element.style.opacity = "1"; element.style.transform = "translateY(0)";
+    };
+  }, [y]);
 
   return (
     <div
       ref={ref}
       className={className}
       style={{
-        opacity: hiddenUntilInView ? 0 : 1,
-        transform: hiddenUntilInView ? `translateY(${y}px)` : "translateY(0)",
+        opacity: 1,
+        transform: "translateY(0)",
         transition: `opacity 600ms ease-out ${delay}s, transform 600ms ease-out ${delay}s`,
       }}
     >
