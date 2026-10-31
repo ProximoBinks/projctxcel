@@ -3,6 +3,7 @@ import { convexTest } from "convex-test";
 import type { FunctionReturnType } from "convex/server";
 import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
+import { adelaideTimestamp } from "../lib/adelaideDate";
 
 const modules = import.meta.glob("../convex/**/*.{ts,js}");
 
@@ -51,6 +52,52 @@ describe("paginated admin data and revenue", () => {
     expect(first.isDone).toBe(false);
     const second = await admin.query(api.adminLists.studentsWithoutBilling, { adminId, paginationOpts: { numItems: 1, cursor: first.continueCursor } });
     expect(second.page.map(s => s._id)).toEqual([eligibleId]);
+  });
+
+  it("includes weekly students beyond the first forecast page and prepares their evening review", async () => {
+    vi.setSystemTime(adelaideTimestamp("2026-10-31", "12:00"));
+    const { t, admin, adminId } = await setup();
+    await t.run(async ctx => {
+      for (let position = 2; position <= 16; position++) {
+        const name = position === 13 ? "Grace Dolman" : position === 16 ? "Anna Kwon" : `Student ${position}`;
+        const studentId = await ctx.db.insert("students", { name, yearLevel: "11", subjects: [], active: true, createdAt: Date.now() });
+        await ctx.db.insert("billingProfiles", { studentId, paymentType: "card", status: "active", stripePaymentMethodId: "pm_fixture", createdAt: Date.now() });
+        if (position !== 13 && position !== 16) continue;
+        const classId = await ctx.db.insert("classes", {
+          name: "Weekly maths", subject: "Maths", yearLevel: "11", active: true, createdAt: Date.now(),
+          dayOfWeek: position === 13 ? "Tuesday" : "Sunday", startTime: position === 13 ? "17:30" : "16:00",
+          endTime: position === 13 ? "18:30" : "17:00", hourlyRateCents: position === 13 ? 5500 : 6000,
+        });
+        await ctx.db.insert("classStudents", { studentId, classId, active: true, assignedAt: Date.now() });
+      }
+    });
+    const first = await admin.query(api.adminLists.upcomingCharges, { adminId, paginationOpts: { numItems: 10, cursor: null } });
+    expect(first.isDone).toBe(false);
+    expect(first.page.flatMap(p => p.charges)).toHaveLength(0);
+    const second = await admin.query(api.adminLists.upcomingCharges, { adminId, paginationOpts: { numItems: 10, cursor: first.continueCursor } });
+    expect(second.isDone).toBe(true);
+    const charges = second.page.flatMap(p => p.charges);
+    expect(charges.filter(c => c.studentName === "Anna Kwon").map(c => [c.date, c.netChargeCents])).toEqual([
+      ["2026-11-01", 6000], ["2026-11-08", 6000], ["2026-11-15", 6000], ["2026-11-22", 6000],
+    ]);
+    expect(charges.filter(c => c.studentName === "Grace Dolman").map(c => [c.date, c.netChargeCents])).toEqual([
+      ["2026-11-03", 5500], ["2026-11-10", 5500], ["2026-11-17", 5500], ["2026-11-24", 5500],
+    ]);
+    for (const [date, name] of [["2026-11-01", "Anna Kwon"], ["2026-11-03", "Grace Dolman"]]) {
+      vi.setSystemTime(adelaideTimestamp(date, "18:00"));
+      await t.mutation(internal.billingReview.tick, {});
+      const day = await t.run(ctx => ctx.db.query("billingReviewDays").withIndex("by_date", q => q.eq("date", date)).unique());
+      await t.mutation(internal.billingReview.preparePage, { dayId: day!._id });
+      const review = await admin.query(api.billingReview.lessons, { date, paginationOpts });
+      expect(review.page).toHaveLength(1);
+      expect(review.page[0]).toMatchObject({ studentName: name, status: "pending" });
+      if (name === "Grace Dolman") {
+        const reviews = [{ id: review.page[0]._id, version: review.page[0].version }];
+        await expect(admin.mutation(api.billingReview.approve, { reviews })).rejects.toThrow(/finished/);
+        vi.setSystemTime(adelaideTimestamp(date, "18:30"));
+        await admin.mutation(api.billingReview.approve, { reviews });
+      }
+    }
   });
 
   it("applies enquiry type and sort before pagination", async () => {

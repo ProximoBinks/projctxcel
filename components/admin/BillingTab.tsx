@@ -50,6 +50,11 @@ export function BillingTab({
   const profilePage = usePaginatedQuery(api.adminLists.billingProfiles, { adminId }, { initialNumItems: 25 });
   const pausePage = usePaginatedQuery(api.adminLists.pauseRequests, billingSubTab === "pauses" ? { adminId } : "skip", { initialNumItems: 50 });
   const upcomingPage = usePaginatedQuery(api.adminLists.upcomingCharges, billingSubTab === "upcoming" ? { adminId } : "skip", { initialNumItems: 10 });
+  const { status: upcomingStatus, loadMore: loadMoreUpcoming } = upcomingPage;
+  useEffect(() => {
+    if (billingSubTab === "upcoming" && upcomingStatus === "CanLoadMore") loadMoreUpcoming(10);
+  }, [billingSubTab, upcomingStatus, loadMoreUpcoming]);
+  const forecastComplete = upcomingStatus === "Exhausted";
   const historyPage = usePaginatedQuery(api.adminLists.chargeHistory, billingSubTab === "history" ? { adminId } : "skip", { initialNumItems: 50 });
   const eligiblePage = usePaginatedQuery(api.adminLists.studentsWithoutBilling, showSetup ? { adminId } : "skip", { initialNumItems: 50 });
   const chartPage = usePaginatedQuery(api.billingRevenue.chart, billingSubTab === "review" ? "skip" : {}, { initialNumItems: 50 });
@@ -582,9 +587,14 @@ export function BillingTab({
       {billingSubTab === "upcoming" && (
         <div className="space-y-4">
           <p className="text-sm text-slate-500">
-            Forecast for loaded billing profiles over the next 4 weeks. Card
+            Forecast for all active billing profiles over the next 4 weeks. Card
             charges run at 7pm Adelaide time only after daily review approval; cash
             is collected manually. Forecast amounts are net of available credit and are not approval to charge.
+          </p>
+          <p role="status" className="text-sm text-slate-600">
+            {forecastComplete
+              ? `All ${upcomingPage.results.length} active billing profiles checked.`
+              : `Loading the full schedule… ${upcomingPage.results.length} profiles checked so far. More students may appear.`}
           </p>
           {upcomingCharges && upcomingCharges.length > 0 ? (
             (() => {
@@ -661,12 +671,12 @@ export function BillingTab({
             })()
           ) : (
             <div className="rounded-2xl border border-slate-200 bg-white px-6 py-8 text-center text-slate-500">
-              {upcomingCharges ? "No upcoming charges for loaded profiles in the next 4 weeks" : "Loading upcoming charges…"}
+              {forecastComplete ? "No upcoming charges in the next 4 weeks" : "Loading upcoming charges…"}
             </div>
           )}
           {upcomingCharges && upcomingCharges.length > 0 && (
             <div className="rounded-xl bg-slate-900 px-5 py-3 text-right text-sm font-medium text-white">
-              Total to be charged (next 4 weeks):{" "}
+              {forecastComplete ? "Forecast total (next 4 weeks): " : "Partial forecast total — still loading: "}
               {formatCurrency(upcomingCharges.reduce((s, c) => s + c.netChargeCents, 0))}
             </div>
           )}
@@ -1002,7 +1012,6 @@ export function BillingTab({
       {billingSubTab === "profiles" && <LoadMore status={profilePage.status} loadMore={profilePage.loadMore} count={profilePage.results.length} label="profiles" pageSize={25} />}
       {billingSubTab === "pauses" && <LoadMore status={pausePage.status} loadMore={pausePage.loadMore} count={pausePage.results.length} label="pause requests" />}
       {billingSubTab === "history" && <LoadMore status={historyPage.status} loadMore={historyPage.loadMore} count={historyPage.results.length} label="charges" />}
-      {billingSubTab === "upcoming" && <LoadMore status={upcomingPage.status} loadMore={upcomingPage.loadMore} count={upcomingPage.results.length} label="profiles in forecast" pageSize={10} />}
       {/* Setup modal */}
       {showSetup && (
         <SetupBillingModal
