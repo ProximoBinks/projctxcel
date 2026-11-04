@@ -60,7 +60,6 @@ async function currentLine(ctx: QueryCtx, row: Review) {
 
 async function validateApproval(ctx: MutationCtx, row: Review) {
   if (row.status === "submitted") throw new ConvexError("This lesson has already been submitted for payment.");
-  if (Date.now() < adelaideTimestamp(row.date, row.endTime)) throw new ConvexError("Wait until the lesson has finished before approving it.");
   if (await oldDailyOperation(ctx, row.billingProfileId, row.date)) throw new ConvexError("This student/date was already handled by the previous billing system. Check charge history first.");
   const line = await currentLine(ctx, row);
   if (!line || fingerprint(line) !== row.fingerprint) throw new ConvexError("The class, rate, enrolment or pause status changed. Refresh today's review before approving.");

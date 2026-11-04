@@ -46,9 +46,10 @@ Legacy failed charges still need their Stripe history checked before a deliberat
 Implemented as a follow-up to the initial deployment:
 
 - At 6pm Adelaide time, prepare a per-student lesson summary from scheduled, billable enrolments. Admins may also prepare or refresh today's summary manually. Paused/off-cycle enrolments are excluded; tutor session logs remain separate from customer billing.
-- In Billing → Daily review, confirm completed lessons, adjust charges with a reason, or hold cancelled lessons. Approval records the verified administrator, time, payment type and exact review revision.
+- In Billing → Daily review, approve scheduled lessons before or after they finish, adjust charges with a reason, or hold cancelled lessons. Approval records the verified administrator, time, payment type and exact review revision.
 - At 7pm Adelaide time, group approved lessons per student and reserve credit transactionally before handing payments to the existing durable Stripe processor. The cron uses Adelaide's timezone and handles daylight saving.
-- Only approvals saved before the cutoff qualify for the automatic run. Late approvals and lessons finishing at or after 7pm require the explicit Charge approved action. Nothing unapproved is charged.
+- Only approvals saved before the cutoff qualify for the automatic run. Approvals saved at or after 7pm require the explicit Charge approved action. Nothing unapproved is charged.
+- As of 4 November 2026, approval authorizes payment for a scheduled lesson and may be saved before it starts or finishes. A 7–8pm lesson approved before 7pm is eligible for the 7pm run. Holding or editing it before submission clears approval. The lesson-end gate is removed from both approval and dispatch validation; all other checks remain.
 - Editing a review clears approval. Changed rates, enrolment/pause state, payment type or revoked admin access prevent automatic submission. Repeated dispatches and repeated charge actions cannot charge the same reviewed lesson twice.
 - Daily summary preparation and payment dispatch are bounded batches. Current-day refreshes preserve unchanged decisions and never rewrite submitted payments.
 - The old morning cron is removed. Compatibility entry points for previously queued morning jobs are no-ops. Existing payment operations continue their original recovery flow; dates already handled by legacy billing are blocked from review-based re-billing.

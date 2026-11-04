@@ -17,7 +17,7 @@ export function DailyBillingReview() {
   return <section className="space-y-4" aria-label="Daily lesson billing review">
     <div className="flex flex-wrap items-end justify-between gap-3">
       <div><h3 className="text-lg font-semibold text-slate-900">Daily lesson review</h3>
-        <p className="mt-1 max-w-2xl text-sm text-slate-600">Review the day’s scheduled lessons, confirm they took place, then approve their charges. Only lessons approved before 7pm Adelaide time are charged automatically.</p>
+        <p className="mt-1 max-w-2xl text-sm text-slate-600">Review the day’s scheduled lessons and approve their charges, including before lessons start or finish. Only lessons approved before 7pm Adelaide time are charged automatically.</p>
       </div>
       <label className="text-sm font-medium text-slate-700">Lesson date
         <input type="date" value={date} max={adelaideDate()} onChange={event => { if (event.target.value) setDate(event.target.value); }} className="ml-2 rounded-lg border border-slate-300 px-3 py-2" />
@@ -74,8 +74,8 @@ function ReviewDay({ date }: { date: string }) {
     {error && <p role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-700">{error}</p>}
     {message && <p role="status" className="text-sm text-slate-600">{message}</p>}
     <div className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
-      The summary is prepared automatically at 6pm. Lessons must have finished before you approve them.
-      Unapproved lessons are never charged. Late approvals, including lessons finishing at or after 7pm, wait for a separate charge action.
+      The summary is prepared automatically at 6pm. You can approve scheduled lessons before they start or finish.
+      Unapproved lessons are never charged. Approvals saved at or after 7pm wait for a separate charge action.
       Cash accounts stay cash; available credit is applied when payments are queued.
     </div>
     <div className="flex flex-wrap items-center gap-3">
@@ -96,7 +96,7 @@ function ReviewDay({ date }: { date: string }) {
         <button type="button" disabled={busy || chosen.length === 0 || chosen.length > 50 || summary.status !== "ready"} onClick={() => setConfirmation({ mode: "approve", lessons: chosen })} className="rounded-lg bg-slate-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">Approve selected ({chosen.length})</button>
         <button type="button" disabled={busy || approved.length === 0 || approved.length > 50 || summary.status !== "ready"} onClick={() => setConfirmation({ mode: "charge", lessons: approved })} className="rounded-lg border border-slate-300 bg-white px-4 py-2 text-sm font-medium disabled:opacity-50">Charge next approved ({approved.length})</button>
       </div>
-      <p className="text-xs text-slate-500">Each approval confirms the lesson took place. “Charge approved shown” is available after the date’s 7pm cutoff; it charges only the approved lessons currently loaded, up to 50 at a time.</p>
+      <p className="text-xs text-slate-500">Each approval authorizes payment for the scheduled lesson. Hold cancelled lessons before the payment is submitted. “Charge next approved” is available after the date’s 7pm cutoff; it charges only the approved lessons currently loaded, up to 50 at a time.</p>
       <div className="space-y-3">
         {page.results.map(row => <article key={row._id} className="rounded-xl border border-slate-200 bg-white p-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
@@ -128,10 +128,10 @@ function ReviewDay({ date }: { date: string }) {
     {editing && <EditLesson key={`${editing._id}:${editing.version}`} lesson={editing} onClose={() => setEditing(null)} />}
     {confirmation && <AdminDialog label={confirmation.mode === "approve" ? "Approve lessons" : "Charge approved lessons"} onClose={() => { if (!busy) setConfirmation(null); }}>
       <div className="space-y-4 p-6">
-        <h3 className="text-lg font-semibold">{confirmation.mode === "approve" ? "Confirm completed lessons" : "Charge approved lessons now"}</h3>
+        <h3 className="text-lg font-semibold">{confirmation.mode === "approve" ? "Approve scheduled lessons" : "Charge approved lessons now"}</h3>
         <p className="text-sm">{confirmation.lessons.length} student lesson(s), totalling <strong>{money(confirmation.lessons.reduce((sum, row) => sum + row.amountCents, 0))}</strong> before available credit.</p>
         <ul className="max-h-56 overflow-y-auto text-sm">{confirmation.lessons.map(row => <li key={row._id} className="py-1">{row.studentName} · {row.className} · {money(row.amountCents)}</li>)}</ul>
-        <p className="text-sm text-slate-600">{confirmation.mode === "approve" ? "Approval confirms these lessons took place. Approvals saved before 7pm Adelaide time are charged at 7pm. Later approvals stay on hold until you request payment." : "This submits only the lessons listed above. Card charges are grouped per student; cash accounts are recorded for manual collection. This action is allowed only after 7pm on the lesson date."}</p>
+        <p className="text-sm text-slate-600">{confirmation.mode === "approve" ? "Approval authorizes payment for these scheduled lessons. Approvals saved before 7pm Adelaide time are charged at 7pm, even if a lesson has not finished. Hold cancelled lessons before payment is submitted. Later approvals wait until you request payment." : "This submits only the lessons listed above. Card charges are grouped per student; cash accounts are recorded for manual collection. This action is allowed only after 7pm on the lesson date."}</p>
         {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
         <div className="flex justify-end gap-2"><button disabled={busy} onClick={() => setConfirmation(null)} className="rounded-lg border px-4 py-2">Cancel</button><button disabled={busy} onClick={confirm} className="rounded-lg bg-slate-900 px-4 py-2 font-medium text-white disabled:opacity-50">{busy ? "Saving…" : confirmation.mode === "approve" ? "Confirm approval" : "Submit charges"}</button></div>
       </div>

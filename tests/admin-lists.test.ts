@@ -93,8 +93,6 @@ describe("paginated admin data and revenue", () => {
       expect(review.page[0]).toMatchObject({ studentName: name, status: "pending" });
       if (name === "Grace Dolman") {
         const reviews = [{ id: review.page[0]._id, version: review.page[0].version }];
-        await expect(admin.mutation(api.billingReview.approve, { reviews })).rejects.toThrow(/finished/);
-        vi.setSystemTime(adelaideTimestamp(date, "18:30"));
         await admin.mutation(api.billingReview.approve, { reviews });
       }
     }

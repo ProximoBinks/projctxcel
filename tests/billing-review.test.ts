@@ -120,12 +120,35 @@ describe("daily billing review", () => {
     expect(await t.run(ctx => ctx.db.query("billingOperations").collect())).toHaveLength(1);
   });
 
-  it("cannot approve unfinished lessons or use charge-now before 7pm", async () => {
+  it("allows approval before a lesson starts but keeps charge-now gated until 7pm", async () => {
     const { admin, dayId, selections } = await setup();
-    at("16:59"); await expect(admin.mutation(api.billingReview.approve, { reviews: selections })).rejects.toThrow(/finished/);
-    at("18:00"); await admin.mutation(api.billingReview.approve, { reviews: selections });
+    at("15:00"); await admin.mutation(api.billingReview.approve, { reviews: selections });
     const rows = (await admin.query(api.billingReview.lessons, pageArgs)).page;
+    expect(rows[0]).toMatchObject({ status: "approved", autoChargeEligible: true });
     await expect(admin.mutation(api.billingReview.chargeApprovedNow, { dayId, reviews: rows.map(row => ({ id: row._id, version: row.version })) })).rejects.toThrow(/7pm/);
+  });
+
+  it("queues a 7–8pm lesson at 7pm when approved early", async () => {
+    const { t, admin, dayId, classIds } = await setup();
+    await t.run(ctx => ctx.db.patch(classIds[0], { startTime: "19:00", endTime: "20:00" }));
+    await admin.mutation(api.billingReview.prepareToday, {});
+    await t.mutation(internal.billingReview.preparePage, { dayId });
+    const rows = (await admin.query(api.billingReview.lessons, pageArgs)).page;
+    await admin.mutation(api.billingReview.approve, { reviews: rows.map(row => ({ id: row._id, version: row.version })) });
+    await t.mutation(internal.billingReview.dispatchPage, { dayId });
+    expect(await t.run(ctx => ctx.db.query("billingOperations").collect())).toHaveLength(0);
+    at("19:00"); await t.mutation(internal.billingReview.dispatchPage, { dayId });
+    const operations = await t.run(ctx => ctx.db.query("billingOperations").collect());
+    expect(operations).toHaveLength(1);
+    expect(operations[0]).toMatchObject({ amountCents: 3000, source: "daily" });
+  });
+
+  it("lets an admin hold an early-approved lesson before the 7pm run", async () => {
+    const { t, admin, dayId, rows, selections } = await setup();
+    at("15:00"); await admin.mutation(api.billingReview.approve, { reviews: selections });
+    await admin.mutation(api.billingReview.edit, { reviewId: rows[0]._id, version: 2, amountCents: 3000, note: "Cancelled", hold: true });
+    at("19:00"); await t.mutation(internal.billingReview.dispatchPage, { dayId });
+    expect(await t.run(ctx => ctx.db.query("billingOperations").collect())).toHaveLength(0);
   });
 
   it("edits invalidate approval and stale screens cannot approve changed amounts", async () => {

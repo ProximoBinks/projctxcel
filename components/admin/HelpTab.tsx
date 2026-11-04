@@ -53,8 +53,8 @@ export function HelpTab() {
       q: "When exactly are customers charged?",
       a: (
         <>
-          After you approve completed lessons in <strong>Billing → Daily review</strong>, at <strong>7pm Adelaide time</strong>.
-          Each student is charged only for approved classes <em>that day</em>
+          After you approve scheduled lessons in <strong>Billing → Daily review</strong>, at <strong>7pm Adelaide time</strong>.
+          You can approve before a lesson starts or finishes. Each student is charged only for approved classes <em>that day</em>
           (respecting any pause or fortnightly cadence). Unapproved lessons stay on hold; late approvals require a separate charge action. See the forecast under <strong>Billing → Payment Schedule</strong>.
         </>
       ),
