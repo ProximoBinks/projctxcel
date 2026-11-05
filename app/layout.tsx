@@ -94,7 +94,7 @@ const organizationSchema = {
   email: "admin@simpletuition.com.au",
   sameAs: [
     "https://www.facebook.com/simpletuition.au",
-    "https://www.instagram.com/simpletuition.au/",
+    "https://www.instagram.com/simpletuition.com.au/",
     "https://www.tiktok.com/@simpletuition.au",
   ],
   areaServed: {
