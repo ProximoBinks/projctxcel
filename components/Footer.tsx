@@ -18,8 +18,8 @@ export default function Footer() {
         </p>
         <div className="flex items-center justify-between xl:justify-start xl:gap-8">
           <div className="flex items-center gap-6">
-            <Link href="/privacy">{t("footer.privacy")}</Link>
-            <Link href="/terms">{t("footer.terms")}</Link>
+            <Link href="/privacy" prefetch={false}>{t("footer.privacy")}</Link>
+            <Link href="/terms" prefetch={false}>{t("footer.terms")}</Link>
           </div>
           <div className="flex items-center gap-6">
             <a

@@ -14,7 +14,7 @@ import {
 import MotionInView from "../components/MotionInView";
 import Section from "../components/Section";
 import TutorCard from "../components/TutorCard";
-import DeferredEnquiryForm from "../components/DeferredEnquiryForm";
+import EnquiryForm from "../components/EnquiryForm";
 import Icon from "../components/Icon";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -29,7 +29,7 @@ import tutorsData from "../data/tutors.json";
 import testimonialsData from "../data/testimonials.json";
 import { useTranslation } from "../i18n/LanguageContext";
 import { keepLastWordsTogether } from "../lib/typography";
-import { smoothScrollToElement } from "../lib/smoothScroll";
+import { runAfterSmoothScroll, smoothScrollToElement } from "../lib/smoothScroll";
 import { whenIdle } from "../lib/whenIdle";
 
 const serviceIcons: readonly PhosphorIcon[] = [
@@ -204,18 +204,25 @@ export default function HomePage() {
     [scrollToId]
   );
 
-  // Next prefetches each link's page as the link scrolls into view. On a long
-  // "Enquire now" glide that is several pages' code arriving mid-scroll, which
-  // stutters, so warm them all once the page is idle instead.
+  // Warm linked routes only when the page and the scroll animation are idle.
   const router = useRouter();
-  useEffect(
-    () =>
-      whenIdle(() => {
-        const links = document.querySelectorAll<HTMLAnchorElement>('a[href^="/"]:not([href^="//"])');
-        new Set(Array.from(links, (link) => link.pathname)).forEach((path) => router.prefetch(path));
-      }),
-    [router]
-  );
+  useEffect(() => {
+    let cancelAfterScroll = () => {};
+    let cancelPrefetchIdle = () => {};
+    const cancelInitialIdle = whenIdle(() => {
+      cancelAfterScroll = runAfterSmoothScroll(() => {
+        cancelPrefetchIdle = whenIdle(() => {
+          const links = document.querySelectorAll<HTMLAnchorElement>('a[href^="/"]:not([href^="//"])');
+          new Set(Array.from(links, (link) => link.pathname)).forEach((path) => router.prefetch(path));
+        });
+      });
+    });
+    return () => {
+      cancelInitialIdle();
+      cancelAfterScroll();
+      cancelPrefetchIdle();
+    };
+  }, [router]);
 
   return (
     <div className="min-h-screen">
@@ -329,6 +336,7 @@ export default function HomePage() {
                     >
                       <Link
                         href={serviceLinks[index] ?? "/programs"}
+                        prefetch={false}
                         className="block h-full rounded-[1.4rem] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white"
                       >
                         <div
@@ -377,6 +385,7 @@ export default function HomePage() {
                     >
                       <Link
                         href={groupLinks[index] ?? "/programs"}
+                        prefetch={false}
                         className="block h-full rounded-[1.4rem] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#2455C2]"
                       >
                         <div
@@ -557,9 +566,7 @@ export default function HomePage() {
           }
         >
           <div className="w-full">
-            <MotionInView>
-              <DeferredEnquiryForm />
-            </MotionInView>
+            <EnquiryForm />
           </div>
         </Section>
       </main>

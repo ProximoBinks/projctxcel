@@ -1,6 +1,5 @@
 "use client";
 
-import { Suspense } from "react";
 import EnquiryForm from "../../components/EnquiryForm";
 import Header from "../../components/Header";
 import Footer from "../../components/Footer";
@@ -25,15 +24,7 @@ export default function EnquireClient() {
             {t("enquirePage.subtitle")}
           </p>
         </div>
-        <Suspense
-          fallback={
-            <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-              <p className="text-sm text-slate-600">{t("enquirePage.loading")}</p>
-            </div>
-          }
-        >
-          <EnquiryForm />
-        </Suspense>
+        <EnquiryForm />
       </main>
 
       <Footer />

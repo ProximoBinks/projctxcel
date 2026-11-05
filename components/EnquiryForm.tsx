@@ -1,7 +1,6 @@
 "use client";
 
 import { FormEvent, KeyboardEvent, useMemo, useState } from "react";
-import { useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useTranslation } from "../i18n/LanguageContext";
 import { getSubjectStyle } from "../lib/subjectStyles";
@@ -101,7 +100,6 @@ export default function EnquiryForm() {
   const [subjectTags, setSubjectTags] = useState<string[]>([]);
   const [otherOn, setOtherOn] = useState(false);
   const [otherSubject, setOtherSubject] = useState("");
-  const searchParams = useSearchParams();
   const prefersReducedMotion = useReducedMotion();
 
   const yearLevels = useMemo(
@@ -232,6 +230,7 @@ export default function EnquiryForm() {
       }
     }
 
+    const searchParams = new URLSearchParams(window.location.search);
     const utm = {
       source: searchParams.get("utm_source") || undefined,
       medium: searchParams.get("utm_medium") || undefined,
