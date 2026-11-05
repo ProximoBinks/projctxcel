@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTranslation } from "../i18n/LanguageContext";
+import { smoothScrollToElement, smoothScrollToTop } from "../lib/smoothScroll";
 
 // Horizontal nudges for the header clusters, in pixels: how far to push each one
 // inwards from its edge of the screen. They only apply from `xl` up, where there
@@ -38,8 +39,17 @@ export default function Header() {
     event.preventDefault();
     const element = document.getElementById(id);
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      smoothScrollToElement(element);
     }
+  };
+
+  // On the homepage the logo glides back to the top instead of re-navigating.
+  // Drop any section hash so a refresh doesn't jump back down.
+  const handleLogoClick = (event: React.MouseEvent) => {
+    if (!isHomePage || event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+    event.preventDefault();
+    history.replaceState(null, "", window.location.pathname + window.location.search);
+    smoothScrollToTop();
   };
 
   // Get the correct href based on whether we're on homepage or subpage
@@ -70,6 +80,7 @@ export default function Header() {
       >
         <Link
           href="/"
+          onClick={handleLogoClick}
           className="justify-self-start xl:ml-[var(--logo-nudge)]"
           style={
             { "--logo-nudge": `${clampNudge(LOGO_NUDGE)}px` } as CSSProperties

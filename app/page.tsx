@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   BookOpenText,
   ChalkboardTeacher,
@@ -28,6 +29,8 @@ import tutorsData from "../data/tutors.json";
 import testimonialsData from "../data/testimonials.json";
 import { useTranslation } from "../i18n/LanguageContext";
 import { keepLastWordsTogether } from "../lib/typography";
+import { smoothScrollToElement } from "../lib/smoothScroll";
+import { whenIdle } from "../lib/whenIdle";
 
 const serviceIcons: readonly PhosphorIcon[] = [
   ChartLineUp,
@@ -190,7 +193,7 @@ export default function HomePage() {
   const scrollToId = useCallback((id: string) => {
     const target = document.getElementById(id);
     if (!target) return;
-    target.scrollIntoView({ behavior: "smooth", block: "start" });
+    smoothScrollToElement(target);
     history.replaceState(null, "", `#${id}`);
   }, []);
   const createScrollHandler = useCallback(
@@ -199,6 +202,19 @@ export default function HomePage() {
       scrollToId(id);
     },
     [scrollToId]
+  );
+
+  // Next prefetches each link's page as the link scrolls into view. On a long
+  // "Enquire now" glide that is several pages' code arriving mid-scroll, which
+  // stutters, so warm them all once the page is idle instead.
+  const router = useRouter();
+  useEffect(
+    () =>
+      whenIdle(() => {
+        const links = document.querySelectorAll<HTMLAnchorElement>('a[href^="/"]:not([href^="//"])');
+        new Set(Array.from(links, (link) => link.pathname)).forEach((path) => router.prefetch(path));
+      }),
+    [router]
   );
 
   return (
