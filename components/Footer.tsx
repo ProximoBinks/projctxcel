@@ -13,21 +13,9 @@ export default function Footer() {
           and the icons sit under the copyright as two groups pinned to either
           edge; from it they share the copyright's line, right-aligned. */}
       <div className="relative z-10 mx-auto flex w-full max-w-[1200px] flex-col gap-4 px-6 text-sm text-slate-500 sm:px-10 xl:flex-row xl:items-center xl:justify-between">
-        <div>
-          <p className="text-balance">
-            © {new Date().getFullYear()} Simple Tuition. {t("footer.rights")}
-          </p>
-          <p className="mt-1 text-xs text-slate-400">
-            <a
-              href="https://hypertools.dev"
-              target="_blank"
-              rel="noopener"
-              className="transition hover:text-slate-600"
-            >
-              Built by HyperTools
-            </a>
-          </p>
-        </div>
+        <p className="text-balance">
+          © {new Date().getFullYear()} Simple Tuition. {t("footer.rights")}
+        </p>
         <div className="flex items-center justify-between xl:justify-start xl:gap-8">
           <div className="flex items-center gap-6">
             <Link href="/privacy">{t("footer.privacy")}</Link>
@@ -46,7 +34,7 @@ export default function Footer() {
               </svg>
             </a>
             <a
-              href="https://www.instagram.com/simpletuition.au/"
+              href="https://www.instagram.com/simpletuition.com.au/"
               target="_blank"
               rel="noopener noreferrer"
               className="text-slate-400 transition hover:text-slate-600"
